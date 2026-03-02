@@ -1,0 +1,11 @@
+{
+  "name": "com.zero53.behavior-tree",
+  "version": "0.0.1",
+  "displayName": "Zero53 Behavior Tree",
+  "unity": "2019.1",
+  "unityRelease": "0b5",
+  "author": {
+    "name": "Zero53",
+    "email": "zero53@outlook.com"
+  }
+}
