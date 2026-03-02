@@ -135,6 +135,12 @@
       },
       "url": "https://packages.unity.cn"
     },
+    "com.zero53.ability-system": {
+      "version": "file:Zero53AbilitySystem",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.zero53.behavior-tree": {
       "version": "file:Zero53BehaviorTree",
       "depth": 0,
@@ -143,6 +149,12 @@
     },
     "com.zero53.editor-utils": {
       "version": "file:Zero53EditorUtils",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
+    "com.zero53.input-system": {
+      "version": "file:Zero53InputSystem",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}

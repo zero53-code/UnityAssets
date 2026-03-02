@@ -5,16 +5,14 @@ namespace Zero53.PopupTexts
 {
     /// <summary>
     /// 跳字管理器
-    /// 跳字将在该组件挂在对象的 Canvas 上显示
     /// </summary>
-    [RequireComponent(typeof(Canvas))]
     public class PopupTextManager : MonoBehaviour
     {
         /// <summary>
         /// 跳字的游戏对象的预设体
         /// </summary>
         public GameObject popupTextPrefab;
-        public GameObject popupTextContainer;
+        public Canvas popupTextCanvas;
     
         /// <summary>
         /// 跳字对象池的初始数量
@@ -43,7 +41,10 @@ namespace Zero53.PopupTexts
         /// <returns></returns>
         private PopupText Create()
         {
-            var ptGo = new GameObject();
+            var ptGo = new GameObject
+            {
+                transform = { parent = popupTextCanvas.transform }
+            };
             
             var pt = ptGo.AddComponent<PopupText>();
 

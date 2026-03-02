@@ -3,7 +3,7 @@
 // 弹出文本数据
 namespace Zero53.PopupTexts
 {
-    [CreateAssetMenu(menuName = "BaseBuild/PopupText/PopupTextData", fileName = "New PopupTextData")]
+    [CreateAssetMenu(menuName = "Zero53/PopupText/PopupTextData", fileName = "New PopupTextData")]
     public class PopupTextData : ScriptableObject
     {
         // 跳字显示的时间

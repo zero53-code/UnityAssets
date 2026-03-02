@@ -1,7 +1,7 @@
 {
-  "name": "com.zero53.utils",
+  "name": "com.zero53.ability-system",
   "version": "0.0.1",
-  "displayName": "Zero53 Utils",
+  "displayName": "Zero53 Ability System",
   "unity": "2019.1",
   "unityRelease": "0b5",
   "author": {

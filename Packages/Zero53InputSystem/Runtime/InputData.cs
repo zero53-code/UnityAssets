@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Zero53.InputSystem
 {
-    [CreateAssetMenu(fileName = "New InputData", menuName = "BaseBuild/InputSystem/InputData")]
+    [CreateAssetMenu(fileName = "New InputData", menuName = "Zero53/InputSystem/InputData")]
     public class InputData : ScriptableObject
     {
         public List<Key> keys = new List<Key>() { new Key() };
