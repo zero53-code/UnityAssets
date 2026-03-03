@@ -1,27 +1,33 @@
-﻿namespace Zero53.BehaviorTree
+﻿using System;
+
+namespace Zero53.BehaviorTree
 {
     /// <summary>
     /// 行为树引用节点
     /// 将另一颗行为树作为节点
     /// </summary>
-    public class BehaviourTreeReferenceNode : LeafNode
+    public class BehaviourTreeReferenceNode : INode
     {
-        private readonly BehaviorTree _behaviorTree;
+
+        private NodeBase _base;
+        public BehaviorTree tree { get; set; }
         
-        public BehaviourTreeReferenceNode(BehaviorTree behaviorTree, string name = "BehaviourTreeReference", int priority = 0) : base(name, priority)
+        public BehaviourTreeReferenceNode(string name = "BehaviourTreeReference", int priority = 0, BehaviorTree tree = null)
         {
-            _behaviorTree = behaviorTree;
+            _base = new NodeBase(name, priority);
+            this.tree = tree;
         }
 
-        protected override Status Process()
+        public int priority => _base.priority;
+        
+        public NodeStatus Process()
         {
-            return _behaviorTree.ExecuteProcess();
+            return tree.Process();
         }
 
-        public override void Reset()
+        public void Reset()
         {
-            base.Reset();
-            _behaviorTree.Reset();
+            tree?.Reset();
         }
     }
 }

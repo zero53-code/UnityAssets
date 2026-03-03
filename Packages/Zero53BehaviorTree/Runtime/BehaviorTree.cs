@@ -2,24 +2,23 @@
 
 namespace Zero53.BehaviorTree
 {
-    public class BehaviorTree : Node
+    public class BehaviorTree
     {
-        public BehaviorTree(string name = "BehaviourTree", Node child = null) : base(name)
+        private INode root { get; set; }
+        
+        public BehaviorTree(string name = "BehaviourTree", INode child = null)
         {
-            if (child != null)
-                Children.Add(child);
+            root = child;
         }
         
-        public override void AddChild(Node child)
+        public NodeStatus Process()
         {
-            if (Children.Count >= 1) throw new NotSupportedException();
-            
-            base.AddChild(child);
+            return root?.Process() ?? NodeStatus.Failure;
         }
 
-        protected override Status Process()
+        public void Reset()
         {
-            return Children[0].ExecuteProcess();
+            root?.Reset();
         }
     }
 }

@@ -1,55 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Zero53.BehaviorTree.CompositeNodes
 {
-    public class PrioritySelectorNode : SelectorNode
+    public class PrioritySelectorNode : ICompositeNode
     {
-        private List<Node> _sortedChildren;
-        private List<Node> sortedChildren => _sortedChildren ??= SortChildren();
+        private SequenceNodeBase _base;
+        private readonly List<INode> _sortedChildren;
+        private bool _sorted;
+
+        private List<INode> sortedChildren
+        {
+            get
+            {
+                if (_sorted) return _sortedChildren;
+                SortChildren();
+                return _sortedChildren;
+            }
+        }
         
-        public PrioritySelectorNode(string name = "PrioritySelector", int priority = 0, List<Node> children = null) : base(name, priority, children)
+        public PrioritySelectorNode(string name = "PrioritySelector", int priority = 0, List<INode> children = null)
         {
+            _base = new SequenceNodeBase(name, priority, children);
+            _sortedChildren = children?.ToList() ?? new List<INode>();
+            _sorted = false;
         }
 
-        protected virtual List<Node> SortChildren()
+        private void SortChildren()
         {
-            return Children
-                .OrderByDescending(node => node.Priority)
-                .ToList();
+            _sortedChildren.Sort((node1, node2) => node1.priority.CompareTo(node2.priority));
+            _sorted = true;
+        }
+        
+        public int priority => _base.compositeNode.priority;
+
+        public NodeStatus Process()
+        {
+            return _base.Process(sortedChildren);
         }
 
-        public override void Reset()
+        public void Reset()
         {
-            base.Reset();
-            _sortedChildren = null;
+            _base.compositeNode.Reset();
+            _sorted = false;
         }
 
-        public override void AddChild(Node child)
-        {
-            base.AddChild(child);
-            _sortedChildren = null;
-        }
+        public IList<INode> children => _base.compositeNode.children;
 
-        protected override Status Process()
+        public void AddChild(INode child)
         {
-            if (CurrentChild >= sortedChildren.Count)
-            {
-                Reset();
-                return Status.Failure;
-            }
-
-            switch (sortedChildren[CurrentChild].ExecuteProcess())
-            {
-                case Status.Success:
-                    return Status.Success;
-                case Status.Running:
-                    return Status.Running;
-                case Status.Failure:
-                default:
-                    CurrentChild++;
-                    return Status.Running;
-            }
+            _base.compositeNode.AddChild(child);
+            _sorted = false;
         }
     }
 }

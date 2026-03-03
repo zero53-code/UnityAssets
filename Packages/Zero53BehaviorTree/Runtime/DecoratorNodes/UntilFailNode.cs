@@ -1,21 +1,32 @@
-﻿namespace Zero53.BehaviorTree.DecoratorNodes
+﻿using System;
+
+namespace Zero53.BehaviorTree.DecoratorNodes
 {
     /// <summary>
     /// 运行直到失败
     /// </summary>
-    public class UntilFailNode : DecoratorNode
+    public class UntilFailNode : ISingleChildNode
     {
-        public UntilFailNode(string name = "UntilFail", int priority = 0, Node child = null) : base(name, priority, child)
+        private DecoratorNodeBase _base;
+        public UntilFailNode(string name = "UntilFail", int priority = 0, INode child = null)
         {
+            _base = new DecoratorNodeBase(name, priority, child);
+            this.child = child;
         }
-
-        protected override Status Process()
+        
+        public int priority => _base.nodeBase.priority;
+        public NodeStatus Process()
         {
-            if (Children[0].ExecuteProcess() != Status.Failure) return Status.Running;
+            if (child.Process() != NodeStatus.Failure) return NodeStatus.Running;
             
             Reset();
-            return Status.Failure;
-
+            return NodeStatus.Failure;
         }
+
+        public void Reset()
+        {
+        }
+
+        public INode child { get; set; }
     }
 }

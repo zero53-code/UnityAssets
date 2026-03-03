@@ -1,17 +1,29 @@
-﻿namespace Zero53.BehaviorTree.DecoratorNodes
+﻿using System;
+
+namespace Zero53.BehaviorTree.DecoratorNodes
 {
     /// <summary>
     /// 永远返回 Failure
     /// </summary>
-    public class AlwaysFailNode : DecoratorNode
+    public class AlwaysFailNode : ISingleChildNode
     {
-        public AlwaysFailNode(string name = "AlwaysFail", int priority = 0, Node child = null) : base(name, priority, child)
+        private DecoratorNodeBase _base;
+        public AlwaysFailNode(string name = "AlwaysFail", int priority = 0, INode child = null)
+        {
+            _base = new DecoratorNodeBase(name, priority, child);
+            this.child = child;
+        }
+
+        public int priority => _base.nodeBase.priority;
+        public NodeStatus Process()
+        {
+            return NodeStatus.Failure;
+        }
+
+        public void Reset()
         {
         }
 
-        protected override Status Process()
-        {
-            return Status.Failure;
-        }
+        public INode child { get; set; }
     }
 }

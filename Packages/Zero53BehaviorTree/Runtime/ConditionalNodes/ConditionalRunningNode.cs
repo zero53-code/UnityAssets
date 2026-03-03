@@ -2,34 +2,26 @@
 
 namespace Zero53.BehaviorTree.ConditionalNodes
 {
-    public class ConditionalRunningNode : LeafNode
+    public class ConditionalRunningNode : INode
     {
+        private LeafNodeBase _base;
         private readonly Func<bool> _condition;
         
-        public ConditionalRunningNode(Func<bool> condition, string name = "ConditionalRunningNode", int priority = 0) : base(name, priority)
+        public ConditionalRunningNode(string name = "ConditionalRunningNode", int priority = 0, Func<bool> condition = null)
         {
+            _base = new LeafNodeBase(name, priority);
             _condition = condition;
         }
-        
-        protected override Status Process()
+
+        public int priority => _base.priority;
+
+        public NodeStatus Process()
         {
-            try
-            {
-                return _condition() ? Status.Success : Status.Running;
-            }
-            catch
-            {
-                switch (exceptionHandling)
-                {
-                    case ExceptionHandling.ReturnSuccess:
-                        return Status.Success;
-                    case ExceptionHandling.ReturnFailure:
-                        return Status.Failure;
-                    case ExceptionHandling.Throw:
-                    default:
-                        throw;
-                }
-            }
+            return _condition() ? NodeStatus.Success : NodeStatus.Running;
+        }
+
+        public void Reset()
+        {
         }
     }
 }

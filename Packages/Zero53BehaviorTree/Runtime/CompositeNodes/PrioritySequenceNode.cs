@@ -1,34 +1,56 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Zero53.BehaviorTree.CompositeNodes
 {
-    public class PrioritySequenceNode : SequenceNode
+    public class PrioritySequenceNode : ICompositeNode
     {
-        private List<Node> _sortedChildren;
-        protected override List<Node> sortedChildren => _sortedChildren ??= SortChildren();
+        private SequenceNodeBase _base;
+        private readonly List<INode> _sortedChildren;
+        private bool _sorted;
+
+        private List<INode> sortedChildren
+        {
+            get
+            {
+                if (_sorted) return _sortedChildren;
+                SortChildren();
+                return _sortedChildren;
+            }
+        }
         
-        public PrioritySequenceNode(string name = "PrioritySequence", int priority = 0, List<Node> children = null) : base(name, priority, children)
+        public PrioritySequenceNode(string name = "PrioritySequence", int priority = 0, List<INode> children = null)
         {
+            _base = new SequenceNodeBase(name, priority, children);
+            _sortedChildren = children?.ToList() ?? new List<INode>();
+            _sorted = false;
         }
 
-        protected virtual List<Node> SortChildren()
+        private void SortChildren()
         {
-            return Children
-                .OrderByDescending(node => node.Priority)
-                .ToList();
+            _sortedChildren.Sort((node1, node2) => node1.priority.CompareTo(node2.priority));
+            _sorted = true;
+        }
+        
+        public int priority => _base.compositeNode.priority;
+        public NodeStatus Process()
+        {
+            return _base.Process(sortedChildren);
         }
 
-        public override void Reset()
+        public void Reset()
         {
-            base.Reset();
-            _sortedChildren = null;
+            _base.compositeNode.Reset();
+            _sorted = false;
         }
 
-        public override void AddChild(Node child)
+        public IList<INode> children => _base.compositeNode.children;
+
+        public void AddChild(INode child)
         {
-            base.AddChild(child);
-            _sortedChildren = null;
+            _base.compositeNode.AddChild(child);
+            _sorted = false;
         }
     }
 }

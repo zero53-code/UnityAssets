@@ -1,23 +1,34 @@
-﻿namespace Zero53.BehaviorTree.DecoratorNodes
+﻿using System;
+
+namespace Zero53.BehaviorTree.DecoratorNodes
 {
     /// <summary>
     /// 反转 Success 和 Failure
     /// </summary>
-    public class InverterNode : DecoratorNode
+    public class InverterNode : ISingleChildNode
     {
-        public InverterNode(string name = "Inverter", int priority = 0, Node child = null) : base(name, priority, child)
+        private DecoratorNodeBase _base;
+        public InverterNode(string name = "Inverter", int priority = 0, INode child = null)
+        {
+            _base = new DecoratorNodeBase(name, priority, child);
+            this.child = child;
+        }
+
+        public int priority => _base.nodeBase.priority;
+        public NodeStatus Process()
+        {
+            return child.Process() switch
+            {
+                NodeStatus.Success => NodeStatus.Failure,
+                NodeStatus.Failure => NodeStatus.Success,
+                _ => NodeStatus.Running
+            };
+        }
+
+        public void Reset()
         {
         }
 
-        protected override Status Process()
-        {
-            switch (Children[0].ExecuteProcess())
-            {
-                case Status.Success: return Status.Failure;
-                case Status.Failure: return Status.Success;
-                case Status.Running:
-                default: return Status.Running;
-            }
-        }
+        public INode child { get; set; }
     }
 }
