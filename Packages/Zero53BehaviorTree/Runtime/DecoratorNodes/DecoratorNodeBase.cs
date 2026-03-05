@@ -2,7 +2,7 @@
 {
     public struct DecoratorNodeBase
     {
-        public NodeBase nodeBase { get;private set; }
+        public NodeBase nodeBase { get; private set; }
         private INode _childNode;
 
         public DecoratorNodeBase(string name = "Node", int priority = 0, INode child = null)

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Zero53.InputSystem
+namespace Zero53.Inputs.ConfigurableInput
 {
     public class InputManager : MonoBehaviour
     {

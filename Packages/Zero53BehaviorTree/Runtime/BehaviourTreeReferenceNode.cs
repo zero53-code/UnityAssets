@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Zero53.BehaviorTree
+﻿namespace Zero53.BehaviorTree
 {
     /// <summary>
     /// 行为树引用节点
@@ -9,7 +7,7 @@ namespace Zero53.BehaviorTree
     public class BehaviourTreeReferenceNode : INode
     {
 
-        private NodeBase _base;
+        private readonly NodeBase _base;
         public BehaviorTree tree { get; set; }
         
         public BehaviourTreeReferenceNode(string name = "BehaviourTreeReference", int priority = 0, BehaviorTree tree = null)

@@ -1,7 +1,7 @@
 {
-  "name": "com.zero53.input-system",
+  "name": "com.zero53.inputs",
   "version": "0.0.1",
-  "displayName": "Zero53 Input System",
+  "displayName": "Zero53 Inputs",
   "unity": "2019.1",
   "unityRelease": "0b5",
   "author": {

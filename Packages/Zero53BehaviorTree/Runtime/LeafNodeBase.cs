@@ -1,6 +1,6 @@
 ﻿namespace Zero53.BehaviorTree
 {
-    public struct LeafNodeBase
+    public readonly struct LeafNodeBase
     {
         private readonly NodeBase _base;
         public string name => _base.name;

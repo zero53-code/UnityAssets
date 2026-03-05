@@ -1,14 +1,14 @@
-﻿using System;
-
-namespace Zero53.BehaviorTree
+﻿namespace Zero53.BehaviorTree
 {
     public class BehaviorTree
     {
-        private INode root { get; set; }
+        public string name { get; private set; }
+        public INode root { get; private set; }
         
-        public BehaviorTree(string name = "BehaviourTree", INode child = null)
+        public BehaviorTree(string name = "BehaviourTree", INode root = null)
         {
-            root = child;
+            this.name = name;
+            this.root = root;
         }
         
         public NodeStatus Process()

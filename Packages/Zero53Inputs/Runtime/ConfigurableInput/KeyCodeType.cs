@@ -1,4 +1,4 @@
-﻿namespace Zero53.InputSystem
+﻿namespace Zero53.Inputs.ConfigurableInput
 {
     public enum KeyCodeType
     {

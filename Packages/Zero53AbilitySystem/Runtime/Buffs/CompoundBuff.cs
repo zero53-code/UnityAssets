@@ -1,21 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Zero53.AbilitySystem.Buffs
 {
+    [Serializable]
     public class CompoundBuff : IBuff
     {
-        private readonly List<IBuff> _buffs;
+        [SerializeReference] private List<IBuff> buffs;
 
         public CompoundBuff(List<IBuff> buffs)
         {
-            _buffs = buffs;
+            this.buffs = buffs;
         }
 
         public void OnUpdate(float deltaTime)
         {
-            for (var i = 0; i < _buffs.Count; i++)
+            for (var i = 0; i < buffs.Count; i++)
             {
-                _buffs[i].OnUpdate(deltaTime);
+                buffs[i].OnUpdate(deltaTime);
             }
         }
 
@@ -25,9 +28,9 @@ namespace Zero53.AbilitySystem.Buffs
             {
                 var allEnded = true;
 
-                for (var i = 0; i < _buffs.Count; i++)
+                for (var i = 0; i < buffs.Count; i++)
                 {
-                    allEnded = allEnded && _buffs[i].isEnd;
+                    allEnded = allEnded && buffs[i].isEnd;
                 }
                 
                 return allEnded;
@@ -36,17 +39,17 @@ namespace Zero53.AbilitySystem.Buffs
 
         public void OnEnd()
         {
-            for (var i = 0; i < _buffs.Count; i++)
+            for (var i = 0; i < buffs.Count; i++)
             {
-                _buffs[i].OnEnd();
+                buffs[i].OnEnd();
             }
         }
 
         public void OnApply()
         {
-            for (var i = 0; i < _buffs.Count; i++)
+            for (var i = 0; i < buffs.Count; i++)
             {
-                _buffs[i].OnApply();
+                buffs[i].OnApply();
             }
         }
     }

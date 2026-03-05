@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Zero53.AbilitySystem.Processes
 {
     [Serializable]
-    public class Interval<TEffect> : IProcess
+    public sealed class Interval<TEffect> : IProcess
         where TEffect : IEffect
     {
         [field: SerializeField, Min(0)] public float intervalTime { get; private set; }

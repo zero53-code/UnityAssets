@@ -13,7 +13,7 @@ namespace Zero53.ObserverPattern
     /// 观察者类
     /// </summary>
     [Serializable]
-    public class ValueObserver<T>
+    public sealed class ValueObserver<T>
     {
         [SerializeField] private T value;
         [SerializeField] private UnityEvent<T> onValueChanged;

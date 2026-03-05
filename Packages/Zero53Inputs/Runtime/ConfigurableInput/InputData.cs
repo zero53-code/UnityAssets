@@ -2,9 +2,9 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Zero53.InputSystem
+namespace Zero53.Inputs.ConfigurableInput
 {
-    [CreateAssetMenu(fileName = "New InputData", menuName = "Zero53/InputSystem/InputData")]
+    [CreateAssetMenu(fileName = "New InputData", menuName = "Zero53 Configurable Input/InputData")]
     public class InputData : ScriptableObject
     {
         public List<Key> keys = new List<Key>() { new Key() };

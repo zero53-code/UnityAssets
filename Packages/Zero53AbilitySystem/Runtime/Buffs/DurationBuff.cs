@@ -10,23 +10,23 @@ namespace Zero53.AbilitySystem.Buffs
     {
         [SerializeField] private TBuff buff;
 
-        private Timer _timer;
+        [SerializeField] private Timer timer;
 
         public DurationBuff(TBuff buff, float duration)
         {
             this.buff = buff;
-            _timer = new Timer(duration);
+            timer = new Timer(duration);
         }
 
         public void OnUpdate(float deltaTime)
         {
-            _timer.OnUpdate(deltaTime);
-            if (_timer.isEnd) return;
+            timer.OnUpdate(deltaTime);
+            if (timer.isEnd) return;
             
             buff.OnUpdate(deltaTime);
         }
 
-        public bool isEnd => _timer.isEnd || buff.isEnd;
+        public bool isEnd => timer.isEnd || buff.isEnd;
         
         public void OnEnd()
         {
