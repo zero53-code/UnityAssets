@@ -107,4 +107,6 @@ namespace Zero53.ObserverPattern
             onValueChanged = null;
         }
     }
+    
+    
 }
