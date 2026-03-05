@@ -3,7 +3,7 @@
 namespace Zero53.SingletonPattern
 {
     public class MonoSingleton<T> : MonoBehaviour
-        where T : MonoBehaviour
+        where T : Component
     {
         private static volatile T _instance;
         private static readonly object _lock = new();
@@ -22,12 +22,7 @@ namespace Zero53.SingletonPattern
 
                             if (_instance == null)
                             {
-                                var go = new GameObject
-                                {
-                                    name = typeof(T).Name
-                                };
-                                _instance = go.AddComponent<T>();
-                                DontDestroyOnLoad(go);
+                                CreateInstance();
                             }
                         }
                     }
@@ -39,6 +34,8 @@ namespace Zero53.SingletonPattern
 
         protected virtual void Awake()
         {
+            if (!Application.isPlaying) return;
+            
             if (_instance == null)
             {
                 _instance = this as T;
@@ -49,6 +46,14 @@ namespace Zero53.SingletonPattern
                 Debug.LogWarning($"{nameof(MonoSingleton<T>)} already exists.");
                 Destroy(gameObject);
             }
+        }
+
+        protected static GameObject CreateInstance()
+        {
+            var go = new GameObject(typeof(T).Name);
+            _instance = go.AddComponent<T>();
+            DontDestroyOnLoad(go);
+            return go;
         }
     }
 }

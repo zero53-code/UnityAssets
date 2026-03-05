@@ -5,7 +5,7 @@ namespace Zero53.Utils
 {
     public static class ListUtils
     {
-        private static readonly Random Rng = new();
+        private static readonly Random _rng = new();
         
         /// <summary>
         /// 洗牌算法
@@ -16,7 +16,7 @@ namespace Zero53.Utils
             while (n > 1)
             {
                 n--;
-                var k = Rng.Next(n + 1);
+                var k = _rng.Next(n + 1);
                 (list[k], list[n]) = (list[n], list[k]);
             }
         }

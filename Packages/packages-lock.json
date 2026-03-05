@@ -153,6 +153,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.zero53.event-bus": {
+      "version": "file:Zero53EventBus",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.zero53.inputs": {
       "version": "file:Zero53Inputs",
       "depth": 0,
