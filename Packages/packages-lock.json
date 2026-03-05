@@ -171,6 +171,12 @@
       "source": "embedded",
       "dependencies": {}
     },
+    "com.zero53.singleton-pattern": {
+      "version": "file:Zero53SingletonPattern",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.zero53.update-managers": {
       "version": "file:Zero53UpdateManagers",
       "depth": 0,
