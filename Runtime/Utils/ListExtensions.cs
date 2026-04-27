@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Zero53.Utils
 {
-    public static class ListUtils
+    public static class ListExtensions
     {
-        private static readonly Random _rng = new();
-        
         /// <summary>
         /// 洗牌算法
         /// </summary>

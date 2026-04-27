@@ -24,22 +24,28 @@ namespace Zero53.Utils
             );
             return count > 0;
         }
-        
+
         /// <summary>
         /// 获取地面的法线
         /// </summary>
         /// <param name="position">检测位置</param>
         /// <param name="checkDistance">检测距离</param>
         /// <param name="groundLayerMask">地面的 LayerMask</param>
+        /// <param name="groundNormal">输出地面法线</param>
         /// <returns>
         /// - null: 未检测到地面返回
         /// - not null: 地面法线
         /// </returns>
-        public static Vector3? GetSlopeNormal(Vector3 position, float checkDistance, int groundLayerMask)
+        public static bool GetGroundNormal(Vector3 position, float checkDistance, int groundLayerMask, out Vector3 groundNormal)
         {
-            return Physics.Raycast(position, Vector3.down, out var hit, checkDistance, groundLayerMask)
-                ? hit.normal
-                : null;
+            if (Physics.Raycast(position, Vector3.down, out var hit, checkDistance, groundLayerMask))
+            {
+                groundNormal = hit.normal;
+                return true;
+            }
+
+            groundNormal = Vector3.zero;
+            return false;
         }
     }
 }

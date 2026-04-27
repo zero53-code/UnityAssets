@@ -2,7 +2,7 @@
 
 namespace Zero53.Utils
 {
-    public static class ArrayUtils
+    public static class ArrayExtensions
     {
         /// <summary>
         /// 获取二维数组下标迭代器
