@@ -8,8 +8,7 @@ using Object = UnityEngine.Object;
 namespace Zero53.Persistence
 {
     [Serializable]
-    public class FileDataService<TData> : IDataService<TData>
-        where TData : IName, ISavable
+    public class FileDataService : IDataService
     {
         [SerializeReference] public ISerializer serializer;
         [SerializeField] public string dataPath;
@@ -20,23 +19,27 @@ namespace Zero53.Persistence
             return Path.Combine(dataPath, string.Concat(filename, ".", fileExtension));
         }
         
-        public void Save(TData data, bool overwrite = true)
+        public void Save<TData>(TData data, string name, bool overwrite = true)
+            where TData : ISavable
         {
-            var fileLocation = GetPathToFile(data.name);
+            var fileLocation = GetPathToFile(name);
 
             if (!overwrite && File.Exists(fileLocation))
             {
-                throw new IOException($"The file '{data.name}.{fileExtension}' already exists and cannot be overwritten.'");
+                throw new IOException($"The file '{name}.{fileExtension}' already exists and cannot be overwritten.'");
             }
             
             File.WriteAllBytes(fileLocation, serializer.Serialize(data));
         }
 
-        public TData Load(string name)
+        public TData Load<TData>(string name)
+            where TData : ISavable
         {
             var fileLocation = GetPathToFile(name);
-            
-            return serializer.Deserialize<TData>(File.ReadAllBytes(fileLocation));
+            if (!File.Exists(fileLocation)) 
+                return default;
+            else 
+                return serializer.Deserialize<TData>(File.ReadAllBytes(fileLocation));
         }
 
         public void Delete(string name)

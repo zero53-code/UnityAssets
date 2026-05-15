@@ -2,7 +2,7 @@
 
 namespace Zero53.Singletons
 {
-    public class SOSingleton<T> : ScriptableObject
+    public abstract class SOSingleton<T> : ScriptableObject
         where T : ScriptableObject
     {
         private static volatile T _instance;
@@ -51,6 +51,8 @@ namespace Zero53.Singletons
                 return _instance;
             }
         }
+        
+        public static bool isInitialized => _instance != null;
         
         protected SOSingleton()
         {

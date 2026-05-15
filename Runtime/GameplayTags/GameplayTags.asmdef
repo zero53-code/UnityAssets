@@ -1,0 +1,4 @@
+﻿{
+  "name": "GameplayTags",
+  "references": ["Zero53", "Zero53.Singletons"]
+}

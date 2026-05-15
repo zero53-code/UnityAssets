@@ -3,22 +3,22 @@ using UnityEngine;
 
 namespace Zero53.Persistence
 {
-    public interface IDataService<TData>
-        where TData : ISavable
+    public interface IDataService
     {
         /// <summary>
         /// 保存存档
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">游戏数据</param>
+        /// <param name="name">存档名</param>
         /// <param name="overwrite">是否覆盖</param>
-        void Save(TData data, bool overwrite = true);
-        
+        void Save<TData>(TData data, string name, bool overwrite = true) where TData : ISavable;
+
         /// <summary>
         /// 加载存档
         /// </summary>
         /// <param name="name">存档名</param>
         /// <returns></returns>
-        TData Load(string name);
+        TData Load<TData>(string name) where TData : ISavable;
         
         /// <summary>
         /// 删除存档

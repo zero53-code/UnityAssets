@@ -1,8 +1,7 @@
 ﻿namespace Zero53.Persistence
 {
-    public interface IBind<in TData> where TData : ISavable
+    public interface IBind
     {
-        SerializableGuid id { get; set; }
-        void Bind(TData data);
+        void Bind();
     }
 }

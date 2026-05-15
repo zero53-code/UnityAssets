@@ -1,0 +1,5 @@
+﻿{
+  "name": "Zero53.Gas",
+  "rootNamespace": "Zero53.Gas",
+  "references": ["Zero53"]
+}

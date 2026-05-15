@@ -1,9 +1,12 @@
 ﻿using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Random = System.Random;
 
 namespace Zero53.Persistence
 {
+    /// <summary>
+    /// 一个可序列化的 GUID
+    /// </summary>
     [Serializable]
     public struct SerializableGuid : IEquatable<SerializableGuid>, IComparable<SerializableGuid>
     {
@@ -20,15 +23,18 @@ namespace Zero53.Persistence
             this.value3 = value3;
         }
 
+        private static Random _random = new();
         public static SerializableGuid Generate()
         {
             return new SerializableGuid(
-                (uint)Random.Range(int.MinValue, int.MaxValue),
-                (uint)Random.Range(int.MinValue, int.MaxValue),
-                (uint)Random.Range(int.MinValue, int.MaxValue),
-                (uint)Random.Range(int.MinValue, int.MaxValue));
+                (uint)_random.Next(),
+                (uint)_random.Next(),
+                (uint)_random.Next(),
+                (uint)_random.Next());
         }
 
+        public bool isEmpty => value0 == 0 && value1 == 0 && value2 == 0 && value3 == 0;
+        
         public bool Equals(SerializableGuid other)
         {
             return value0 == other.value0 && value1 == other.value1 && value2 == other.value2 && value3 == other.value3;

@@ -2,7 +2,7 @@
 
 namespace Zero53.Singletons
 {
-    public class MonoSingleton<T> : MonoBehaviour
+    public abstract class MonoSingleton<T> : MonoBehaviour
         where T : MonoBehaviour
     {
         private static volatile T _instance;
@@ -46,6 +46,8 @@ namespace Zero53.Singletons
                 return _instance;
             }
         }
+
+        public static bool isInitialized => _instance != null;
 
         protected virtual void Awake()
         {

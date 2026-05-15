@@ -1,0 +1,5 @@
+﻿{
+  "name": "Zero53.Singletons",
+  "rootNamespace": "Zero53.Singletons",
+  "references": ["Zero53"]
+}

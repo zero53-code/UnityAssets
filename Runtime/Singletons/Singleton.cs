@@ -1,6 +1,6 @@
 ﻿namespace Zero53.Singletons
 {
-    public class Singleton<T> where T : class, new()
+    public abstract class Singleton<T> where T : class, new()
     {
         private static volatile T _instance;
         private static readonly object _lock = new();
@@ -22,5 +22,6 @@
                 return _instance;
             }
         }
+        public static bool isInitialized => _instance != null;
     }
 }
