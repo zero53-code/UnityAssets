@@ -1,0 +1,24 @@
+﻿using System;
+using UnityEngine;
+
+namespace Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects
+{
+    /// <summary>
+    /// 组合效果
+    /// </summary>
+    [Serializable]
+    public class CombinationEffect : IGameplayEffect
+    {
+        [SerializeReference] public IGameplayEffect[] effects;
+
+        public void Apply(GameplayAttributeSet target)
+        {
+            if (effects == null) return;
+            
+            foreach (var effect in effects)
+            {
+                effect.Apply(target);
+            }
+        }
+    }
+}

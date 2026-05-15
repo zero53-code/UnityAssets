@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects;
 
 namespace Zero53
 {
@@ -10,10 +12,17 @@ namespace Zero53
         [SerializeField] private GameplayAttributeSetData[] data;
 
         [ShowInInspector, ReadOnly] private Dictionary<Name, GameplayAttribute> _attributes;
+        
+        [SerializeReference] private List<IGameplayEffect> effects;
 
         private void Awake()
         {
             Setup();
+        }
+
+        private void Update()
+        {
+            ApplyEffects();
         }
 
         private void OnValidate()
@@ -37,6 +46,17 @@ namespace Zero53
             return false;
         }
 
+        public void AddEffect(IGameplayEffect effect)
+        {
+            effects.Add(effect);
+        }
+
+        public bool RemoveEffect(IGameplayEffect effect)
+        {
+            return effects.Remove(effect);
+        }
+        
+        
         [Button]
         private void Setup()
         {
@@ -84,6 +104,18 @@ namespace Zero53
                 {
                     throw new Exception($"Character attribute {attributeName} already exists");
                 }
+            }
+        }
+
+        private List<IGameplayEffect> _effectsBuffer;
+        private void ApplyEffects()
+        {
+            _effectsBuffer?.Clear();
+            _effectsBuffer ??= new List<IGameplayEffect>();
+            _effectsBuffer.AddRange(effects);
+            foreach (var effect in _effectsBuffer)
+            {
+                effect.Apply(this);
             }
         }
     }

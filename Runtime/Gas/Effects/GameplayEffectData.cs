@@ -1,0 +1,21 @@
+﻿using UnityEngine;
+
+namespace Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects
+{
+    [CreateAssetMenu(menuName = "Zero53/Create GameplayEffect", fileName = "New GameplayEffect")]
+    public class GameplayEffectData : ScriptableObject, IGameplayEffect
+    {
+        [field: SerializeReference]
+        public IGameplayEffect[] effects { get; private set; }
+
+        public void Apply(GameplayAttributeSet target)
+        {
+            if (effects == null) return;
+            
+            foreach (var effect in effects)
+            {
+                effect.Apply(target);
+            }
+        }
+    }
+}
