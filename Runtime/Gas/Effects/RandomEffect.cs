@@ -1,8 +1,9 @@
 ﻿using System;
 using UnityEngine;
+using Zero53.Gas.Attributes;
 using Random = UnityEngine.Random;
 
-namespace Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects
+namespace Zero53.Gas.Effects
 {
     /// <summary>
     /// 随机效果

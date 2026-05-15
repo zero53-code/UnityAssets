@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using Zero53.Gas.Attributes;
 
-namespace Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects
+namespace Zero53.Gas.Effects
 {
     /// <summary>
     /// 组合效果

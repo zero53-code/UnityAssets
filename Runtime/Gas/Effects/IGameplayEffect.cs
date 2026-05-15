@@ -1,4 +1,6 @@
-﻿namespace Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects
+﻿using Zero53.Gas.Attributes;
+
+namespace Zero53.Gas.Effects
 {
     public interface IGameplayEffect
     {

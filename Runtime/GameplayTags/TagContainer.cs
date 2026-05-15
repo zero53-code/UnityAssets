@@ -8,23 +8,23 @@ using UnityEngine;
 namespace Zero53.GameplayTags
 {
     [Serializable]
-    public class GameplayTagContainer : IEnumerable<GameplayTag>
+    public class TagContainer : IEnumerable<Tag>
     {
         [SerializeField]
-        private List<GameplayTag> tags;
+        private List<Tag> tags;
 
         // private List<GameplayTag> _parentTags;
         // private SortedList<GameplayTag, GameplayTag> _parentTags = new();
-        private SortedSet<GameplayTag> _parentTags = new();
+        private SortedSet<Tag> _parentTags = new();
 
-        public GameplayTagContainer()
+        public TagContainer()
         {
-            tags = new List<GameplayTag>();
+            tags = new List<Tag>();
         }
 
-        public GameplayTagContainer(params GameplayTag[] tags)
+        public TagContainer(params Tag[] tags)
         {
-            this.tags = new List<GameplayTag>(tags);
+            this.tags = new List<Tag>(tags);
         }
 
         public bool isEmpty => tags.Count == 0;
@@ -32,7 +32,7 @@ namespace Zero53.GameplayTags
         
         #region 增删
 
-        public void AddTag(GameplayTag tag)
+        public void AddTag(Tag tag)
         {
             if (!tag.isValid || tags.Contains(tag)) return;
             tags.Add(tag);
@@ -42,21 +42,21 @@ namespace Zero53.GameplayTags
             }
         }
 
-        public void RemoveTag(GameplayTag tag)
+        public void RemoveTag(Tag tag)
         {
             if (tags.RemoveAll(t => t.Matches(tag)) == 0) return;
             
             FillParentTags();
         }
         
-        public void RemoveTagExact(GameplayTag tag)
+        public void RemoveTagExact(Tag tag)
         {
             if (tags.RemoveAll(t => t.MatchesExact(tag)) == 0) return;
             
             FillParentTags();
         }
 
-        public void AppendTags(IEnumerable<GameplayTag> other)
+        public void AppendTags(IEnumerable<Tag> other)
         {
             foreach (var t in other)
             {
@@ -64,7 +64,7 @@ namespace Zero53.GameplayTags
             }
         }
 
-        public void RemoveTags(IEnumerable<GameplayTag> other)
+        public void RemoveTags(IEnumerable<Tag> other)
         {
             foreach (var tag in other)
             {
@@ -74,7 +74,7 @@ namespace Zero53.GameplayTags
             FillParentTags();
         }
         
-        public void RemoveTagsExact(IEnumerable<GameplayTag> other)
+        public void RemoveTagsExact(IEnumerable<Tag> other)
         {
             foreach (var tag in other)
             {
@@ -106,32 +106,32 @@ namespace Zero53.GameplayTags
 
         #region 查询匹配
 
-        public bool HasTag(GameplayTag tag)
+        public bool HasTag(Tag tag)
         {
             return _parentTags.Contains(tag) || tags.Contains(tag);
         }
 
-        public bool HasTagExact(GameplayTag tag)
+        public bool HasTagExact(Tag tag)
         {
             return tags.Contains(tag);
         }
 
-        public bool HasAny(IEnumerable<GameplayTag> other)
+        public bool HasAny(IEnumerable<Tag> other)
         {
             return other.Any(HasTag);
         }
 
-        public bool HasAll(IEnumerable<GameplayTag> other)
+        public bool HasAll(IEnumerable<Tag> other)
         {
             return other.All(HasTag);
         }
 
-        public bool HasAnyExact(IEnumerable<GameplayTag> other)
+        public bool HasAnyExact(IEnumerable<Tag> other)
         {
             return other.Any(HasTagExact);
         }
 
-        public bool HasAllExact(IEnumerable<GameplayTag> other)
+        public bool HasAllExact(IEnumerable<Tag> other)
         {
             return other.All(HasTagExact);
         }
@@ -141,9 +141,9 @@ namespace Zero53.GameplayTags
         #region 集合运算
 
         // 交集
-        public GameplayTagContainer Filter(GameplayTagContainer other)
+        public TagContainer Filter(TagContainer other)
         {
-            var res = new GameplayTagContainer();
+            var res = new TagContainer();
             foreach (var t in tags)
             {
                 if (other.HasTag(t)) res.AddTag(t);
@@ -153,9 +153,9 @@ namespace Zero53.GameplayTags
         }
 
         // 差集：自身有，对方没有
-        public GameplayTagContainer Difference(GameplayTagContainer other)
+        public TagContainer Difference(TagContainer other)
         {
-            var res = new GameplayTagContainer();
+            var res = new TagContainer();
             foreach (var t in tags)
             {
                 if (!other.HasTag(t)) res.AddTag(t);
@@ -166,7 +166,7 @@ namespace Zero53.GameplayTags
 
         #endregion
 
-        public IEnumerator<GameplayTag> GetEnumerator()
+        public IEnumerator<Tag> GetEnumerator()
         {
             return tags.GetEnumerator();
         }
@@ -178,7 +178,7 @@ namespace Zero53.GameplayTags
     }
     
 #if UNITY_EDITOR
-    public class GameplayTagContainerDrawer : OdinValueDrawer<GameplayTagContainer>
+    public class GameplayTagContainerDrawer : OdinValueDrawer<TagContainer>
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {

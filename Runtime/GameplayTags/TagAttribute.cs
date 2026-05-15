@@ -8,13 +8,13 @@ using UnityEngine;
 namespace Zero53.GameplayTags
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public sealed class GameplayTagAttribute : Attribute
+    public sealed class TagAttribute : Attribute
     {
     }
 
 #if UNITY_EDITOR
 
-    public class GameplayTagAttributeDrawer : OdinAttributeDrawer<GameplayTagAttribute>
+    public class TagAttributeDrawer : OdinAttributeDrawer<TagAttribute>
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {
@@ -36,8 +36,8 @@ namespace Zero53.GameplayTags
             
             List<Name> tagList;
             
-            if (GameplayTagLibrary.isInitialized)
-                tagList = GameplayTagLibrary.instance.tags.Select(t => (Name)t).ToList();
+            if (TagLibrary.isInitialized)
+                tagList = TagLibrary.instance.tags.Select(t => (Name)t).ToList();
             else
                 tagList = new List<Name>();
 

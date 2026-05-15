@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using Zero53.Gas.Attributes;
 
-namespace Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects
+namespace Zero53.Gas.Effects
 {
     [CreateAssetMenu(menuName = "Zero53/Create GameplayEffect", fileName = "New GameplayEffect")]
     public class GameplayEffectData : ScriptableObject, IGameplayEffect

@@ -9,7 +9,7 @@ using Zero53.Singletons;
 namespace Zero53.GameplayTags
 {
     [CreateAssetMenu(menuName = "Zero53/Create GameplayTagLibrary", fileName = "New GameplayTagLibrary")]
-    public class GameplayTagLibrary : SOSingleton<GameplayTagLibrary>
+    public class TagLibrary : SOSingleton<TagLibrary>
     {
 #if UNITY_EDITOR
         
@@ -20,7 +20,7 @@ namespace Zero53.GameplayTags
         private void Add()
         {
             tags.Add(_tag);
-            var tag = new GameplayTag(_tag);
+            var tag = new Tag(_tag);
             tag
                 .GetParents()
                 .Where(tagParent => tagParent.isValid)
@@ -34,10 +34,10 @@ namespace Zero53.GameplayTags
         [Button, HorizontalGroup("1", order: 1)]
         private void Remove()
         {
-            var tag = new GameplayTag(_tag);
+            var tag = new Tag(_tag);
             
             tags.Remove(_tag);
-            tags.RemoveAll(t => new GameplayTag(t).Matches(tag));
+            tags.RemoveAll(t => new Tag(t).Matches(tag));
             
             _tag = "";
             OnValidate();

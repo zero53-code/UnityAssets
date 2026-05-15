@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Zero53.Gas.Plugins.Zero53.Runtime.Gas.Effects;
+using Zero53.Gas.Effects;
 
-namespace Zero53
+namespace Zero53.Gas.Attributes
 {
     public class GameplayAttributeSet : MonoBehaviour
     {
-        [SerializeField] private GameplayAttributeSetData[] data;
+        [SerializeField] private GameplayAttributeSetAsset[] data;
 
         [ShowInInspector, ReadOnly] private Dictionary<Name, GameplayAttribute> _attributes;
         
-        [SerializeReference] private List<IGameplayEffect> effects;
+        [SerializeReference] private List<IGameplayEffect> effects = new();
 
         private void Awake()
         {
@@ -64,10 +63,10 @@ namespace Zero53
             if (this.data == null) return;
             
 #if UNITY_EDITOR
-            GameplayAttributeSetData[] data;
+            GameplayAttributeSetAsset[] data;
             if (Application.isPlaying)
             {
-                data = new GameplayAttributeSetData[this.data.Length];
+                data = new GameplayAttributeSetAsset[this.data.Length];
                 for (var i = 0; i < data.Length; i++)
                 {
                     data[i] = Instantiate(this.data[i]);
@@ -90,15 +89,15 @@ namespace Zero53
             }
         }
 
-        private void AddAttributeSet(GameplayAttributeSetData attributeSetData)
+        private void AddAttributeSet(GameplayAttributeSetAsset attributeSetAsset)
         {
-            if (attributeSetData == null) return;
+            if (attributeSetAsset == null) return;
             
-            foreach (var info in attributeSetData.attributes)
+            foreach (var info in attributeSetAsset.attributes)
             {
                 var attributeName = info.name;
                 var gameplayAttribute = new GameplayAttribute(this, info.value);
-                gameplayAttribute.preAttributeChangeList.AddRange(info.preAttributeChangeList);
+                gameplayAttribute.changeProcessors.AddRange(info.changeProcessors);
                 
                 if (!_attributes.TryAdd(attributeName, gameplayAttribute))
                 {

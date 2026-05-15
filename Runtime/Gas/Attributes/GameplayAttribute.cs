@@ -2,28 +2,36 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zero53.Gas.Attributes.Processor;
 
-namespace Zero53
+namespace Zero53.Gas.Attributes
 {
+    /// <summary>
+    /// 属性
+    /// </summary>
     [Serializable]
     public class GameplayAttribute
     {
-        internal List<IPreAttributeChange> preAttributeChangeList;
+        public event Action<GameplayAttribute, float> OnPreChange; 
+        
+        internal List<IChangeProcessor> changeProcessors;
+        
         [field: SerializeField, HorizontalGroup, LabelText("base")] 
         public float baseValue {get; private set;}
+        
         [field: SerializeField, HorizontalGroup, LabelText("current")] 
         public float currentValue {get; private set;}
+        
+        public GameplayAttributeSet attributeSet { get; }
 
         internal GameplayAttribute(GameplayAttributeSet attributeSet, float baseValue)
         {
-            preAttributeChangeList = new List<IPreAttributeChange>();
+            changeProcessors = new List<IChangeProcessor>();
             this.attributeSet = attributeSet;
             this.baseValue = baseValue;
             this.currentValue = baseValue;
         }
         
-        public GameplayAttributeSet attributeSet { get; }
-
         public float value 
         {
             get => currentValue;
@@ -32,9 +40,11 @@ namespace Zero53
 
         public void SetValue(float newValue)
         {
-            foreach (var attributePostProcessor in preAttributeChangeList)
+            OnPreChange?.Invoke(this, newValue);
+            
+            foreach (var attributePostProcessor in changeProcessors)
             {
-                attributePostProcessor.OnPreChange(this, ref newValue);
+                attributePostProcessor.Process(this, ref newValue);
             }
             currentValue = newValue;
         }

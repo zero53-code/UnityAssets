@@ -4,8 +4,11 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
-namespace Zero53
+namespace Zero53.Gas.Attributes
 {
+    /// <summary>
+    /// 用于绘制属性名的下拉框
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class NameDropdownAttribute : Attribute
     {
@@ -18,18 +21,21 @@ namespace Zero53
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            if (Property.BaseValueEntry.WeakSmartValue is Name name)
+            Name name;
+            switch (Property.ValueEntry.WeakSmartValue)
             {
-                SirenixEditorFields.Dropdown(label, name, NameDropdownAttribute.items);
+                case Name n:
+                    name = n;
+                    break;
+                case string s:
+                    name = s;
+                    break;
+                default:
+                    Property.Draw(label);
+                    return;
             }
-            else if (Property.BaseValueEntry.WeakSmartValue is string nameString)
-            {
-                SirenixEditorFields.Dropdown(label, nameString, NameDropdownAttribute.items);
-            }
-            else
-            {
-                Property.Draw(label);
-            }
+
+            Property.ValueEntry.WeakSmartValue = SirenixEditorFields.Dropdown(label, name, NameDropdownAttribute.items);
         }
     }
     
