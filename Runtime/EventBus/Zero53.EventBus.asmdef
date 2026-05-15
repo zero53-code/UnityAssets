@@ -1,4 +1,5 @@
 ﻿{
   "name": "Zero53.EventBus",
-  "rootNamespace": "Zero53"
+  "rootNamespace": "Zero53",
+  "references": ["Zero53.Singletons"]
 }
