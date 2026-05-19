@@ -156,7 +156,7 @@ namespace Zero53.PopupTexts
         private static float CalculateProjectionScale(Camera camera, Vector3 worldPos)
         {
             var viewPos = camera.WorldToViewportPoint(worldPos);
-            // 深度（相机空间 Z 距离）
+            // 深度
             var depth = Mathf.Abs(viewPos.z);
             return 1f / depth;
         }

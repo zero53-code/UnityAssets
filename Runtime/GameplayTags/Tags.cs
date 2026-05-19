@@ -1,42 +1,64 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Zero53.GameplayTags
 {
     [DisallowMultipleComponent]
-    public class Tags : MonoBehaviour
+    public class Tags : MonoBehaviour, IEnumerable<Tag>
     {
-        [field: SerializeField]
-        public TagContainer tagContainer { get; set; } = new();
+        [SerializeField]
+        private TagContainer tagContainer = new();
+
+        public void RegisterAddTagEvent(Action<Tag> onAddTag)
+        {
+            tagContainer.OnAddTag += onAddTag;
+        }
+
+        public void RegisterRemoveTagEvent(Action<Tag> onRemoveTag)
+        {
+            tagContainer.OnRemoveTag += onRemoveTag;
+        }
+
+        public void UnregisterAddTagEvent(Action<Tag> onAddTag)
+        {
+            tagContainer.OnAddTag -= onAddTag;
+        }
+
+        public void UnregisterRemoveTagEvent(Action<Tag> onRemoveTag)
+        {
+            tagContainer.OnRemoveTag -= onRemoveTag;
+        }
         
         public void AddTag(Tag tag)
         {
-            tagContainer.AddTag(tag);
+            tagContainer.Add(tag);
         }
 
         public void RemoveTag(Tag tag)
         {
-            tagContainer.RemoveTag(tag);
+            tagContainer.Remove(tag);
         }
         
         public void RemoveTagExact(Tag tag)
         {
-            tagContainer.RemoveTagExact(tag);
+            tagContainer.RemoveExact(tag);
         }
 
         public void AppendTags(IEnumerable<Tag> other)
         {
-            tagContainer.AppendTags(other);
+            tagContainer.Append(other);
         }
 
         public void RemoveTags(IEnumerable<Tag> other)
         {
-            tagContainer.RemoveTags(other);
+            tagContainer.Remove(other);
         }
         
         public void RemoveTagsExact(IEnumerable<Tag> other)
         {
-            tagContainer.RemoveTagsExact(other);
+            tagContainer.RemoveExact(other);
         }
 
         public void Clear()
@@ -46,12 +68,12 @@ namespace Zero53.GameplayTags
         
         public bool HasTag(Tag tag)
         {
-            return tagContainer.HasTag(tag);
+            return tagContainer.Has(tag);
         }
 
         public bool HasTagExact(Tag tag)
         {
-            return tagContainer.HasTagExact(tag);
+            return tagContainer.HasExact(tag);
         }
 
         public bool HasAny(IEnumerable<Tag> other)
@@ -72,6 +94,16 @@ namespace Zero53.GameplayTags
         public bool HasAllExact(IEnumerable<Tag> other)
         {
             return tagContainer.HasAllExact(other);
+        }
+
+        public IEnumerator<Tag> GetEnumerator()
+        {
+            return tagContainer.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)tagContainer).GetEnumerator();
         }
     }
 }

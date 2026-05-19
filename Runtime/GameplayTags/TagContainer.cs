@@ -10,11 +10,12 @@ namespace Zero53.GameplayTags
     [Serializable]
     public class TagContainer : IEnumerable<Tag>
     {
+        public event Action<Tag> OnAddTag;
+        public event Action<Tag> OnRemoveTag;
+        
         [SerializeField]
         private List<Tag> tags;
 
-        // private List<GameplayTag> _parentTags;
-        // private SortedList<GameplayTag, GameplayTag> _parentTags = new();
         private SortedSet<Tag> _parentTags = new();
 
         public TagContainer()
@@ -32,56 +33,89 @@ namespace Zero53.GameplayTags
         
         #region 增删
 
-        public void AddTag(Tag tag)
+        public bool Add(Tag tag)
         {
-            if (!tag.isValid || tags.Contains(tag)) return;
+            if (!tag.isValid || tags.Contains(tag)) return false;
+            
             tags.Add(tag);
+            OnAddTag?.Invoke(tag);
+            
             foreach (var parent in tag.GetParents())
             {
                 _parentTags.Add(parent);
             }
+            return true;
         }
 
-        public void RemoveTag(Tag tag)
+        public int Remove(Tag tag)
         {
-            if (tags.RemoveAll(t => t.Matches(tag)) == 0) return;
+            var result = tags.RemoveAll(t =>
+            {
+                if (!t.Matches(tag)) return false;
+                
+                OnRemoveTag?.Invoke(tag);
+                return true;
+            });
             
-            FillParentTags();
+            if (result != 0) FillParent();
+            
+            return result;
         }
         
-        public void RemoveTagExact(Tag tag)
+        public bool RemoveExact(Tag tag)
         {
-            if (tags.RemoveAll(t => t.MatchesExact(tag)) == 0) return;
+            if (tags.RemoveAll(t => t.MatchesExact(tag)) == 0) return false;
             
-            FillParentTags();
+            OnRemoveTag?.Invoke(tag);
+            FillParent();
+            return true;
         }
 
-        public void AppendTags(IEnumerable<Tag> other)
+        public int Append(IEnumerable<Tag> other)
         {
+            var result = 0;
             foreach (var t in other)
             {
-                AddTag(t);
+                if (Add(t)) result++;
             }
+            
+            return result;
         }
 
-        public void RemoveTags(IEnumerable<Tag> other)
+        public int Remove(IEnumerable<Tag> other)
         {
+            var result = 0;
             foreach (var tag in other)
             {
-                tags.RemoveAll(t => t.Matches(tag));
+                result += tags.RemoveAll(t =>
+                {
+                    if (!t.Matches(tag)) return false;
+                
+                    OnRemoveTag?.Invoke(tag);
+                    return true;
+                });
             }
             
-            FillParentTags();
+            FillParent();
+            return result;
         }
         
-        public void RemoveTagsExact(IEnumerable<Tag> other)
+        public int RemoveExact(IEnumerable<Tag> other)
         {
+            var result = 0;
             foreach (var tag in other)
             {
-                tags.RemoveAll(t => t.MatchesExact(tag));
+                result += tags.RemoveAll(t =>
+                {
+                    if (!t.MatchesExact(tag)) return false;
+                
+                    OnRemoveTag?.Invoke(tag);
+                    return true;
+                });
             }
             
-            FillParentTags();
+            FillParent();
+            return result;
         }
 
         public void Clear()
@@ -90,7 +124,7 @@ namespace Zero53.GameplayTags
             _parentTags.Clear();
         }
 
-        private void FillParentTags()
+        private void FillParent()
         {
             _parentTags.Clear();
             foreach (var tag in tags)
@@ -106,36 +140,41 @@ namespace Zero53.GameplayTags
 
         #region 查询匹配
 
-        public bool HasTag(Tag tag)
+        public bool Has(Tag tag)
         {
             return _parentTags.Contains(tag) || tags.Contains(tag);
         }
 
-        public bool HasTagExact(Tag tag)
+        public bool HasExact(Tag tag)
         {
             return tags.Contains(tag);
         }
 
         public bool HasAny(IEnumerable<Tag> other)
         {
-            return other.Any(HasTag);
+            return other.Any(Has);
         }
 
         public bool HasAll(IEnumerable<Tag> other)
         {
-            return other.All(HasTag);
+            return other.All(Has);
         }
 
         public bool HasAnyExact(IEnumerable<Tag> other)
         {
-            return other.Any(HasTagExact);
+            return other.Any(HasExact);
         }
 
         public bool HasAllExact(IEnumerable<Tag> other)
         {
-            return other.All(HasTagExact);
+            return other.All(HasExact);
         }
 
+        public IEnumerable<Tag> Query(Func<Tag, bool> condition)
+        {
+            return tags.Where(condition);
+        }
+        
         #endregion
 
         #region 集合运算
@@ -146,7 +185,7 @@ namespace Zero53.GameplayTags
             var res = new TagContainer();
             foreach (var t in tags)
             {
-                if (other.HasTag(t)) res.AddTag(t);
+                if (other.Has(t)) res.Add(t);
             }
 
             return res;
@@ -158,7 +197,7 @@ namespace Zero53.GameplayTags
             var res = new TagContainer();
             foreach (var t in tags)
             {
-                if (!other.HasTag(t)) res.AddTag(t);
+                if (!other.Has(t)) res.Add(t);
             }
 
             return res;
