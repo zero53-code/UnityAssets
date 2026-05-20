@@ -15,19 +15,22 @@ namespace Zero53.Gas.Attributes
         public event Action<GameplayAttribute, float> OnPreChange; 
         
         internal List<IChangeProcessor> changeProcessors;
-        
-        [field: SerializeField, HorizontalGroup, LabelText("base")] 
-        public float baseValue {get; private set;}
-        
-        [field: SerializeField, HorizontalGroup, LabelText("current")] 
-        public float currentValue {get; private set;}
-        
-        public GameplayAttributeSet attributeSet { get; }
+     
+        [field: SerializeField]
+        public string name { get; private set; }
 
-        internal GameplayAttribute(GameplayAttributeSet attributeSet, float baseValue)
+        [field: SerializeField, HorizontalGroup, LabelText("base")]
+        public float baseValue { get; private set; }
+
+        [field: SerializeField, HorizontalGroup, LabelText("current")]
+        public float currentValue { get; private set; }
+
+        public GameplayAttributeSet attributeSet { get; set; }
+
+        internal GameplayAttribute(string name, float baseValue)
         {
             changeProcessors = new List<IChangeProcessor>();
-            this.attributeSet = attributeSet;
+            this.name = name;
             this.baseValue = baseValue;
             this.currentValue = baseValue;
         }

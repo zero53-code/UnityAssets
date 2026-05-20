@@ -8,11 +8,15 @@ namespace Zero53.Gas.Attributes
 {
     public class GameplayAttributeSet : MonoBehaviour
     {
-        [SerializeField] private GameplayAttributeSetAsset[] data;
-
-        [ShowInInspector, ReadOnly] private Dictionary<Name, GameplayAttribute> _attributes;
+        [SerializeField] private GameplayAttributeSetAsset[] assets = {};
         
+        [SerializeField, ReadOnly, HideInInspector] private List<GameplayAttribute> attributes = new();
+
         [SerializeReference] private List<IGameplayEffect> effects = new();
+        
+        [ShowInInspector, ReadOnly] private Dictionary<Name, GameplayAttribute> _nameToAttribute;
+
+        #region Unity 生命周期
 
         private void Awake()
         {
@@ -28,14 +32,19 @@ namespace Zero53.Gas.Attributes
         {
             Setup();
         }
-
-        public GameplayAttribute this[Name gaName] => _attributes[gaName];
         
-        public GameplayAttribute this[string gaName] => _attributes[gaName];
+
+        #endregion
+        
+        #region API
+
+        public GameplayAttribute this[Name gaName] => _nameToAttribute[gaName];
+        
+        public GameplayAttribute this[string gaName] => _nameToAttribute[gaName];
 
         public bool TryGetAttribute(Name gaName, out GameplayAttribute attribute)
         {
-            if (_attributes.TryGetValue(gaName, out var attributeInner))
+            if (_nameToAttribute.TryGetValue(gaName, out var attributeInner))
             {
                 attribute = attributeInner;
                 return true;
@@ -50,42 +59,47 @@ namespace Zero53.Gas.Attributes
             effects.Add(effect);
         }
 
+        public void AddEffects(IEnumerable<IGameplayEffect> effects)
+        {
+            this.effects.AddRange(effects);
+        }
+
         public bool RemoveEffect(IGameplayEffect effect)
         {
             return effects.Remove(effect);
         }
-        
+
+        public void ClearEffects()
+        {
+            effects.Clear();
+        }
+
+        #endregion
         
         [Button]
         private void Setup()
         {
-            _attributes ??= new Dictionary<Name, GameplayAttribute>();
-            if (this.data == null) return;
+            if (assets == null) return;
             
-#if UNITY_EDITOR
-            GameplayAttributeSetAsset[] data;
-            if (Application.isPlaying)
-            {
-                data = new GameplayAttributeSetAsset[this.data.Length];
-                for (var i = 0; i < data.Length; i++)
-                {
-                    data[i] = Instantiate(this.data[i]);
-                }
-            }
-            else
-            {
-                data = this.data;
-            }
-            
-#else
-            var data = this.data;
-#endif
-            _attributes?.Clear();
-            _attributes ??= new Dictionary<Name, GameplayAttribute>();
+            _nameToAttribute?.Clear();
+            _nameToAttribute ??= new Dictionary<Name, GameplayAttribute>();
 
-            foreach (var attributesData in data)
+            attributes?.Clear();
+            attributes ??= new List<GameplayAttribute>();
+            
+            foreach (var attributeSetAsset in assets)
             {
-                AddAttributeSet(attributesData);
+                AddAttributeSet(attributeSetAsset);
+            }
+            
+            foreach (var attribute in attributes)
+            {
+                attribute.attributeSet = this;
+                
+                if (!_nameToAttribute.TryAdd(attribute.name, attribute))
+                {
+                    throw new Exception($"Character attribute {attribute.name} already exists");
+                }
             }
         }
 
@@ -96,10 +110,11 @@ namespace Zero53.Gas.Attributes
             foreach (var info in attributeSetAsset.attributes)
             {
                 var attributeName = info.name;
-                var gameplayAttribute = new GameplayAttribute(this, info.value);
-                gameplayAttribute.changeProcessors.AddRange(info.changeProcessors);
+                var attribute = new GameplayAttribute(attributeName, info.value);
+                attribute.changeProcessors.AddRange(info.changeProcessors);
                 
-                if (!_attributes.TryAdd(attributeName, gameplayAttribute))
+                attributes.Add(attribute);
+                if (!_nameToAttribute.TryAdd(attributeName, attribute))
                 {
                     throw new Exception($"Character attribute {attributeName} already exists");
                 }
