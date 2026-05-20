@@ -114,6 +114,22 @@ namespace Zero53.GameplayTags
                 yield return new Tag(string.Join('.', tagUnits[new Range(0, i)]));
             }
         }
+
+        private static TagContainer _tagLibrary;
+
+        public static TagContainer tagLibrary
+        {
+            get
+            {
+                if (_tagLibrary != null) return _tagLibrary;
+                
+                _tagLibrary = new TagContainer();
+
+                _tagLibrary.Append(TagLibrary.instance.tags.Select(t => new Tag(t)));
+                
+                return _tagLibrary;
+            }
+        }
     }
     
 #if UNITY_EDITOR
@@ -121,7 +137,7 @@ namespace Zero53.GameplayTags
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            var tagList = TagLibrary.instance.tags.Select(t => new Tag(t)).ToList();
+            var tagList = Tag.tagLibrary.ToList();
             
             ValueEntry.SmartValue = SirenixEditorFields.Dropdown(label, ValueEntry.SmartValue, tagList);
         }
