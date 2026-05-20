@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
@@ -12,12 +14,19 @@ namespace Zero53.Gas
     [RequireComponent(typeof(Tags))]
     public class AbilitySystem : MonoBehaviour
     {
+        #region 序列化
+
         [SerializeReference]
-        private List<IGameplayAbility> abilities = new();
+        [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
+        private List<GameplayAbility> abilities = new();
         
-        [SerializeReference]
-        private List<AbilityTask> tasks = new();
-        
+        [SerializeField, ReadOnly]
+        private List<AbilityTaskDomain> taskDomains = new();
+
+        #endregion
+
+        #region API
+
         public GameplayAttributeSet attributeSet
         {
             get
@@ -36,17 +45,24 @@ namespace Zero53.Gas
             }
         }
 
-        public bool AddAbility<TAbility>() where TAbility : IGameplayAbility, new()
+        public bool AddAbility<TAbility>() where TAbility : GameplayAbility, new()
         {
             _abilitiesRemovePending.RemoveAll(ability => ability is TAbility);
             
             if (abilities.Any(ability => ability is TAbility)) return true;
             
-            _abilitiesAddPending.Add(new TAbility());
+            var ability = new TAbility
+            {
+                abilitySystem = this
+            };
+
+            CreateTaskDomain(ability);
+
+            _abilitiesAddPending.Add(ability);
             return true;
         }
 
-        public bool RemoveAbility<TAbility>() where TAbility : IGameplayAbility
+        public bool RemoveAbility<TAbility>() where TAbility : GameplayAbility
         {
             _abilitiesAddPending.RemoveAll(ability => ability is TAbility);
             
@@ -54,46 +70,69 @@ namespace Zero53.Gas
             if (ability == null) return false;
             
             _abilitiesRemovePending.Add(ability);
-            ability.OnPreExecute();
             return true;
 
         }
 
-        public void Execute<TAbility>() where TAbility : IGameplayAbility
+        public void ExecuteAbility<TAbility>() where TAbility : GameplayAbility
         {
-            var ability = abilities.FirstOrDefault(ability => ability is TAbility);
-            if (ability == null) return;
-            
+            foreach (var ability in abilities)
+            {
+                if (ability is not TAbility) continue;
+                
+                ExecuteAbility(ability);
+                return;
+            }
+        }
+
+        public void ExecuteAbility(GameplayAbility ability)
+        {
             _abilitiesExecutePending.Add(ability);
-        }
-        
-        private readonly List<AbilityTask> _tasksAddPending = new();
-        private readonly List<AbilityTask> _tasksCancelPending = new();
-        
-        internal bool AddAbilityTask<T>(T task) where T : AbilityTask
-        {
-            if (task.isEnd) return false;
-            if (_tasksAddPending.Contains(task)) return false;
-            
-            _tasksAddPending.Add(task);
-            return true;
+            ability.OnPreExecute();
         }
 
-        internal bool CancelAbilityTask<T>(T task) where T : AbilityTask
+        public void CancelAbility<TAbility>() where TAbility : GameplayAbility
         {
-            if (task.isEnd) return false;
-            if (_tasksCancelPending.Contains(task)) return false;
-            
-            _tasksCancelPending.Add(task);
-            return true;
+            foreach (var ability in _abilitiesAddPending)
+            {
+                if (ability is not TAbility) continue;
+                
+                ability.Cancel();
+                return;
+            }
+
+            foreach (var ability in abilities)
+            {
+                if (ability is not TAbility) continue;
+                
+                ability.Cancel();
+                return;
+            }
         }
+
+        #endregion
         
-        private readonly List<IGameplayAbility> _abilitiesAddPending = new();
-        private readonly List<IGameplayAbility> _abilitiesRemovePending = new();
-        private readonly List<IGameplayAbility> _abilitiesExecutePending = new();
+        #region 私有字段
+
+        private readonly List<GameplayAbility> _abilitiesAddPending = new();
+        private readonly List<GameplayAbility> _abilitiesRemovePending = new();
+        private readonly List<GameplayAbility> _abilitiesExecutePending = new();
         private GameplayAttributeSet _attributeSet;
         private Tags _tags;
-        
+
+        #endregion
+
+        #region Unity 生命周期
+
+        private void Awake()
+        {
+            foreach (var ability in abilities)
+            {
+                ability.abilitySystem = this;
+                CreateTaskDomain(ability);
+            }
+        }
+
         private void Start()
         {
             _attributeSet = GetComponent<GameplayAttributeSet>();
@@ -103,11 +142,27 @@ namespace Zero53.Gas
         private void Update()
         {
             AbilitiesUpdate();
-            TasksUpdate();
+
+            foreach (var taskDomain in taskDomains)
+            {
+                taskDomain.OnUpdate(Time.deltaTime);
+            }
         }
+
+        #endregion
+
+        #region 私有方法
 
         private void AbilitiesUpdate()
         {
+            foreach (var ability in abilities)
+            {
+                if (ability.trigger?.Check(Time.deltaTime) ?? false)
+                {
+                    ability.Execute();
+                }
+            }
+            
             AbilitiesAddPendingUpdate();
             AbilitiesRemovePendingUpdate();
             AbilitiesExecutePendingUpdate();
@@ -118,14 +173,22 @@ namespace Zero53.Gas
             abilities.AddRange(_abilitiesAddPending);
             foreach (var ability in _abilitiesAddPending)
             {
-                ability.OnGive(this);
+                ability.OnGive();
             }
             _abilitiesAddPending.Clear();
         }
         
         private void AbilitiesRemovePendingUpdate()
         {
-            abilities.RemoveAll(ability => _abilitiesRemovePending.Contains(ability));
+            abilities.RemoveAll(ability =>
+            {
+                if (!_abilitiesRemovePending.Contains(ability)) return false;
+                
+                taskDomains.RemoveAll(taskDomain => ReferenceEquals(taskDomain.ability, ability));
+                
+                return true;
+            });
+            
             foreach (var ability in _abilitiesRemovePending)
             {
                 ability.OnRemove();
@@ -138,56 +201,64 @@ namespace Zero53.Gas
             foreach (var ability in _abilitiesExecutePending)
             {
                 if (!abilities.Contains(ability)) continue;
-                
+
                 ability.Execute();
             }
             _abilitiesExecutePending.Clear();
         }
 
-        private void TasksUpdate()
+        private void CreateTaskDomain(GameplayAbility ability)
         {
-            TasksAddPendingUpdate();
-            TasksCancelPendingUpdate();
-            RemoveAllEndedTask();
+            var taskDomain = new AbilityTaskDomain
+            {
+                abilitySystem = this,
+            };
             
-            foreach (var task in tasks)
+            ability.domain = taskDomain;
+            taskDomain.ability = ability;
+            
+            taskDomains.Add(taskDomain);
+        }
+        
+        #endregion
+
+        #region Editor
+
+#if UNITY_EDITOR
+
+        private void BeforeAbilitiesChange(CollectionChangeInfo info)
+        {
+            if (!Application.isPlaying) return;
+
+            switch (info.ChangeType)
             {
-                task.OnUpdate(Time.deltaTime);
+                case CollectionChangeType.RemoveKey
+                    or CollectionChangeType.RemoveIndex
+                    or CollectionChangeType.RemoveValue:
+                    abilities[info.Index].Cancel();
+                    break;
+                
+                case CollectionChangeType.Clear:
+                    abilities.ForEach(ability => ability.Cancel());
+                    break;
             }
         }
 
-        private void TasksAddPendingUpdate()
+        private void AfterAbilitiesChange(CollectionChangeInfo info)
         {
-            tasks.AddRange(_tasksAddPending);
-            foreach (var task in _tasksAddPending)
-            {
-                task.abilitySystem = this;
-            }
-            tasks.Clear();
-        }
+            if (!Application.isPlaying) return;
 
-        private void TasksCancelPendingUpdate()
-        {
-            tasks.RemoveAll(task =>
-            {
-                if (!_tasksCancelPending.Contains(task)) return false;
-                
-                task.OnCancel();
-                task.OnEnd();
-                return true;
-            });
-            _tasksCancelPending.Clear();
-        }
+            if (info.ChangeType is not (CollectionChangeType.Add
+                or CollectionChangeType.Insert
+                or CollectionChangeType.SetKey)) return;
+            
+            if (info.Value is not GameplayAbility ability) return;
 
-        private void RemoveAllEndedTask()
-        {
-            tasks.RemoveAll(task =>
-            {
-                if (!task.isEnd) return false;
-                
-                task.OnEnd();
-                return true;
-            });
+            ability.abilitySystem = this;
         }
+        
+#endif
+
+        #endregion
     }
 }

@@ -1,59 +1,128 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Zero53.Gas.Abilities
 {
+    /// <summary>
+    /// 任务基类
+    /// </summary>
     [Serializable]
     public abstract class AbilityTask
     {
+        public AbilityTaskDomain domain { get; internal set; }
         public AbilitySystem abilitySystem { get; internal set; }
-        public IGameplayAbility ability { get; internal set; }
+        public GameplayAbility ability { get; internal set; }
+     
+        /// <summary>
+        /// 父任务
+        /// </summary>
+        public AbilityTask parentTask { get; private set; }
         
-        [field: SerializeField]
-        public bool isEnd { get; private set; }
+        public AbilityTask rootTask { get; internal set; }
 
-        protected AbilityTask(IGameplayAbility ability)
+        public IEnumerable<AbilityTask> subTasks => _subTasks.ToArray();
+        
+        /// <summary>
+        /// 子任务
+        /// </summary>
+        private List<AbilityTask> _subTasks = new();
+        
+        /// <summary>
+        /// 任务是否结束
+        /// </summary>
+        [field: SerializeField] public bool isCanceled { get; private set; }
+        
+        /// <summary>
+        /// 任务是否结束
+        /// </summary>
+        [field: SerializeField] public bool isEnded { get; private set; }
+
+        protected AbilityTask(GameplayAbility ability)
         {
             this.ability = ability;
         }
         
+        /// <summary>
+        /// 当任务被添加到 AbilitySystem 中时调用
+        /// </summary>
         protected virtual void Init() {}
         
+        /// <summary>
+        /// 当任务被添加到 AbilitySystem 中后每帧调用
+        /// </summary>
+        /// <param name="deltaTime">Time.deltaTime</param>
         protected internal abstract void OnUpdate(float deltaTime);
         
+        /// <summary>
+        /// 任务被取消后的下一帧调用, 随后立刻调用 OnEnd
+        /// </summary>
         protected internal virtual void OnCancel() {}
         
+        /// <summary>
+        /// 任务结束后的下一帧调用
+        /// </summary>
         protected internal virtual void OnEnd() {}
 
+        /// <summary>
+        /// 取消任务, 并取消所有子任务
+        /// 可由外部调用
+        /// </summary>
         public void Cancel()
         {
-            if (isEnd) return;
+            if (!domain.CancelAbilityTask(this)) return;
             
-            CancelTask(this);
+            isCanceled = true;
+            foreach (var subTask in _subTasks)
+            {
+                subTask.Cancel();
+            }
+            
+            End();
         }
 
+        /// <summary>
+        /// 结束任务, 并结束所有子任务
+        /// 仅在内部调用
+        /// </summary>
         protected void End()
         {
-            if (!isEnd) return;
+            if (isEnded) return;
             
-            isEnd = true;
-            OnEnd();
-        }
-
-        protected void AddTask<T>(T task) where T : AbilityTask
-        {
-            task.abilitySystem = abilitySystem;
-            task.ability = ability;
-            
-            if (abilitySystem.AddAbilityTask(task))
+            isEnded = true;
+            foreach (var subTask in _subTasks)
             {
-                Init();
+                subTask.End();
             }
         }
 
-        public void CancelTask<T>(T task) where T : AbilityTask
+        /// <summary>
+        /// 添加子任务
+        /// </summary>
+        /// <param name="task">任务对象</param>
+        /// <typeparam name="TTask">任务类型</typeparam>
+        protected void AddSubTask<TTask>(TTask task) where TTask : AbilityTask
         {
-            abilitySystem.CancelAbilityTask(task);
+            AddSubTask((AbilityTask)task);
+        }
+
+        /// <summary>
+        /// 添加子任务
+        /// </summary>
+        /// <param name="task">任务对象</param>
+        protected void AddSubTask(AbilityTask task)
+        {
+            task.domain = domain;
+            task.abilitySystem = abilitySystem;
+            task.ability = ability;
+            task.rootTask = rootTask;
+            task.parentTask = this;
+            _subTasks.Add(task);
+            
+            if (domain.AddAbilityTask(task))
+            {
+                Init();
+            }
         }
     }
 }
