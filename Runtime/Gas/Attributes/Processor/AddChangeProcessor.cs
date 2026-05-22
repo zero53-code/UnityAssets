@@ -6,9 +6,9 @@ namespace Zero53.Gas.Attributes.Processor
     public class  AddChangeProcessor : IChangeProcessor
     {
         [NameDropdown] public Name addendAttributeName;
-        public void Process(GameplayAttribute attribute, ref float value)
+        public void Process(GameplayAttributeSet attributeSet, Name attributeName, ref float value)
         {
-            var addendValue = attribute.attributeSet[addendAttributeName].value;
+            var addendValue = attributeSet[addendAttributeName];
             value += addendValue;
         }
     }

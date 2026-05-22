@@ -8,9 +8,9 @@ namespace Zero53.Gas.Attributes.Processor
     {
         [NameDropdown] public Name minAttributeName;
         
-        public void Process(GameplayAttribute attribute, ref float value)
+        public void Process(GameplayAttributeSet attributeSet, Name attributeName, ref float value)
         {
-            var minValue = attribute.attributeSet[minAttributeName].value;
+            var minValue = attributeSet[minAttributeName];
             value = value.Min(minValue);
         }
     }

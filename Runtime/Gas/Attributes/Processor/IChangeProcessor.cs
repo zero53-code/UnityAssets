@@ -2,6 +2,6 @@
 {
     public interface IChangeProcessor
     {
-        void Process(GameplayAttribute attribute, ref float value);
+        void Process(GameplayAttributeSet attributeSet, Name attributeName, ref float value);
     }
 }

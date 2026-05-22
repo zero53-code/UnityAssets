@@ -6,9 +6,9 @@ namespace Zero53.Gas.Attributes.Processor
     public class  MultiplyChangeProcessor : IChangeProcessor
     {
         [NameDropdown] public Name multipleAttributeName;
-        public void Process(GameplayAttribute attribute, ref float value)
+        public void Process(GameplayAttributeSet attributeSet, Name attributeName, ref float value)
         {
-            var multipleValue = attribute.attributeSet[multipleAttributeName].value;
+            var multipleValue = attributeSet[multipleAttributeName];
             value *= multipleValue;
         }
     }

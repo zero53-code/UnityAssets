@@ -8,9 +8,9 @@ namespace Zero53.Gas.Attributes.Processor
     {
         [NameDropdown] public Name maxAttributeName;
         
-        public void Process(GameplayAttribute attribute, ref float value)
+        public void Process(GameplayAttributeSet attributeSet, Name attributeName, ref float value)
         {
-            var maxValue = attribute.attributeSet[maxAttributeName].value;
+            var maxValue = attributeSet[maxAttributeName];
             value = value.Max(maxValue);
         }
     }
