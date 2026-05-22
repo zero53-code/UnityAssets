@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace Zero53.Singletons
 {
@@ -8,6 +10,8 @@ namespace Zero53.Singletons
         private static volatile T _instance;
         private static readonly object _lock = new();
 
+#if !UNITY_EDITOR
+        
         public static T instance
         {
             get
@@ -51,6 +55,44 @@ namespace Zero53.Singletons
                 return _instance;
             }
         }
+      
+#else
+        public static T instance
+        {
+            get
+            {
+                var guids = AssetDatabase.FindAssets($"t:{typeof(T).FullName}");
+                var list = new List<T>();
+
+                foreach (var guid in guids)
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    var so = AssetDatabase.LoadAssetAtPath<T>(path);
+                    list.Add(so);
+                }
+
+                if (list.Count == 0)
+                {
+                    _instance = CreateInstance<T>();
+                    AssetDatabase.CreateAsset(_instance, $"Assets/{typeof(T).Name}.asset");
+                }
+                else
+                {
+                    _instance = list[0];
+
+                    for (var i = 1; i < list.Count; i++)
+                    {
+                        AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(guids[i]));
+                    }
+                }
+
+                return _instance;
+            }
+        }
+        
+#endif
+        
+        
         
         public static bool isInitialized => _instance != null;
         
