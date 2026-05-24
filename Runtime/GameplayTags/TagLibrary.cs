@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UnityEngine;
 using Zero53.Singletons;
 
@@ -21,10 +20,12 @@ namespace Zero53.GameplayTags
         {
             tags.Add(_tag);
             var tag = new Tag(_tag);
-            tag
-                .GetParents()
-                .Where(tagParent => tagParent.isValid)
-                .ForEach(t => tags.Add(t.ToString()));
+            foreach (var t in tag
+                         .GetParents()
+                         .Where(tagParent => tagParent.isValid))
+            {
+                tags.Add(t.ToString());
+            }
             
             _tag = "";
             
@@ -82,9 +83,10 @@ namespace Zero53.GameplayTags
                 return len1.CompareTo(len2);
             });
         }
+
 #endif
         
-        [field: SerializeField, PropertyOrder(order: 2f), ReadOnly]
+        [field: SerializeField, PropertyOrder(order: 2f), DisplayAsString]
         public List<string> tags { get; private set; }
 
     }

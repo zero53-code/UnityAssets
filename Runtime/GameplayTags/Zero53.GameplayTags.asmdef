@@ -1,4 +1,18 @@
-﻿{
-  "name": "Zero53.GameplayTags",
-  "references": ["Zero53", "Zero53.Singletons"]
+{
+    "name": "Zero53.GameplayTags",
+    "rootNamespace": "",
+    "references": [
+        "Zero53",
+        "Zero53.Singletons",
+        "Sirenix.OdinInspector.CompatibilityLayer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.Gas.Attributes;
 
@@ -15,7 +16,7 @@ namespace Zero53.Gas.Effects
         /// <summary>
         /// 效果
         /// </summary>
-        [SerializeReference] public IGameplayEffect effect;
+        [OdinSerialize, SerializeReference] public IGameplayEffect effect;
         
         /// <summary>
         /// 持续时间

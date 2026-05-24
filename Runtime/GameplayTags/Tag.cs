@@ -211,44 +211,47 @@ namespace Zero53.GameplayTags
     }
     
 #if UNITY_EDITOR
-    
-    public class TagDrawer : OdinValueDrawer<Tag>
+
+    namespace Editor
     {
-        protected override void DrawPropertyLayout(GUIContent label)
+        public class TagDrawer : OdinValueDrawer<Tag>
         {
-            var tagList = Tag.tagLibrary.ToList();
-            
-            // 绘制一个可点击的框
-            var rect = EditorGUILayout.GetControlRect();
-            if (label != null) rect = EditorGUI.PrefixLabel(rect, label);
+            protected override void DrawPropertyLayout(GUIContent label)
+            {
+                var tagList = Tag.tagLibrary.ToList();
 
-            var value = ValueEntry.SmartValue;
-            
-            // 显示文本
-            string displayText;
-            var style = EditorStyles.popup;
-            
-            if (value == null)
-            {
-                style = new GUIStyle(style);
-                var textColor = style.normal.textColor;
-                textColor.a = 0.5f;
-                style.normal.textColor = textColor;
-                displayText = "Select Tag";
-            }
-            else
-            {
-                displayText = value.ToString();
-            }
+                // 绘制一个可点击的框
+                var rect = EditorGUILayout.GetControlRect();
+                if (label != null) rect = EditorGUI.PrefixLabel(rect, label);
 
-            GUI.Label(rect, displayText, style);
-            
-            if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
-            {
-                var selector = new GenericSelector<Tag>("Select Tag", tagList);
-                selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
-                selector.ShowInPopup();
-                Event.current.Use();
+                var value = ValueEntry.SmartValue;
+
+                // 显示文本
+                string displayText;
+                var style = EditorStyles.popup;
+
+                if (value == null)
+                {
+                    style = new GUIStyle(style);
+                    var textColor = style.normal.textColor;
+                    textColor.a = 0.5f;
+                    style.normal.textColor = textColor;
+                    displayText = "Select Tag";
+                }
+                else
+                {
+                    displayText = value.ToString();
+                }
+
+                GUI.Label(rect, displayText, style);
+
+                if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                {
+                    var selector = new GenericSelector<Tag>("Select Tag", tagList);
+                    selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
+                    selector.ShowInPopup();
+                    Event.current.Use();
+                }
             }
         }
     }

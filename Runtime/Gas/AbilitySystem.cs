@@ -2,6 +2,7 @@
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
@@ -16,7 +17,7 @@ namespace Zero53.Gas
     {
         #region 序列化
 
-        [SerializeReference]
+        [OdinSerialize, SerializeReference]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
         private List<GameplayAbility> abilities = new();
         

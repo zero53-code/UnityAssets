@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,12 +24,12 @@ namespace Zero53.Editor
             var typeName = property.managedReferenceFullTypename;
             var displayName = GetShortTypeName(typeName);
 
-            if (EditorGUI.DropdownButton(typeRect, new GUIContent(displayName ?? "Select Effect Type"), FocusType.Keyboard))
+            if (EditorGUI.DropdownButton(typeRect, new GUIContent(displayName ?? "Select Type"), FocusType.Keyboard))
             {
                 var menu = new GenericMenu();
                 if (_typeMap == null || _typeMap.Count == 0)
                 {
-                    menu.AddDisabledItem(new GUIContent("No Ability Effects available"));
+                    menu.AddDisabledItem(new GUIContent("No available"));
                     menu.ShowAsContext();
                     return;
                 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Sirenix.Serialization;
+using UnityEngine;
 using Zero53.Gas.Attributes;
 
 namespace Zero53.Gas.Effects
@@ -6,7 +7,7 @@ namespace Zero53.Gas.Effects
     [CreateAssetMenu(menuName = "Zero53/Create GameplayEffect", fileName = "New GameplayEffect")]
     public class GameplayEffectData : ScriptableObject, IGameplayEffect
     {
-        [field: SerializeReference]
+        [field: OdinSerialize, SerializeReference]
         public IGameplayEffect[] effects { get; private set; }
 
         public void Apply(GameplayAttributeSet target)

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
 using Zero53.Gas.Effects;
 
 namespace Zero53.Gas.Attributes
 {
+    [DisallowMultipleComponent]
     public class GameplayAttributeSet : MonoBehaviour
     {
         [SerializeField, TableList] private List<GameplayAttributeData> attributes = new();
@@ -129,10 +128,10 @@ namespace Zero53.Gas.Attributes
 
 #if UNITY_EDITOR
         
-        [Button("AddAttributeSetAsset")]
+        [Button("Add Attribute Set Asset")]
         private void AddAttributeSetAsset()
         {
-            // 找到项目中所有 SO
+            // 找到项目中所有 GameplayAttributeSetAsset
             var guids = AssetDatabase.FindAssets($"t:{typeof(GameplayAttributeSetAsset).FullName}");
             var list = guids
                 .Select(AssetDatabase.GUIDToAssetPath)
@@ -141,7 +140,7 @@ namespace Zero53.Gas.Attributes
 
             // 弹出 Odin 选择窗口
             var selector = new GenericSelector<GameplayAttributeSetAsset>("Select Asset", list);
-            selector.EnableSingleClickToSelect(); // 单击选择
+            selector.EnableSingleClickToSelect();
 
             selector.SelectionConfirmed += selection => AddAttributeSetAsset(selection.FirstOrDefault());
             selector.ShowInPopup();
