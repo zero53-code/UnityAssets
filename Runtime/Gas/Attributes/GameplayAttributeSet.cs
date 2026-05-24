@@ -10,6 +10,7 @@ using Zero53.Gas.Effects;
 namespace Zero53.Gas.Attributes
 {
     [DisallowMultipleComponent]
+    [NameDomain("_namesGetter")]
     public class GameplayAttributeSet : MonoBehaviour
     {
         #region 序列化
@@ -18,6 +19,9 @@ namespace Zero53.Gas.Attributes
         private List<GameplayAttributeData> attributes = new();
 
         [SerializeReference, PropertyOrder(order: 1)] private List<IGameplayEffect> effects = new();
+
+        [NameDropdown]
+        public Name testName;
         
         #endregion
 
@@ -43,6 +47,7 @@ namespace Zero53.Gas.Attributes
             selector.ShowInPopup();
         }
         
+        private IList<string> _namesGetter => attributes.Select(a => a.name.ToString()).ToList();
 #endif
 
         #region Unity 生命周期

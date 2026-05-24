@@ -8,18 +8,11 @@ using Zero53.Gas.Attributes.Processor;
 namespace Zero53.Gas.Attributes
 {
     [CreateAssetMenu(menuName = "Zero53/Gas/Gameplay Attribute Set", fileName = "New Gameplay Attribute Set")]
+    [NameDomain("_namesGetter")]
     public class GameplayAttributeSetAsset : ScriptableObject
     {
         [field: SerializeField]
         public List<AttributeInfo> attributes { get; private set; } = new();
-
-        private void OnValidate()
-        {
-            NameDropdownAttribute.items = attributes
-                .Select(item => new Name(item.name))
-                .Where(n => !n.isEmpty)
-                .ToList();
-        }
 
         [Serializable]
         public class AttributeInfo
@@ -51,5 +44,12 @@ namespace Zero53.Gas.Attributes
             [SerializeReference]
             public IChangeProcessor[] changeProcessors = {};
         }
+
+#if UNITY_EDITOR
+        
+        private IList<string> _namesGetter => attributes.Select(info => info.name).ToList();
+        
+#endif
+        
     }
 }

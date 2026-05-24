@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
@@ -9,10 +10,11 @@ namespace Zero53.Gas.Attributes
     /// <summary>
     /// 用于绘制属性名的下拉框
     /// </summary>
+    [Conditional("UNITY_EDITOR")]
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class NameDropdownAttribute : Attribute
     {
-        public static IList<Name> items = new List<Name>();
+        public IList<string> names;
     }
 
 #if UNITY_EDITOR
@@ -35,9 +37,10 @@ namespace Zero53.Gas.Attributes
                     return;
             }
 
-            Property.ValueEntry.WeakSmartValue = SirenixEditorFields.Dropdown(label, name, NameDropdownAttribute.items);
+            Property.ValueEntry.WeakSmartValue = (Name)SirenixEditorFields.Dropdown(label, name, Attribute.names ?? new List<string>());
         }
     }
     
 #endif
+
 }
