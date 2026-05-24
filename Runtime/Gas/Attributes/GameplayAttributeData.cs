@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.Gas.Attributes.Processor;
 
@@ -12,9 +13,9 @@ namespace Zero53.Gas.Attributes
     [Serializable]
     internal class GameplayAttributeData
     {
-        [SerializeReference, ReadOnly, HideInInspector]
+        [SerializeReference, HideInTables]
         public List<IChangeProcessor> changeProcessors;
-
+        
         [TableColumnWidth(width: 50)]
         public Name name;
 
@@ -23,7 +24,7 @@ namespace Zero53.Gas.Attributes
 
         [TableColumnWidth(width: 100)]
         public float currentValue;
-
+        
         public GameplayAttributeData(Name name, float baseValue) : this(name, baseValue, baseValue)
         {
         }
@@ -48,3 +49,4 @@ namespace Zero53.Gas.Attributes
         }
     }
 }
+

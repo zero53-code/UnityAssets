@@ -12,11 +12,38 @@ namespace Zero53.Gas.Attributes
     [DisallowMultipleComponent]
     public class GameplayAttributeSet : MonoBehaviour
     {
-        [SerializeField, TableList] private List<GameplayAttributeData> attributes = new();
+        #region 序列化
 
-        [SerializeReference] private List<IGameplayEffect> effects = new();
+        [SerializeField, TableList(ShowIndexLabels = true), PropertyOrder(order: 0)] 
+        private List<GameplayAttributeData> attributes = new();
+
+        [SerializeReference, PropertyOrder(order: 1)] private List<IGameplayEffect> effects = new();
         
+        #endregion
+
         private readonly Dictionary<Name, GameplayAttributeData> _nameToAttribute = new();
+
+#if UNITY_EDITOR
+        
+        [Button("Add Attribute Set Asset"), PropertyOrder(order: 0)]
+        private void AddAttributeSetAsset()
+        {
+            // 找到项目中所有 GameplayAttributeSetAsset
+            var guids = AssetDatabase.FindAssets($"t:{typeof(GameplayAttributeSetAsset).FullName}");
+            var list = guids
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<GameplayAttributeSetAsset>)
+                .ToList();
+
+            // 弹出 Odin 选择窗口
+            var selector = new GenericSelector<GameplayAttributeSetAsset>("Select Asset", list);
+            selector.EnableSingleClickToSelect();
+
+            selector.SelectionConfirmed += selection => AddAttributeSetAsset(selection.FirstOrDefault());
+            selector.ShowInPopup();
+        }
+        
+#endif
 
         #region Unity 生命周期
 
@@ -112,6 +139,8 @@ namespace Zero53.Gas.Attributes
         {
             if (asset == null) return;
             
+            asset = Instantiate(asset);
+            
             foreach (var info in asset.attributes)
             {
                 var attributeName = info.name;
@@ -125,29 +154,7 @@ namespace Zero53.Gas.Attributes
                 }
             }
         }
-
-#if UNITY_EDITOR
         
-        [Button("Add Attribute Set Asset")]
-        private void AddAttributeSetAsset()
-        {
-            // 找到项目中所有 GameplayAttributeSetAsset
-            var guids = AssetDatabase.FindAssets($"t:{typeof(GameplayAttributeSetAsset).FullName}");
-            var list = guids
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<GameplayAttributeSetAsset>)
-                .ToList();
-
-            // 弹出 Odin 选择窗口
-            var selector = new GenericSelector<GameplayAttributeSetAsset>("Select Asset", list);
-            selector.EnableSingleClickToSelect();
-
-            selector.SelectionConfirmed += selection => AddAttributeSetAsset(selection.FirstOrDefault());
-            selector.ShowInPopup();
-        }
-        
-#endif
-
         #region Effects API
 
         public void AddEffect(IGameplayEffect effect)
