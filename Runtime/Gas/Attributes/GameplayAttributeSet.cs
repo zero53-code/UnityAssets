@@ -19,36 +19,11 @@ namespace Zero53.Gas.Attributes
         private List<GameplayAttributeData> attributes = new();
 
         [SerializeReference, PropertyOrder(order: 1)] private List<IGameplayEffect> effects = new();
-
-        [NameDropdown]
-        public Name testName;
         
         #endregion
 
         private readonly Dictionary<Name, GameplayAttributeData> _nameToAttribute = new();
 
-#if UNITY_EDITOR
-        
-        [Button("Add Attribute Set Asset"), PropertyOrder(order: 0)]
-        private void AddAttributeSetAsset()
-        {
-            // 找到项目中所有 GameplayAttributeSetAsset
-            var guids = AssetDatabase.FindAssets($"t:{typeof(GameplayAttributeSetAsset).FullName}");
-            var list = guids
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<GameplayAttributeSetAsset>)
-                .ToList();
-
-            // 弹出 Odin 选择窗口
-            var selector = new GenericSelector<GameplayAttributeSetAsset>("Select Asset", list);
-            selector.EnableSingleClickToSelect();
-
-            selector.SelectionConfirmed += selection => AddAttributeSetAsset(selection.FirstOrDefault());
-            selector.ShowInPopup();
-        }
-        
-        private IList<string> _namesGetter => attributes.Select(a => a.name.ToString()).ToList();
-#endif
 
         #region Unity 生命周期
 
@@ -225,5 +200,28 @@ namespace Zero53.Gas.Attributes
                 effect.Apply(this);
             }
         }
+        
+#if UNITY_EDITOR
+        
+        [Button("Add Attribute Set Asset"), PropertyOrder(order: 0)]
+        private void AddAttributeSetAsset()
+        {
+            // 找到项目中所有 GameplayAttributeSetAsset
+            var guids = AssetDatabase.FindAssets($"t:{typeof(GameplayAttributeSetAsset).FullName}");
+            var list = guids
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<GameplayAttributeSetAsset>)
+                .ToList();
+
+            // 弹出 Odin 选择窗口
+            var selector = new GenericSelector<GameplayAttributeSetAsset>("Select Asset", list);
+            selector.EnableSingleClickToSelect();
+
+            selector.SelectionConfirmed += selection => AddAttributeSetAsset(selection.FirstOrDefault());
+            selector.ShowInPopup();
+        }
+        
+        private IList<string> _namesGetter => attributes.Select(a => a.name.ToString()).ToList();
+#endif
     }
 }
