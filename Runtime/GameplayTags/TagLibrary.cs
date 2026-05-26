@@ -8,7 +8,7 @@ using Zero53.Singletons;
 namespace Zero53.GameplayTags
 {
     [CreateAssetMenu(menuName = "Zero53/Create GameplayTagLibrary", fileName = "New GameplayTagLibrary")]
-    public class TagLibrary : SOSingleton<TagLibrary>
+    public class TagLibrary : AddressableSOSingleton<TagLibrary>
     {
 #if UNITY_EDITOR
         

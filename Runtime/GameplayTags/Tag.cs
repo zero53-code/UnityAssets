@@ -218,7 +218,9 @@ namespace Zero53.GameplayTags
         {
             protected override void DrawPropertyLayout(GUIContent label)
             {
-                var tagList = Tag.tagLibrary.ToList();
+                var tagList = TagLibrary.instance != null 
+                    ? TagLibrary.instance.tags.Select(tag => (Tag)tag).ToArray()
+                    : Array.Empty<Tag>();
 
                 // 绘制一个可点击的框
                 var rect = EditorGUILayout.GetControlRect();
@@ -245,13 +247,12 @@ namespace Zero53.GameplayTags
 
                 GUI.Label(rect, displayText, style);
 
-                if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
-                {
-                    var selector = new GenericSelector<Tag>("Select Tag", tagList);
-                    selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
-                    selector.ShowInPopup();
-                    Event.current.Use();
-                }
+                if (Event.current.type != EventType.MouseDown || !rect.Contains(Event.current.mousePosition)) return;
+                
+                var selector = new GenericSelector<Tag>("Select Tag", tagList);
+                selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
+                selector.ShowInPopup();
+                Event.current.Use();
             }
         }
     }

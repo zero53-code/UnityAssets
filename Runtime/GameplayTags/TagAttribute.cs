@@ -33,13 +33,10 @@ namespace Zero53.GameplayTags
                 Property.Draw(label);
                 return;
             }
-            
-            List<Name> tagList;
-            
-            if (TagLibrary.isInitialized)
-                tagList = TagLibrary.instance.tags.Select(t => (Name)t).ToList();
-            else
-                tagList = new List<Name>();
+
+            var tagList = TagLibrary.instance != null 
+                ? TagLibrary.instance.tags.Select(t => (Name)t).ToList() 
+                : new List<Name>();
 
             SirenixEditorFields.Dropdown(label, currentTag, tagList);
         }
