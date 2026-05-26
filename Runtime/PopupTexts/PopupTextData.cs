@@ -18,14 +18,14 @@ namespace Zero53.PopupTexts
         public Vector3 dir;
         
         /// <summary>
-        /// 随机弹出位置范围
-        /// </summary>
-        public Vector3 posRange; 
-        
-        /// <summary>
         /// 随机弹出结束位置范围
         /// </summary>
         public Vector3 dirRange; 
+        
+        /// <summary>
+        /// 随机弹出位置范围
+        /// </summary>
+        public Vector3 posRange; 
         
         /// <summary>
         /// 跳字移动的基础速度
@@ -35,12 +35,12 @@ namespace Zero53.PopupTexts
         /// <summary>
         /// 跳字的字体颜色
         /// </summary>
-        public Color fontColor;
+        public Color fontColor = Color.white;
 
         /// <summary>
         /// 跳字的字体大小
         /// </summary>
-        public float fontSize;
+        public float fontSize = 5f;
 
         /// <summary>
         /// 跳字透明度变化曲线

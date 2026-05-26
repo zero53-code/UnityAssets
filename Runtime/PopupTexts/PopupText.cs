@@ -74,8 +74,8 @@ namespace Zero53.PopupTexts
             if (_text == null) _text = gameObject.AddComponent<TextMeshProUGUI>();
             _rect = GetComponent<RectTransform>();
             
-            _text.color = data.fontColor;
-            _text.fontSize = data.fontSize;
+            _text.color = Color.clear;
+            _text.fontSize = 0;
 
             // 随机位置
             var pos = transform.position;
