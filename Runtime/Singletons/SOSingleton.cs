@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace Zero53.Singletons
 {
+    /// <summary>
+    /// 基于 Resources 文件夹的 ScriptableObject 单例类
+    /// </summary>
+    /// <typeparam name="T">单例类型</typeparam>
     public abstract class SOSingleton<T> : ScriptableObject
         where T : ScriptableObject
     {
@@ -91,8 +95,6 @@ namespace Zero53.Singletons
         }
         
 #endif
-        
-        
         
         public static bool isInitialized => _instance != null;
         
