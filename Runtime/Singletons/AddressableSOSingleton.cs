@@ -15,21 +15,24 @@ namespace Zero53.Singletons
         private static volatile T _instance;
         private static readonly object _lock = new();
         
-        private static AddressableKeyAttribute[] _keyAttributes;
-        
+        private static string _addressableKey;
+
         public static string addressableKey
         {
             get
             {
-                _keyAttributes ??= typeof(T)
+                _addressableKey ??= typeof(T)
                     .GetCustomAttributes(true)
                     .OfType<AddressableKeyAttribute>()
-                    .ToArray();
-                
-                return _keyAttributes.FirstOrDefault()?.key ?? typeof(T).Name;
+                    .Select(attr => attr.key)
+                    .FirstOrDefault();
+
+                _addressableKey ??= typeof(T).Name.Replace('.', '/');
+
+                return _addressableKey;
             }
         }
-        
+
         public static T instance
         {
             get
