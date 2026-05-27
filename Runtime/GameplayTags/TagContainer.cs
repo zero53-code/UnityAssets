@@ -152,21 +152,25 @@ namespace Zero53.GameplayTags
 
         public bool HasAny(IEnumerable<Tag> other)
         {
+            if (other == null) return true;
             return other.Any(Has);
         }
 
         public bool HasAll(IEnumerable<Tag> other)
         {
+            if (other == null) return true;
             return other.All(Has);
         }
 
         public bool HasAnyExact(IEnumerable<Tag> other)
         {
+            if (other == null) return true;
             return other.Any(HasExact);
         }
 
         public bool HasAllExact(IEnumerable<Tag> other)
         {
+            if (other == null) return true;
             return other.All(HasExact);
         }
 
@@ -213,6 +217,19 @@ namespace Zero53.GameplayTags
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public IEnumerable<Tag> GetParents()
+        {
+            foreach (var parentTag in _parentTags)
+            {
+                yield return parentTag;
+            }
+
+            foreach (var tag in tags)
+            {
+                yield return tag;
+            }
         }
     }
     
