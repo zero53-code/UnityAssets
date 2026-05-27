@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
@@ -40,7 +41,7 @@ namespace Zero53.GameplayTags
         /// <summary>
         /// 是否为有效标签
         /// </summary>
-        public bool isValid => !isEmpty;
+        public bool isValid => !isEmpty && !fullName.Contains('/');
 
         /// <summary>
         /// 判断当前标签是否与目标标签匹配（支持父集匹配）
@@ -203,7 +204,13 @@ namespace Zero53.GameplayTags
                 
                 _tagLibrary = new TagContainer();
 
-                _tagLibrary.Append(TagLibrary.instance.tags.Select(t => new Tag(t)));
+                var tags = TagLibrary
+                    .instance
+                    .tags
+                    .Select(t => new Tag(t))
+                    .Where(t => t.isValid);
+                
+                _tagLibrary.Append(tags);
                 
                 return _tagLibrary;
             }
@@ -218,9 +225,7 @@ namespace Zero53.GameplayTags
         {
             protected override void DrawPropertyLayout(GUIContent label)
             {
-                var tagList = TagLibrary.instance != null 
-                    ? TagLibrary.instance.tags.Select(tag => (Tag)tag).ToArray()
-                    : Array.Empty<Tag>();
+                var tagList = Tag.tagLibrary.GetParents();
 
                 // 绘制一个可点击的框
                 var rect = EditorGUILayout.GetControlRect();
@@ -249,7 +254,37 @@ namespace Zero53.GameplayTags
 
                 if (Event.current.type != EventType.MouseDown || !rect.Contains(Event.current.mousePosition)) return;
                 
-                var selector = new GenericSelector<Tag>("Select Tag", tagList);
+                // ShowSelector(tagList);
+                
+                ShowTreeSelector(tagList);
+            }
+            
+            private void ShowTreeSelector(IEnumerable<Tag> list)
+            {
+                // 创建选择器
+                var selector = new GenericSelector<Tag>(
+                    "Select Tag", 
+                    false, 
+                    x => x.ToString().Replace('.', '/'),
+                    list);
+
+                // 自动选中当前值
+                selector.SetSelection(ValueEntry.SmartValue);
+
+                // 选择确认
+                selector.SelectionConfirmed += sel =>
+                {
+                    ValueEntry.SmartValue = sel.FirstOrDefault();
+                    ValueEntry.ApplyChanges();
+                };
+
+                // 显示弹窗
+                selector.ShowInPopup(360, 400);
+            }
+
+            private void ShowSelector(IEnumerable<Tag> list)
+            {
+                var selector = new GenericSelector<Tag>("Select Tag", list);
                 selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
                 selector.ShowInPopup();
                 Event.current.Use();
