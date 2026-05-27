@@ -13,7 +13,8 @@ namespace Zero53.Gas.Abilities
         public AbilitySystem abilitySystem { get; internal set; }
         public AbilityTask currentDomTask { get; internal set; }
         
-        [field: OdinSerialize, SerializeReference] public IAbilityTrigger trigger { get; set; }
+        [field: OdinSerialize, SerializeReference, BoxGroup] 
+        public IAbilityTrigger trigger { get; set; }
         
         /// <summary>
         /// 技能是否正在执行

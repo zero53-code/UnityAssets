@@ -14,13 +14,14 @@ namespace Zero53.Gas.AbilityTriggers
         /// <summary>
         /// 冷却持续时间
         /// </summary>
-        [Min(0f)] public float cooldownDuration = 1f;
+        [Min(0f), HorizontalGroup] 
+        public float duration = 1f;
         
         /// <summary>
         /// 冷却计时器
         /// </summary>
-        [Min(0f), ProgressBar(min: 0f, maxGetter: "cooldownDuration")] 
-        public float cooldownTimer;
+        [Min(0f), HorizontalGroup, ProgressBar(min: 0f, maxGetter: "duration")] 
+        public float timer;
         
         private GameplayAbility _ability;
 
@@ -33,12 +34,12 @@ namespace Zero53.Gas.AbilityTriggers
         {
             if (_ability.isExecuting)
             {
-                cooldownTimer = 0f;
+                timer = 0f;
                 return false;
             }
             
-            cooldownTimer += deltaTime;
-            return cooldownTimer >= cooldownDuration;
+            timer += deltaTime;
+            return timer >= duration;
         }
     }
 }
