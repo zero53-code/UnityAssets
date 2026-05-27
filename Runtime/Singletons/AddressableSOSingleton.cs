@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Zero53.Singletons.Attributes;
+using Zero53.Utils;
 
 namespace Zero53.Singletons
 {
@@ -11,7 +14,22 @@ namespace Zero53.Singletons
     {
         private static volatile T _instance;
         private static readonly object _lock = new();
-
+        
+        private static AddressableKeyAttribute[] _keyAttributes;
+        
+        public static string addressableKey
+        {
+            get
+            {
+                _keyAttributes ??= typeof(T)
+                    .GetCustomAttributes(true)
+                    .OfType<AddressableKeyAttribute>()
+                    .ToArray();
+                
+                return _keyAttributes.FirstOrDefault()?.key ?? typeof(T).Name;
+            }
+        }
+        
         public static T instance
         {
             get
@@ -22,7 +40,6 @@ namespace Zero53.Singletons
                     {
                         if (_instance == null)
                         {
-                            // LoadInstance();
                             LoadInstanceBlocked();
                         }
                         return _instance;
@@ -30,6 +47,25 @@ namespace Zero53.Singletons
                 }
                 
                 return _instance;
+            }
+        }
+
+        public static Task<T> instanceAsync
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            return LoadInstance();
+                        }
+                    }
+                }
+                
+                return new Task<T>(() => _instance);
             }
         }
         
@@ -60,43 +96,37 @@ namespace Zero53.Singletons
 
             if (EditorLoadInstance()) return;
 #endif
-            
-            var handle = Addressables.LoadAssetAsync<T>(typeof(T).FullName);
+            var handle = Addressables.LoadAssetAsync<T>(addressableKey);
 
             _instance = handle.WaitForCompletion();;
         }
         
-        private static void LoadInstance()
+        private static Task<T> LoadInstance()
         {
 #if UNITY_EDITOR
-            if (EditorLoadInstance()) return;
+            if (EditorLoadInstance()) return new Task<T>(() => instance);
 #endif
             
             if (_instance != null)
             {
-                Addressables.ResourceManager.CreateCompletedOperation(_instance, null);
-                return;
+                return Addressables
+                    .ResourceManager
+                    .CreateCompletedOperation(_instance, null)
+                    .Task;
             }
             
-            var handle = Addressables.LoadAssetAsync<T>(typeof(T).FullName);
-            
-            handle.Completed += HandleOnCompleted;
+            return Addressables
+                .LoadAssetAsync<T>(addressableKey)
+                .Task;
         }
+
+#if UNITY_EDITOR
         private static bool EditorLoadInstance()
         {
             if (Application.isPlaying) return false;
             
-            var guids = AssetDatabase.FindAssets($"t:{typeof(T).FullName}");
-            var list = new List<T>();
-
-            foreach (var guid in guids)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var so = AssetDatabase.LoadAssetAtPath<T>(path);
-                list.Add(so);
-            }
-
-            if (list.Count == 0)
+            var list = ScriptableObjectUtils.FindAllOnEditor<T>();
+            if (list == null || list.Count == 0)
             {
                 _instance = CreateInstance<T>();
                 AssetDatabase.CreateAsset(_instance, $"Assets/{typeof(T).Name}.asset");
@@ -104,16 +134,16 @@ namespace Zero53.Singletons
             else
             {
                 _instance = list[0];
-
                 for (var i = 1; i < list.Count; i++)
                 {
-                    AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(guids[i]));
+                    AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(list[i]));
                 }
             }
-                
+
             return true;
         }
-
+        
+#endif
         private static void HandleOnCompleted(AsyncOperationHandle<T> handle)
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)  
@@ -127,19 +157,29 @@ namespace Zero53.Singletons
             }
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
-            if (_instance != null)
+            if (_instance == null)
             {
-                DestroyImmediate(this);
-                Debug.LogError($"Singleton of {typeof(T).FullName} already exists.");
+                lock (_lock)
+                {
+                    _instance = this as T;
+                }
                 return;
             }
             
-            lock (_lock)
-            {
-                _instance = this as T;
-            }
+#if UNITY_EDITOR
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(this));
+#endif
+            DestroyImmediate(this);
+            Debug.LogError($"Singleton of {typeof(T).FullName} already exists.");
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (_instance == null) return;
+
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(this));
         }
     }
 }
