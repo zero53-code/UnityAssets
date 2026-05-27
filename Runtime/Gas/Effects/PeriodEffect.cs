@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.Gas.Attributes;
 
@@ -11,22 +9,17 @@ namespace Zero53.Gas.Effects
     /// 周期效果
     /// </summary>
     [Serializable]
-    public class PeriodEffect : IGameplayEffect
+    public abstract class PeriodEffect : IGameplayEffect
     {
-        /// <summary>
-        /// 效果
-        /// </summary>
-        [OdinSerialize, SerializeReference] public IGameplayEffect effect;
-        
         /// <summary>
         /// 持续时间
         /// </summary>
-        [Min(0f)] public float duration = float.PositiveInfinity;
+        [Min(0.0001f)] public float duration = float.PositiveInfinity;
         
         /// <summary>
         /// 周期时间
         /// </summary>
-        [Min(0f)] public float period;
+        [Min(0.0001f)] public float period = 1f;
         
         /// <summary>
         /// 是否立刻执行一次
@@ -54,7 +47,7 @@ namespace Zero53.Gas.Effects
         {
             if (immediatelyOnce && durationTimer <= Mathf.Epsilon)
             {
-                effect?.Apply(target);
+                OnApply(target);
             }
             
             if (durationTimer >= duration)
@@ -70,8 +63,10 @@ namespace Zero53.Gas.Effects
 
             if (periodTimer < period) return;
                 
-            effect?.Apply(target);
+            OnApply(target);
             periodTimer -= period;
         }
+        
+        protected abstract void OnApply(GameplayAttributeSet target);
     }
 }
