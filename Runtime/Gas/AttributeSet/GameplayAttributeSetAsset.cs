@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Zero53.Gas.Attributes.Processor;
+using Zero53.Gas.AttributeSet.Processor;
 
-namespace Zero53.Gas.Attributes
+namespace Zero53.Gas.AttributeSet
 {
     [CreateAssetMenu(menuName = "Zero53/Gas/Gameplay Attribute Set", fileName = "New Gameplay Attribute Set")]
     [NameDomain("_namesGetter")]

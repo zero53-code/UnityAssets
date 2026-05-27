@@ -6,7 +6,7 @@ using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
-using Zero53.Gas.Attributes;
+using Zero53.Gas.AttributeSet;
 
 namespace Zero53.Gas
 {

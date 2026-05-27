@@ -8,7 +8,7 @@ using Sirenix.Utilities;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Zero53.Gas.Attributes
+namespace Zero53.Gas.AttributeSet
 {
     [Conditional("UNITY_EDITOR")]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Field)]

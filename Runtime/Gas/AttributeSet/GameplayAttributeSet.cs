@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Zero53.Gas.Effects;
 
-namespace Zero53.Gas.Attributes
+namespace Zero53.Gas.AttributeSet
 {
     [DisallowMultipleComponent]
     [NameDomain("_namesGetter")]

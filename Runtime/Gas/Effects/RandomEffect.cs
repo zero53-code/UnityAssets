@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using Zero53.Gas.Attributes;
+using Zero53.Gas.AttributeSet;
 using Random = UnityEngine.Random;
 
 namespace Zero53.Gas.Effects

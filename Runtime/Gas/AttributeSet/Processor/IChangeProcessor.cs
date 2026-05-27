@@ -1,4 +1,4 @@
-﻿namespace Zero53.Gas.Attributes.Processor
+﻿namespace Zero53.Gas.AttributeSet.Processor
 {
     public interface IChangeProcessor
     {
