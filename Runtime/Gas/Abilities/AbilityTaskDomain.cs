@@ -29,7 +29,7 @@ namespace Zero53.Gas.Abilities
             }
         }
         
-        internal bool AddAbilityTask<T>(T task) where T : AbilityTask
+        public bool AddAbilityTask<T>(T task) where T : AbilityTask
         {
             if (task.isEnded) return false;
             if (_tasksAddPending.Contains(task)) return false;
@@ -39,7 +39,7 @@ namespace Zero53.Gas.Abilities
             return true;
         }
 
-        internal bool CancelAbilityTask<T>(T task) where T : AbilityTask
+        public bool CancelAbilityTask<T>(T task) where T : AbilityTask
         {
             if (task.isEnded) return false;
             if (task.isCanceled) return false;
