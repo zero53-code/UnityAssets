@@ -4,8 +4,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using Zero53.Singletons.Attributes;
 using Zero53.Utils;
+using Zero53.Utils.Attributes;
 
 namespace Zero53.Singletons
 {

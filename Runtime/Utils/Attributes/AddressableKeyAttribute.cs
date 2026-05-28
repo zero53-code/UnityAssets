@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Zero53.Singletons.Attributes
+namespace Zero53.Utils.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public sealed class AddressableKeyAttribute : Attribute

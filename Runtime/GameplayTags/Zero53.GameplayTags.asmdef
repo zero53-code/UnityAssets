@@ -4,7 +4,8 @@
     "references": [
         "Zero53",
         "Zero53.Singletons",
-        "Sirenix.OdinInspector.CompatibilityLayer"
+        "Sirenix.OdinInspector.CompatibilityLayer",
+        "Zero53.Utils"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
