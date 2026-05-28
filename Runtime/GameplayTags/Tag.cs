@@ -36,12 +36,24 @@ namespace Zero53.GameplayTags
         /// <summary>
         /// 是否为空标签
         /// </summary>
-        public bool isEmpty => fullName is null || fullName.Length == 0;
+        public bool isEmpty => string.IsNullOrEmpty(fullName);
         
         /// <summary>
         /// 是否为有效标签
         /// </summary>
-        public bool isValid => !isEmpty && !fullName.Contains('/');
+        public bool isValid
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(fullName)) return false;
+                if (fullName.StartsWith('.')) return false;
+                if (fullName.EndsWith('.')) return false;
+                if (fullName.Any(c => char.IsWhiteSpace(c) || (char.IsSymbol(c) && c != '.'))) 
+                    return false;
+            
+                return true;
+            }
+        }
 
         /// <summary>
         /// 判断当前标签是否与目标标签匹配（支持父集匹配）
