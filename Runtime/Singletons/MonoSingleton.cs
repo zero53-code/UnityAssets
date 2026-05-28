@@ -49,7 +49,7 @@ namespace Zero53.Singletons
 
         public static bool isInitialized => _instance != null;
 
-        protected virtual void Awake()
+        private void Awake()
         {
             if (_instance == null)
             {
@@ -64,6 +64,12 @@ namespace Zero53.Singletons
                 Debug.LogError($"{typeof(T).FullName} already exists.");
                 Destroy(gameObject);
             }
+            
+            OnAwake();
+        }
+        
+        protected virtual void OnAwake()
+        {
         }
     }
 }
