@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Zero53.Gas.AttributeSet
 {
@@ -45,7 +43,7 @@ namespace Zero53.Gas.AttributeSet
             }
             
             var getterName = nameDomainAttribute.namesGetter;
-            var sourceNames = GetNameListFromGetter(parent, getterName);
+            var sourceNames = GetNameListFromGetter(Property?.ValueEntry?.WeakSmartValue, getterName);
             if (sourceNames == null)
             {
                 CallNextDrawer(label);
@@ -61,11 +59,10 @@ namespace Zero53.Gas.AttributeSet
         /// <summary>
         /// 反射获取字段/属性/方法返回的 string 列表
         /// </summary>
-        private static IList<string> GetNameListFromGetter(InspectorProperty property, string getterName)
+        private static IList<string> GetNameListFromGetter(object target, string getterName)
         {
             if (string.IsNullOrEmpty(getterName)) return null;
 
-            var target = property.ValueEntry.WeakSmartValue;
             if (target == null) return null;
 
             var type = target.GetType();
