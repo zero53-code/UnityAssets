@@ -23,8 +23,7 @@ namespace Zero53.Gas.AttributeSet
         #endregion
 
         private readonly Dictionary<Name, GameplayAttributeData> _nameToAttribute = new();
-
-
+        
         #region Unity 生命周期
 
         private void Awake()
@@ -39,7 +38,7 @@ namespace Zero53.Gas.AttributeSet
 
         #endregion
         
-        #region API
+        #region Attributes API
 
         public float this[Name attributeName]
         {
@@ -123,7 +122,9 @@ namespace Zero53.Gas.AttributeSet
             
             foreach (var info in asset.attributes)
             {
-                var attributeName = info.name;
+                var attributeName = string.IsNullOrEmpty(asset.attributeSetName)
+                    ? info.name
+                    : $"{asset.attributeSetName}.{info.name}";
                 var attribute = new GameplayAttributeData(attributeName, info.value);
                 attribute.changeProcessors.AddRange(info.changeProcessors);
                 
@@ -134,6 +135,8 @@ namespace Zero53.Gas.AttributeSet
                 }
             }
         }
+        
+        #endregion
         
         #region Effects API
 
@@ -159,7 +162,27 @@ namespace Zero53.Gas.AttributeSet
 
         #endregion
 
+        #region Static API
+
+        /// <summary>
+        /// 判断属性名是否合法
+        /// </summary>
+        /// <param name="name">属性名</param>
+        /// <returns>属性名是否合法</returns>
+        public static bool IsValidName(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            if (name.StartsWith('.')) return false;
+            if (name.EndsWith('.')) return false;
+            if (name.Any(c => char.IsWhiteSpace(c) || (char.IsSymbol(c) && c != '.'))) 
+                return false;
+            
+            return true;
+        }
+
         #endregion
+
+        #region 私有方法
 
         private void Setup()
         {
@@ -191,6 +214,7 @@ namespace Zero53.Gas.AttributeSet
         }
 
         private readonly List<IGameplayEffect> _effectsBuffer = new();
+        
         private void ApplyEffects()
         {
             _effectsBuffer.Clear();
@@ -200,6 +224,8 @@ namespace Zero53.Gas.AttributeSet
                 effect.Apply(this);
             }
         }
+
+        #endregion
         
 #if UNITY_EDITOR
         
