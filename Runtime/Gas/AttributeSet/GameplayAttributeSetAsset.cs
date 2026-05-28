@@ -12,6 +12,9 @@ namespace Zero53.Gas.AttributeSet
     public class GameplayAttributeSetAsset : ScriptableObject
     {
         [field: SerializeField]
+        public string attributeSetName = "";
+        
+        [field: SerializeField]
         public List<AttributeInfo> attributes { get; private set; } = new();
 
         [Serializable]
@@ -43,6 +46,23 @@ namespace Zero53.Gas.AttributeSet
 
             [SerializeReference]
             public IChangeProcessor[] changeProcessors = {};
+        }
+
+        private void OnValidate()
+        {
+            if (!GameplayAttributeSet.IsValidName(attributeSetName))
+            {
+                Debug.LogWarning($"Attribute set name '{attributeSetName}' is invalid.");
+                attributeSetName = name;
+            }
+
+            foreach (var info in attributes)
+            {
+                if (GameplayAttributeSet.IsValidName(info.name)) continue;
+                
+                Debug.LogWarning($"Attribute set name '{info.name}' is invalid.");
+                info.name = "attribute_name";
+            }
         }
 
 #if UNITY_EDITOR
