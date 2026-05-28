@@ -205,8 +205,10 @@ namespace Zero53.GameplayTags
         /// </summary>
         private static TagContainer _tagLibrary;
 
+#if UNITY_EDITOR
+        
         /// <summary>
-        /// 全局标签库，自动从 TagLibrary 实例加载所有可用标签
+        /// [Editor-Only] 全局标签库，自动从 TagLibrary 实例加载所有可用标签
         /// </summary>
         public static TagContainer tagLibrary
         {
@@ -227,6 +229,8 @@ namespace Zero53.GameplayTags
                 return _tagLibrary;
             }
         }
+        
+#endif
     }
     
 #if UNITY_EDITOR

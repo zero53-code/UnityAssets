@@ -4,13 +4,11 @@ using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zero53.Singletons;
-using Zero53.Utils.Attributes;
 
 namespace Zero53.GameplayTags
 {
     [CreateAssetMenu(menuName = "Zero53/Create GameplayTagLibrary", fileName = "New GameplayTagLibrary")]
-    [AddressableKey(key = "Zero53/GameplayTags/TagLibrary")]
-    public class TagLibrary : AddressableSOSingleton<TagLibrary>
+    public class TagLibrary : SOSingleton<TagLibrary>
     {
 #if UNITY_EDITOR
         
