@@ -1,3 +1,5 @@
 ﻿{
-  "name": "Zero53.Utils"
+  "name": "Zero53.Utils",
+  "rootNamespace": "Zero53",
+  "references": ["Unity.Addressables", "Unity.ResourceManager"]
 }
