@@ -15,21 +15,21 @@ namespace Zero53.Singletons
         private static volatile T _instance;
         private static readonly object _lock = new();
         
-        private static string _addressableKey;
+        private static string[] _addressableKeys;
 
-        public static string addressableKey
+        public static string[] addressableKeys
         {
             get
             {
-                _addressableKey ??= typeof(T)
+                _addressableKeys ??= typeof(T)
                     .GetCustomAttributes(true)
                     .OfType<AddressableKeyAttribute>()
-                    .Select(attr => attr.key)
+                    .Select(attr => attr.keys)
                     .FirstOrDefault();
 
-                _addressableKey ??= typeof(T).Name.Replace('.', '/');
+                _addressableKeys ??= new[] { typeof(T).Name.Replace('.', '/') };
 
-                return _addressableKey;
+                return _addressableKeys;
             }
         }
 
@@ -57,8 +57,16 @@ namespace Zero53.Singletons
         {
             get
             {
+                
                 if (_instance == null)
                 {
+#if UNITY_EDITOR
+                    if (!Application.isPlaying)
+                    {
+                        LoadInstanceBlocked();
+                        return new Task<T>(() => _instance);
+                    }
+#endif
                     lock (_lock)
                     {
                         if (_instance == null)
@@ -95,21 +103,13 @@ namespace Zero53.Singletons
 
         private static void LoadInstanceBlocked()
         {
-#if UNITY_EDITOR
+            var handle = Addressables.LoadAssetAsync<T>(addressableKeys.First());
 
-            if (EditorLoadInstance()) return;
-#endif
-            var handle = Addressables.LoadAssetAsync<T>(addressableKey);
-
-            _instance = handle.WaitForCompletion();;
+            _instance = handle.WaitForCompletion();
         }
         
         private static Task<T> LoadInstance()
         {
-#if UNITY_EDITOR
-            if (EditorLoadInstance()) return new Task<T>(() => instance);
-#endif
-            
             if (_instance != null)
             {
                 return Addressables
@@ -119,7 +119,7 @@ namespace Zero53.Singletons
             }
             
             return Addressables
-                .LoadAssetAsync<T>(addressableKey)
+                .LoadAssetAsync<T>(addressableKeys)
                 .Task;
         }
 
@@ -160,7 +160,7 @@ namespace Zero53.Singletons
             }
         }
 
-        protected virtual void Awake()
+        private void Awake()
         {
             if (_instance == null)
             {
@@ -168,6 +168,7 @@ namespace Zero53.Singletons
                 {
                     _instance = this as T;
                 }
+                OnAwake();
                 return;
             }
             
@@ -177,12 +178,7 @@ namespace Zero53.Singletons
             DestroyImmediate(this);
             Debug.LogError($"Singleton of {typeof(T).FullName} already exists.");
         }
-
-        protected virtual void OnEnable()
-        {
-            if (_instance == null) return;
-
-            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(this));
-        }
+        
+        protected virtual void OnAwake() {}
     }
 }

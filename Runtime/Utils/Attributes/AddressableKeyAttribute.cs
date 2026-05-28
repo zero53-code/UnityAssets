@@ -2,13 +2,19 @@
 
 namespace Zero53.Utils.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
     public sealed class AddressableKeyAttribute : Attribute
     {
-        public string key;
+        public string[] keys;
+
+        public AddressableKeyAttribute(params string[] keys)
+        {
+            this.keys = keys;
+        }
+        
         public AddressableKeyAttribute(string key = null)
         {
-            this.key = key;
+            this.keys = new[] { key };
         }
     }
 }
