@@ -57,13 +57,18 @@ namespace Zero53.GameplayTags
 
         /// <summary>
         /// 判断当前标签是否与目标标签匹配（支持父集匹配）
+        /// <code>
+        /// var tag1 = new Tag("Skill.Fire");
+        /// var tag2 = new Tag("Skill.Fire.Damage");
+        /// tag2.Matches(tag1); // true
+        /// </code>
         /// </summary>
         /// <param name="other">目标匹配标签</param>
         /// <returns>是否匹配成功</returns>
         public bool Matches(Tag other)
         {
             if (!isValid || !other.isValid) return false;
-            if (fullName == other.fullName) return true;
+            if (ReferenceEquals(fullName, other.fullName)) return true;
             
             return fullName.StartsWith(other.fullName + '.');
         }
