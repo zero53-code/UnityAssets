@@ -1,0 +1,5 @@
+﻿{
+  "name": "Zero53.GameplayFactions",
+  "rootNamespace": "Zero53",
+  "references": ["Zero53.GameplayTags", "Zero53.Utils"]
+}
