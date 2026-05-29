@@ -231,6 +231,11 @@ namespace Zero53.GameplayTags
                 yield return tag;
             }
         }
+
+        public IEnumerable<Tag> GetChildren(Tag parent)
+        {
+            return tags.Where(t => t.Matches(parent));
+        }
     }
     
 #if UNITY_EDITOR
