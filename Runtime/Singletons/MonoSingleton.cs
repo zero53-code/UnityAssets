@@ -54,10 +54,15 @@ namespace Zero53.Singletons
             if (_instance == null)
             {
                 _instance = this as T;
-                
-                if (gameObject.transform.parent != null) return;
+
+                if (gameObject.transform.parent != null)
+                {
+                    OnAwake();
+                    return;
+                }
                 
                 DontDestroyOnLoad(gameObject);
+                OnAwake();
             }
             else if (_instance != this)
             {
@@ -65,7 +70,6 @@ namespace Zero53.Singletons
                 Destroy(gameObject);
             }
             
-            OnAwake();
         }
         
         protected virtual void OnAwake()
