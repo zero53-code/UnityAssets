@@ -1,10 +1,16 @@
-﻿using Zero53.Gas.Abilities;
+﻿using System;
+using Zero53.Gas.Abilities;
 
 namespace Zero53.Gas.AbilityTriggers
 {
-    public interface IAbilityTrigger
+    [Serializable]
+    public abstract class AbilityTrigger
     {
-        void Init(GameplayAbility ability) {}
-        bool Check(float deltaTime);
+        protected internal GameplayAbility ability;
+        
+        public abstract bool isAbilityTriggered { get; }
+
+        protected internal virtual void Init() {}
+        protected internal abstract bool Check(float deltaTime);
     }
 }

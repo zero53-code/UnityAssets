@@ -1,6 +1,7 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zero53.Gas.AbilityTasks;
 using Zero53.Gas.AbilityTriggers;
 
 namespace Zero53.Gas.Abilities
@@ -33,7 +34,7 @@ namespace Zero53.Gas.Abilities
             [ProgressBar(min: 0, maxGetter: "duration")]
             public float timer;
             
-            public TestTask(float duration, GameplayAbility ability) : base(ability)
+            public TestTask(float duration)
             {
                 this.duration = duration;
             }
@@ -52,7 +53,7 @@ namespace Zero53.Gas.Abilities
         {
             Debug.Log("TestAbility executed");
             
-            domain.AddAbilityTask(new TestTask(duration, this));
+            domain.AddAbilityTask(new TestTask(duration));
         }
     }
 }

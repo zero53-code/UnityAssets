@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zero53.Gas.Abilities;
 
-namespace Zero53.Gas.Abilities
+namespace Zero53.Gas.AbilityTasks
 {
     /// <summary>
     /// 任务基类
@@ -20,13 +21,11 @@ namespace Zero53.Gas.Abilities
         public AbilityTask parentTask { get; private set; }
         
         public AbilityTask rootTask { get; internal set; }
-
-        public IEnumerable<AbilityTask> subTasks => _subTasks.ToArray();
         
         /// <summary>
         /// 子任务
         /// </summary>
-        private List<AbilityTask> _subTasks = new();
+        [SerializeReference] private List<AbilityTask> subTasks = new();
         
         /// <summary>
         /// 任务是否结束
@@ -37,11 +36,6 @@ namespace Zero53.Gas.Abilities
         /// 任务是否结束
         /// </summary>
         [field: SerializeField] public bool isEnded { get; private set; }
-
-        protected AbilityTask(GameplayAbility ability)
-        {
-            this.ability = ability;
-        }
         
         /// <summary>
         /// 当任务被添加到 AbilitySystem 中时调用
@@ -73,7 +67,7 @@ namespace Zero53.Gas.Abilities
             if (!domain.CancelAbilityTask(this)) return;
             
             isCanceled = true;
-            foreach (var subTask in _subTasks)
+            foreach (var subTask in subTasks)
             {
                 subTask.Cancel();
             }
@@ -90,7 +84,7 @@ namespace Zero53.Gas.Abilities
             if (isEnded) return;
             
             isEnded = true;
-            foreach (var subTask in _subTasks)
+            foreach (var subTask in subTasks)
             {
                 subTask.End();
             }
@@ -117,7 +111,7 @@ namespace Zero53.Gas.Abilities
             task.ability = ability;
             task.rootTask = rootTask;
             task.parentTask = this;
-            _subTasks.Add(task);
+            subTasks.Add(task);
             
             if (domain.AddAbilityTask(task))
             {

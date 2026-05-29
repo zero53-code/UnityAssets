@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
+using Zero53.Gas.Abilities;
 
-namespace Zero53.Gas.Abilities
+namespace Zero53.Gas.AbilityTasks
 {
     [Serializable]
-    public class AbilityTaskDomain
+    public sealed class AbilityTaskDomain
     {
         public AbilitySystem abilitySystem { get; internal set; }
         public GameplayAbility ability { get; internal set; }
@@ -31,6 +32,7 @@ namespace Zero53.Gas.Abilities
         
         public bool AddAbilityTask<T>(T task) where T : AbilityTask
         {
+            task.ability = ability;
             if (task.isEnded) return false;
             if (_tasksAddPending.Contains(task)) return false;
             task.rootTask = task;

@@ -6,6 +6,7 @@ using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
+using Zero53.Gas.AbilityTasks;
 using Zero53.Gas.AttributeSet;
 
 namespace Zero53.Gas
@@ -174,6 +175,7 @@ namespace Zero53.Gas
             abilities.AddRange(_abilitiesAddPending);
             foreach (var ability in _abilitiesAddPending)
             {
+                ability.OnGiveBefore();
                 ability.OnGive();
             }
             _abilitiesAddPending.Clear();

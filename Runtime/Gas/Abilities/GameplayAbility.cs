@@ -2,6 +2,7 @@
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using Zero53.Gas.AbilityTasks;
 using Zero53.Gas.AbilityTriggers;
 
 namespace Zero53.Gas.Abilities
@@ -12,53 +13,66 @@ namespace Zero53.Gas.Abilities
         public AbilityTaskDomain domain { get; internal set; }
         public AbilitySystem abilitySystem { get; internal set; }
         public AbilityTask currentDomTask { get; internal set; }
-        
-        [field: OdinSerialize, SerializeReference, BoxGroup] 
-        public IAbilityTrigger trigger { get; set; }
-        
+
+        [field: OdinSerialize, SerializeReference, BoxGroup]
+        public AbilityTrigger trigger { get; set; }
+
         /// <summary>
         /// 技能是否正在执行
         /// </summary>
         public bool isExecuting => currentDomTask is { isEnded: false };
-        
+
         public bool isEnded => !isExecuting;
 
         public void Cancel()
         {
             currentDomTask?.Cancel();
         }
-        
+
         /// <summary>
         /// 执行技能
         /// </summary>
         protected internal abstract void Execute();
 
+        internal void OnGiveBefore()
+        {
+            trigger.ability = this;
+        }
+        
         /// <summary>
         /// 获取技能时调用
         /// </summary>
         protected internal virtual void OnGive()
         {
         }
-        
+
         /// <summary>
         /// 移除技能时调用
         /// </summary>
-        protected internal virtual void OnRemove() {}
-        
+        protected internal virtual void OnRemove()
+        {
+        }
+
         /// <summary>
         /// 执行技能前调用
         /// </summary>
-        protected internal virtual void OnPreExecute() {}
-        
+        protected internal virtual void OnPreExecute()
+        {
+        }
+
         /// <summary>
         /// 技能被取消执行时调用
         /// </summary>
-        protected internal virtual void OnCancel() {}
-        
+        protected internal virtual void OnCancel()
+        {
+        }
+
         /// <summary>
         /// 技能结束、取消、打断时调用
         /// </summary>
-        protected internal virtual void OnEnd() {}
+        protected internal virtual void OnEnd()
+        {
+        }
 
 #if UNITY_EDITOR
 
@@ -66,10 +80,10 @@ namespace Zero53.Gas.Abilities
         private void ExecuteAbility()
         {
             if (!Application.isPlaying) return;
-            
+
             abilitySystem.ExecuteAbility(this);
         }
-        
+
 #endif
     }
 }
