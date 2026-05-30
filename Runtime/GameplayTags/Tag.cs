@@ -205,12 +205,13 @@ namespace Zero53.GameplayTags
             }
         }
 
+#if UNITY_EDITOR
+
         /// <summary>
         /// 全局标签容器缓存
         /// </summary>
         private static TagContainer _tagLibrary;
-
-#if UNITY_EDITOR
+        private static bool _tagLibraryInitialized;
         
         /// <summary>
         /// [Editor-Only] 全局标签库，自动从 TagLibrary 实例加载所有可用标签
@@ -219,7 +220,7 @@ namespace Zero53.GameplayTags
         {
             get
             {
-                if (_tagLibrary != null) return _tagLibrary;
+                if (_tagLibraryInitialized) return _tagLibrary;
                 
                 _tagLibrary = new TagContainer();
 
@@ -230,6 +231,7 @@ namespace Zero53.GameplayTags
                     .Where(t => t.isValid);
                 
                 _tagLibrary.Append(tags);
+                _tagLibraryInitialized = true;
                 
                 return _tagLibrary;
             }

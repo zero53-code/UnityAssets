@@ -8,24 +8,17 @@ using UnityEngine;
 namespace Zero53.GameplayTags
 {
     [Serializable]
-    public class TagContainer : IEnumerable<Tag>
+    public struct TagContainer : IEnumerable<Tag>
     {
-        public event Action<Tag> OnAddTag;
-        public event Action<Tag> OnRemoveTag;
-        
         [SerializeField]
         private List<Tag> tags;
 
-        private SortedSet<Tag> _parentTags = new();
-
-        public TagContainer()
-        {
-            tags = new List<Tag>();
-        }
+        private SortedSet<Tag> _parentTags;
 
         public TagContainer(params Tag[] tags)
         {
             this.tags = new List<Tag>(tags);
+            _parentTags = new SortedSet<Tag>();
         }
 
         public bool isEmpty => tags.Count == 0;
@@ -38,7 +31,6 @@ namespace Zero53.GameplayTags
             if (!tag.isValid || tags.Contains(tag)) return false;
             
             tags.Add(tag);
-            OnAddTag?.Invoke(tag);
             
             foreach (var parent in tag.GetParents())
             {
@@ -49,13 +41,7 @@ namespace Zero53.GameplayTags
 
         public int Remove(Tag tag)
         {
-            var result = tags.RemoveAll(t =>
-            {
-                if (!t.Matches(tag)) return false;
-                
-                OnRemoveTag?.Invoke(tag);
-                return true;
-            });
+            var result = tags.RemoveAll(t => t.Matches(tag));
             
             if (result != 0) FillParent();
             
@@ -66,7 +52,6 @@ namespace Zero53.GameplayTags
         {
             if (tags.RemoveAll(t => t.MatchesExact(tag)) == 0) return false;
             
-            OnRemoveTag?.Invoke(tag);
             FillParent();
             return true;
         }
@@ -87,13 +72,7 @@ namespace Zero53.GameplayTags
             var result = 0;
             foreach (var tag in other)
             {
-                result += tags.RemoveAll(t =>
-                {
-                    if (!t.Matches(tag)) return false;
-                
-                    OnRemoveTag?.Invoke(tag);
-                    return true;
-                });
+                result += tags.RemoveAll(t => t.Matches(tag));
             }
             
             FillParent();
@@ -105,13 +84,7 @@ namespace Zero53.GameplayTags
             var result = 0;
             foreach (var tag in other)
             {
-                result += tags.RemoveAll(t =>
-                {
-                    if (!t.MatchesExact(tag)) return false;
-                
-                    OnRemoveTag?.Invoke(tag);
-                    return true;
-                });
+                result += tags.RemoveAll(t => t.MatchesExact(tag));
             }
             
             FillParent();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,28 +8,8 @@ namespace Zero53.GameplayTags
     public class Tags : MonoBehaviour, IEnumerable<Tag>
     {
         [SerializeField]
-        private TagContainer tagContainer = new();
+        private TagContainer tagContainer;
 
-        public void RegisterAddTagEvent(Action<Tag> onAddTag)
-        {
-            tagContainer.OnAddTag += onAddTag;
-        }
-
-        public void RegisterRemoveTagEvent(Action<Tag> onRemoveTag)
-        {
-            tagContainer.OnRemoveTag += onRemoveTag;
-        }
-
-        public void UnregisterAddTagEvent(Action<Tag> onAddTag)
-        {
-            tagContainer.OnAddTag -= onAddTag;
-        }
-
-        public void UnregisterRemoveTagEvent(Action<Tag> onRemoveTag)
-        {
-            tagContainer.OnRemoveTag -= onRemoveTag;
-        }
-        
         public void AddTag(Tag tag)
         {
             tagContainer.Add(tag);
