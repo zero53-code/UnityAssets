@@ -1,5 +1,5 @@
 ﻿using System;
-using Zero53.Gas.AttributeSet;
+using Zero53.Gas.AttributeSets;
 
 namespace Zero53.Gas.Effects
 {
@@ -9,7 +9,7 @@ namespace Zero53.Gas.Effects
     [Serializable]
     public abstract class InstantEffect : IGameplayEffect
     {
-        public void Apply(GameplayAttributeSet target)
+        public void Apply(AbilitySystem target, float deltaTime)
         {
             OnApply(target);
             target.RemoveEffect(this);
@@ -20,6 +20,6 @@ namespace Zero53.Gas.Effects
         /// 只会执行一次, 然后自动移除效果
         /// </summary>
         /// <param name="target">目标的属性集</param>
-        protected abstract void OnApply(GameplayAttributeSet target);
+        protected abstract void OnApply(AbilitySystem target);
     }
 }

@@ -10,23 +10,25 @@ namespace Zero53.Gas.Abilities
     [Serializable]
     public abstract class GameplayAbility
     {
-        public AbilityTaskDomain domain { get; internal set; }
-        public AbilitySystem abilitySystem { get; internal set; }
-        public AbilityTask currentDomTask { get; internal set; }
-
         [field: OdinSerialize, SerializeReference, BoxGroup]
         public AbilityTrigger trigger { get; set; }
+        
+        [field: SerializeField]
+        public AbilityTaskDomain domain { get; internal set; }
+        
+        public AbilitySystem abilitySystem { get; internal set; }
+        
 
         /// <summary>
         /// 技能是否正在执行
         /// </summary>
-        public bool isExecuting => currentDomTask is { isEnded: false };
+        public bool isExecuting => throw new NotImplementedException();
 
         public bool isEnded => !isExecuting;
 
         public void Cancel()
         {
-            currentDomTask?.Cancel();
+            throw new NotImplementedException();
         }
 
         /// <summary>

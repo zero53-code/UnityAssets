@@ -5,7 +5,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
-namespace Zero53.Gas.AttributeSet
+namespace Zero53.Gas.Attributes
 {
     /// <summary>
     /// 用于绘制属性名的下拉框

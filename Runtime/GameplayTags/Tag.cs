@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -68,7 +66,7 @@ namespace Zero53.GameplayTags
         public bool Matches(Tag other)
         {
             if (!isValid || !other.isValid) return false;
-            if (ReferenceEquals(fullName, other.fullName)) return true;
+            if (this == other) return true;
             
             return fullName.StartsWith(other.fullName + '.');
         }

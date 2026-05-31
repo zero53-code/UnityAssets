@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using Zero53.Gas.AttributeSet;
+using Zero53.Gas.AttributeSets;
 
 namespace Zero53.Gas.Effects
 {
@@ -12,13 +12,13 @@ namespace Zero53.Gas.Effects
     {
         [SerializeReference] public IGameplayEffect[] effects;
 
-        public void Apply(GameplayAttributeSet target)
+        public void Apply(AbilitySystem target, float deltaTime)
         {
             if (effects == null) return;
             
             foreach (var effect in effects)
             {
-                effect.Apply(target);
+                effect.Apply(target, deltaTime);
             }
         }
     }

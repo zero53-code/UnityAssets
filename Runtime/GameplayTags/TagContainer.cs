@@ -8,12 +8,18 @@ using UnityEngine;
 namespace Zero53.GameplayTags
 {
     [Serializable]
-    public struct TagContainer : IEnumerable<Tag>
+    public class TagContainer : IEnumerable<Tag>
     {
         [SerializeField]
         private List<Tag> tags;
-
+        
         private SortedSet<Tag> _parentTags;
+
+        public TagContainer()
+        {
+            tags = new List<Tag>();
+            _parentTags = new SortedSet<Tag>();
+        }
 
         public TagContainer(params Tag[] tags)
         {

@@ -7,120 +7,125 @@ using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
 using Zero53.Gas.AbilityTasks;
-using Zero53.Gas.AttributeSet;
+using Zero53.Gas.AttributeSets;
+using Zero53.Gas.Effects;
+using Zero53.Utils.Attributes;
 
 namespace Zero53.Gas
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(GameplayAttributeSet))]
-    [RequireComponent(typeof(Tags))]
     public class AbilitySystem : MonoBehaviour
     {
         #region 序列化
 
         [OdinSerialize, SerializeReference]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
+        [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
         private List<GameplayAbility> abilities = new();
-        
-        [SerializeField, ReadOnly]
-        private List<AbilityTaskDomain> taskDomains = new();
 
+        [OdinSerialize, SerializeReference] 
+        [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
+        private AttributeSet[] attributeSetArray;
+
+        [field: SerializeField]
+        [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
+        public TagContainer tags { get; private set; }
+        
+        [SerializeReference, PropertyOrder(order: 1)] 
+        private List<IGameplayEffect> effects = new();
+        
         #endregion
 
         #region API
 
-        public GameplayAttributeSet attributeSet
+        public TAttributeSet GetAttributeSet<TAttributeSet>() where TAttributeSet : AttributeSet
         {
-            get
+            foreach (var attributeSet in attributeSetArray)
             {
-                if (_attributeSet == null) _attributeSet = GetComponent<GameplayAttributeSet>();
-                return _attributeSet;
+                if (attributeSet.GetType() == typeof(TAttributeSet)) 
+                    return (TAttributeSet) attributeSet;
             }
+            
+            return null;
         }
 
-        public Tags tags
+        public bool GiveAbility<TAbility>() where TAbility : GameplayAbility, new()
         {
-            get
-            {
-                if (_tags == null) _tags = GetComponent<Tags>();
-                return _tags;
-            }
+            return GiveAbility(new TAbility());
         }
-
-        public bool AddAbility<TAbility>() where TAbility : GameplayAbility, new()
+        
+        public bool GiveAbility(GameplayAbility newAbility)
         {
-            _abilitiesRemovePending.RemoveAll(ability => ability is TAbility);
+            if (newAbility == null || abilities.Contains(newAbility)) return false;
             
-            if (abilities.Any(ability => ability is TAbility)) return true;
-            
-            var ability = new TAbility
+            foreach (var ability in abilities)
             {
-                abilitySystem = this
-            };
+                if (ability.GetType() == newAbility.GetType()) return false;
+            }
 
-            CreateTaskDomain(ability);
-
-            _abilitiesAddPending.Add(ability);
+            newAbility.abilitySystem = this;
+            CreateTaskDomain(newAbility);
+            abilities.Add(newAbility);
             return true;
         }
 
-        public bool RemoveAbility<TAbility>() where TAbility : GameplayAbility
-        {
-            _abilitiesAddPending.RemoveAll(ability => ability is TAbility);
-            
-            var ability = abilities.FirstOrDefault(ability => ability is TAbility);
-            if (ability == null) return false;
-            
-            _abilitiesRemovePending.Add(ability);
-            return true;
-
-        }
-
-        public void ExecuteAbility<TAbility>() where TAbility : GameplayAbility
+        public void CancelAbility<TAbility>() where TAbility : GameplayAbility
         {
             foreach (var ability in abilities)
             {
-                if (ability is not TAbility) continue;
+                if (ability.GetType() == typeof(TAbility)) continue;
+                
+                ability.Cancel();
+                return;
+            }
+        }
+        
+        public bool RemoveAbility<TAbility>() where TAbility : GameplayAbility
+        {
+            var ability = abilities.FirstOrDefault(ability => ability is TAbility);
+            return ability != null && abilities.Remove(ability);
+        }
+
+        internal void ExecuteAbility<TAbility>() where TAbility : GameplayAbility
+        {
+            foreach (var ability in abilities)
+            {
+                if (ability.GetType() == typeof(TAbility)) continue;
                 
                 ExecuteAbility(ability);
                 return;
             }
         }
 
-        public void ExecuteAbility(GameplayAbility ability)
+        internal void ExecuteAbility(GameplayAbility ability)
         {
-            _abilitiesExecutePending.Add(ability);
+            ability.Execute();
             ability.OnPreExecute();
         }
 
-        public void CancelAbility<TAbility>() where TAbility : GameplayAbility
-        {
-            foreach (var ability in _abilitiesAddPending)
-            {
-                if (ability is not TAbility) continue;
-                
-                ability.Cancel();
-                return;
-            }
+        #endregion
 
-            foreach (var ability in abilities)
-            {
-                if (ability is not TAbility) continue;
-                
-                ability.Cancel();
-                return;
-            }
+        #region Effects API
+
+        public void AddEffect(IGameplayEffect effect)
+        {
+            effects.Add(effect);
         }
 
-        #endregion
-        
-        #region 私有字段
+        public void AddEffects(IEnumerable<IGameplayEffect> effects)
+        {
+            this.effects.AddRange(effects);
+        }
 
-        private readonly List<GameplayAbility> _abilitiesAddPending = new();
-        private readonly List<GameplayAbility> _abilitiesRemovePending = new();
-        private readonly List<GameplayAbility> _abilitiesExecutePending = new();
-        private GameplayAttributeSet _attributeSet;
-        private Tags _tags;
+        public bool RemoveEffect(IGameplayEffect effect)
+        {
+            return effects.Remove(effect);
+        }
+
+        public void ClearEffects()
+        {
+            effects.Clear();
+        }
 
         #endregion
 
@@ -128,27 +133,32 @@ namespace Zero53.Gas
 
         private void Awake()
         {
+            foreach (var attributeSet in attributeSetArray)
+            {
+                attributeSet.abilitySystem = this;
+            }
+
             foreach (var ability in abilities)
             {
                 ability.abilitySystem = this;
                 CreateTaskDomain(ability);
             }
         }
-
-        private void Start()
-        {
-            _attributeSet = GetComponent<GameplayAttributeSet>();
-            _tags = GetComponent<Tags>();
-        }
+        private readonly List<GameplayAbility> _abilitiesBuffer  = new();
+        private readonly List<AttributeSet> _attributeSetsBuffer = new();
+        private readonly List<IGameplayEffect> _effectsBuffer = new();
 
         private void Update()
         {
+            _abilitiesBuffer.Clear();
+            _abilitiesBuffer.AddRange(abilities);
+            _attributeSetsBuffer.Clear();
+            _attributeSetsBuffer.AddRange(attributeSetArray);
+            _effectsBuffer.Clear();
+            _effectsBuffer.AddRange(effects);
             AbilitiesUpdate();
-
-            foreach (var taskDomain in taskDomains)
-            {
-                taskDomain.OnUpdate(Time.deltaTime);
-            }
+            AttributeSetsUpdate();
+            EffectsUpdate();
         }
 
         #endregion
@@ -157,70 +167,38 @@ namespace Zero53.Gas
 
         private void AbilitiesUpdate()
         {
-            foreach (var ability in abilities)
+            foreach (var ability in _abilitiesBuffer)
             {
+                ability.domain.OnUpdate(Time.deltaTime);
                 if (ability.trigger?.Check(Time.deltaTime) ?? false)
                 {
                     ability.Execute();
                 }
             }
-            
-            AbilitiesAddPendingUpdate();
-            AbilitiesRemovePendingUpdate();
-            AbilitiesExecutePendingUpdate();
-        }
-        
-        private void AbilitiesAddPendingUpdate()
-        {
-            abilities.AddRange(_abilitiesAddPending);
-            foreach (var ability in _abilitiesAddPending)
-            {
-                ability.OnGiveBefore();
-                ability.OnGive();
-            }
-            _abilitiesAddPending.Clear();
-        }
-        
-        private void AbilitiesRemovePendingUpdate()
-        {
-            abilities.RemoveAll(ability =>
-            {
-                if (!_abilitiesRemovePending.Contains(ability)) return false;
-                
-                taskDomains.RemoveAll(taskDomain => ReferenceEquals(taskDomain.ability, ability));
-                
-                return true;
-            });
-            
-            foreach (var ability in _abilitiesRemovePending)
-            {
-                ability.OnRemove();
-            }
-            _abilitiesRemovePending.Clear();
-        }
-        
-        private void AbilitiesExecutePendingUpdate()
-        {
-            foreach (var ability in _abilitiesExecutePending)
-            {
-                if (!abilities.Contains(ability)) continue;
-
-                ability.Execute();
-            }
-            _abilitiesExecutePending.Clear();
         }
 
-        private void CreateTaskDomain(GameplayAbility ability)
+        private void AttributeSetsUpdate()
         {
-            var taskDomain = new AbilityTaskDomain
+            foreach (var attributeSet in _attributeSetsBuffer)
             {
-                abilitySystem = this,
-            };
+                attributeSet.Update();
+            }
+        }
+
+        private void EffectsUpdate()
+        {
+            foreach (var effect in _effectsBuffer)
+            {
+                effect.Apply(this, Time.deltaTime);
+            }
+        }
+        
+        private static void CreateTaskDomain(GameplayAbility ability)
+        {
+            var taskDomain = new AbilityTaskDomain();
             
             ability.domain = taskDomain;
             taskDomain.ability = ability;
-            
-            taskDomains.Add(taskDomain);
         }
         
         #endregion

@@ -12,12 +12,13 @@ namespace Zero53.Gas.Abilities
         public float duration = 5f;
 
         [Serializable]
-        public class TestTrigger : IAbilityTrigger
+        public class TestTrigger : AbilityTrigger
         {
             public float interval = 5f;
 
             private float _timer;
-            public bool Check(float deltaTime)
+            
+            protected internal override bool Check(float deltaTime)
             {
                 _timer += deltaTime;
                 

@@ -9,35 +9,37 @@ namespace Zero53.Gas.AbilityTasks
     [Serializable]
     public sealed class AbilityTaskDomain
     {
-        public AbilitySystem abilitySystem { get; internal set; }
         public GameplayAbility ability { get; internal set; }
+        public AbilitySystem abilitySystem => ability.abilitySystem;
         
         [SerializeReference]
-        private List<AbilityTask> tasks = new();
+        internal List<AbilityTask> tasks = new();
         
-        private readonly List<AbilityTask> _tasksAddPending = new();
-        private readonly List<AbilityTask> _tasksCancelPending = new();
+        private List<AbilityTask> _tasksBuffer = new();
         
         internal void OnUpdate(float deltaTime)
         {
-            TasksAddPendingUpdate();
-            TasksCancelPendingUpdate();
-            RemoveAllEndedTask();
-            
-            foreach (var task in tasks)
+            _tasksBuffer.Clear();
+            _tasksBuffer.AddRange(tasks);
+            foreach (var task in _tasksBuffer)
             {
-                task.OnUpdate(deltaTime);
+                task.domain = this;
+                
+                task.Update(deltaTime);
             }
         }
         
         public bool AddAbilityTask<T>(T task) where T : AbilityTask
         {
-            task.ability = ability;
-            if (task.isEnded) return false;
-            if (_tasksAddPending.Contains(task)) return false;
-            task.rootTask = task;
+            return AddAbilityTask((AbilityTask)task);
+        }
+
+        public bool AddAbilityTask(AbilityTask task)
+        {
+            task.domain = this;
             
-            _tasksAddPending.Add(task);
+            tasks.Add(task);
+            task.Init();
             return true;
         }
 
@@ -45,61 +47,11 @@ namespace Zero53.Gas.AbilityTasks
         {
             if (task.isEnded) return false;
             if (task.isCanceled) return false;
-            if (_tasksCancelPending.Contains(task)) return false;
+            if (!tasks.Contains(task)) return false;
             
-            _tasksCancelPending.Add(task);
+            task.Cancel();
+            tasks.Remove(task);
             return true;
-        }
-        
-        private void TasksAddPendingUpdate()
-        {
-            tasks.AddRange(_tasksAddPending);
-            foreach (var task in _tasksAddPending)
-            {
-                task.abilitySystem = abilitySystem;
-            }
-            _tasksAddPending.Clear();
-        }
-
-        private void TasksCancelPendingUpdate()
-        {
-            tasks.RemoveAll(task =>
-            {
-                if (!_tasksCancelPending.Contains(task)) return false;
-                
-                CancelTask(task);
-                return true;
-            });
-            _tasksCancelPending.Clear();
-        }
-
-        private void RemoveAllEndedTask()
-        {
-            tasks.RemoveAll(task =>
-            {
-                if (!task.isEnded) return false;
-                
-                EndTask(task);
-                return true;
-            });
-        }
-
-        private static void CancelTask(AbilityTask task)
-        {
-            task.OnCancel();
-            task.OnEnd();
-            if (task.parentTask != null) return;
-                
-            task.ability?.OnCancel();
-            task.ability?.OnEnd();
-        }
-
-        private static void EndTask(AbilityTask task)
-        {
-            task.OnEnd();
-            if (task.parentTask != null) return;
-                
-            task.ability?.OnEnd();
         }
     }
     

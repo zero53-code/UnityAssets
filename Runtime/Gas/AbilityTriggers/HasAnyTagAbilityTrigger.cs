@@ -12,7 +12,7 @@ namespace Zero53.Gas.AbilityTriggers
     {
         public Tag[] tags;
         
-        private Tags _tags;
+        private TagContainer _tags;
 
         public void Init(GameplayAbility ability)
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Zero53.Gas.AttributeSet;
+using Zero53.Gas.AttributeSets;
 
 namespace Zero53.Gas.Effects
 {
@@ -43,7 +43,7 @@ namespace Zero53.Gas.Effects
         /// </summary>
         public bool isPaused;
         
-        public void Apply(GameplayAttributeSet target)
+        public void Apply(AbilitySystem target, float deltaTime)
         {
             if (immediatelyOnce && durationTimer <= Mathf.Epsilon)
             {
@@ -67,6 +67,6 @@ namespace Zero53.Gas.Effects
             periodTimer -= period;
         }
         
-        protected abstract void OnApply(GameplayAttributeSet target);
+        protected abstract void OnApply(AbilitySystem target);
     }
 }

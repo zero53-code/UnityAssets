@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
+using UnityEditor;
 using UnityEngine;
 using Zero53.Singletons;
 
@@ -15,7 +17,7 @@ namespace Zero53.GameplayTags
         [ShowInInspector, PropertyOrder(order: 0f)]
         private string _tag;
         
-        [Button, HorizontalGroup("1", order: 1)]
+        [Button, HorizontalGroup("Button", order: 1)]
         private void Add()
         {
             tags.Add(_tag);
@@ -32,27 +34,35 @@ namespace Zero53.GameplayTags
             OnValidate();
         }
         
-        [Button, HorizontalGroup("1", order: 1)]
-        private void Remove()
+        [Button, HorizontalGroup("Button", order: 1)]
+        private void Delete()
         {
-            var tag = new Tag(_tag);
+            Delete(_tag);
+        }
+
+        private void Delete(string tagString)
+        {
+            var tag = new Tag(tagString);
+
+            var deletedTags = tags.Where(t => new Tag(t).Matches(tag)).ToArray();
+            var msg = $"Are you sure you want to delete these {deletedTags.Length} tags?\n"
+                      + string.Join("\n", deletedTags);
             
-            tags.Remove(_tag);
-            tags.RemoveAll(t => new Tag(t).Matches(tag));
+            if (!EditorUtility.DisplayDialog("Delete Tags", msg, "OK", "Cancel"))
+            {
+                _tag = "";
+                return;
+            }
             
+            tags.RemoveAll(t => deletedTags.Contains(t));
+
             _tag = "";
             OnValidate();
         }
         
         private void OnValidate()
         {
-            for (var i = 0; i < tags.Count; i++)
-            {
-                var tag = tags[i];
-                tags[i] = tag.Replace(" ", "");
-            }
-            
-            tags.RemoveAll(string.IsNullOrWhiteSpace);
+            tags.RemoveAll(t => !new Tag(t).isValid);
             
             RemoveDuplicates();
             Sort();
@@ -86,8 +96,51 @@ namespace Zero53.GameplayTags
 
 #endif
         
-        [field: SerializeField, PropertyOrder(order: 2f), DisplayAsString]
+        [field: SerializeField, PropertyOrder(order: 2f), DisplayAsString, ReadOnly]
         public List<string> tags { get; private set; }
-
     }
+
+#if UNITY_EDITOR
+    
+    /// <summary>
+    /// 在 Project Setting 中绘制 TagLibrary
+    /// </summary>
+    internal static class TagLibrarySettingProvider
+    {
+        private static TagLibrary _tagLibrary;
+        private static PropertyTree _propertyTree;
+        
+        [SettingsProvider]
+        public static SettingsProvider CreateMyPluginSettingsProvider()
+        {
+            var provider = new SettingsProvider("Project/Tag Library", SettingsScope.Project)
+            {
+                label = "Tag Library",
+                guiHandler = _ =>
+                {
+                    var newTagLibrary = TagLibrary.instance;
+                    
+                    if (newTagLibrary != _tagLibrary)
+                    {
+                        _tagLibrary = newTagLibrary;
+                        _propertyTree?.Dispose();
+                        _propertyTree = PropertyTree.Create(_tagLibrary);
+                    }
+
+                    _propertyTree.UpdateTree();
+                    _propertyTree.Draw();
+
+                    if (GUI.changed)
+                    {
+                        EditorUtility.SetDirty(_tagLibrary);
+                        AssetDatabase.SaveAssets();
+                        AssetDatabase.Refresh();
+                    }
+                }
+            };
+            return provider;
+        }
+    }
+    
+#endif
 }
