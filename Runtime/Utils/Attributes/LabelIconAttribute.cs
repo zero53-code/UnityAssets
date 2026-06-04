@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Zero53.Utils.Attributes
 {
@@ -25,31 +27,41 @@ namespace Zero53.Utils.Attributes
     public class LabelIconAttributeDrawer : OdinAttributeDrawer<LabelIconAttribute>
     {
         private Texture _icon;
-        protected override void DrawPropertyLayout(GUIContent label)
+        
+        protected override void Initialize()
         {
-            if (_icon == null)
+            LoadIcon();
+        }
+
+        private void LoadIcon()
+        {
+            if (_icon != null) return;
+
+            var guid = Attribute.guid;
+            var path = Attribute.path;
+
+            // 优先 GUID
+            if (!string.IsNullOrEmpty(guid))
             {
-                var guid = Attribute.guid;
-                var path = Attribute.path;
+                path = AssetDatabase.GUIDToAssetPath(guid);
+            }
 
-                if (!string.IsNullOrEmpty(guid))
-                {
-                    path = AssetDatabase.GUIDToAssetPath(guid);
-                }
-
+            if (!string.IsNullOrEmpty(path))
+            {
                 _icon = AssetDatabase.LoadAssetAtPath<Texture>(path);
             }
-            
-            if (_icon == null)
+        }
+        
+        protected override void DrawPropertyLayout(GUIContent label)
+        {
+            if (_icon != null && label != null)
             {
-                CallNextDrawer(label);
-                return;
+                label.image = _icon;
             }
-
-            if (label != null) label.image = _icon;
-
+            
             CallNextDrawer(label);
         }
+        
     }
     
 #endif

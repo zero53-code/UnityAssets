@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using Zero53.Gas.Abilities;
 
@@ -15,7 +16,7 @@ namespace Zero53.Gas.AbilityTasks
         public GameplayAbility ability => domain.ability;
         public AbilitySystem abilitySystem => domain.abilitySystem;
         
-        public AbilityTask parentTask { get; internal set; }
+        [CanBeNull] public AbilityTask parentTask { get; internal set; }
 
         /// <summary>
         /// 子任务
@@ -33,32 +34,38 @@ namespace Zero53.Gas.AbilityTasks
         /// </summary>
         [field: SerializeField]
         public bool isEnded { get; private set; }
+        
+        public bool isRunning => !isCanceled && !isEnded;
 
         /// <summary>
-        /// 当任务被添加到 AbilitySystem 中时调用
+        /// 当任务开始时调用
         /// </summary>
-        internal void Init()
+        internal void Start([CanBeNull] AbilityTask parentTask, AbilityTaskDomain domain)
         {
-            isCanceled = false;
-            isEnded = false;
-            OnInit();
+            this.parentTask = parentTask;
+            this.domain = domain;
+            OnStart();
+            
+            foreach (var subTask in subTasks)
+            {
+                subTask.Start(this, domain);
+            }
         }
 
-        protected internal virtual void OnInit()
+        protected internal virtual void OnStart()
         {
         }
 
         private List<AbilityTask> _subTasksBuffer = new();
         internal void Update(float deltaTime)
         {
+            subTasks.RemoveAll(subTask => !subTask.isRunning);
+            
             _subTasksBuffer.Clear();
             _subTasksBuffer.AddRange(subTasks);
             
             foreach (var task in _subTasksBuffer)
             {
-                task.domain = domain;
-                task.parentTask = this;
-                
                 task.Update(deltaTime);
             }
             
@@ -90,8 +97,6 @@ namespace Zero53.Gas.AbilityTasks
         /// </summary>
         public void Cancel()
         {
-            if (!domain.CancelAbilityTask(this)) return;
-
             isCanceled = true;
             foreach (var subTask in subTasks)
             {
@@ -100,6 +105,11 @@ namespace Zero53.Gas.AbilityTasks
 
             OnCancel();
             End();
+
+            if (parentTask == null)
+            {
+                ability.OnCancel(this);
+            }
         }
 
         /// <summary>
@@ -110,12 +120,13 @@ namespace Zero53.Gas.AbilityTasks
             if (isEnded) return;
 
             isEnded = true;
-            foreach (var subTask in subTasks)
+            
+            _subTasksBuffer.Clear();
+            _subTasksBuffer.AddRange(subTasks);
+            foreach (var subTask in _subTasksBuffer)
             {
                 subTask.End();
             }
-
-            domain.tasks.Remove(this);
 
             OnEnd();
         }
@@ -145,11 +156,17 @@ namespace Zero53.Gas.AbilityTasks
         /// <param name="task">任务对象</param>
         protected void AddSubTask(AbilityTask task)
         {
-            task.domain = domain;
-            task.parentTask = this;
-            
             subTasks.Add(task);
-            task.Init();
+            task.Start(this, domain);
+        }
+
+        private void SetChildTask(AbilityTask task)
+        {
+            task.parentTask = this;
+            foreach (var subTask in task.subTasks)
+            {
+                subTask.SetChildTask(task);
+            }
         }
     }
 }

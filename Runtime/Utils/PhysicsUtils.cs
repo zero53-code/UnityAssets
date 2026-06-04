@@ -5,7 +5,7 @@ namespace Zero53.Utils
 {
     public static class PhysicsUtils
     {
-        private static Collider[] _colliderBuffer = new Collider[1];
+        private static readonly Collider[] _colliderBuffer = new Collider[1];
         
         /// <summary>
         /// 基于 OverlapSphereNonAlloc 的地面检测

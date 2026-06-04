@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
-using Zero53.Gas.AbilityTasks;
+using Zero53.Gas.AbilityTriggers;
 using Zero53.Gas.AttributeSets;
 using Zero53.Gas.Effects;
 using Zero53.Utils.Attributes;
@@ -18,22 +18,29 @@ namespace Zero53.Gas
     {
         #region 序列化
 
-        [OdinSerialize, SerializeReference]
+        [OdinSerialize, SerializeField]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
-        [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
-        private List<GameplayAbility> abilities = new();
+        // [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
+        private List<AbilityInfo> abilities = new();
 
         [OdinSerialize, SerializeReference] 
-        [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
+        // [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
         private AttributeSet[] attributeSetArray;
 
         [field: SerializeField]
-        [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
+        // [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
         public TagContainer tags { get; private set; }
         
         [SerializeReference, PropertyOrder(order: 1)] 
+        // [field: LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
         private List<IGameplayEffect> effects = new();
         
+        #endregion
+
+        #region Runtime Fields
+
+        private readonly Dictionary<Type, AbilityInfo> _typeToAbilityInfo = new();
+
         #endregion
 
         #region API
@@ -49,62 +56,63 @@ namespace Zero53.Gas
             return null;
         }
 
-        public bool GiveAbility<TAbility>() where TAbility : GameplayAbility, new()
+        public TAbility GiveAbility<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
         {
-            return GiveAbility(new TAbility());
+            return (TAbility)GiveAbility(trigger, ScriptableObject.CreateInstance<TAbility>());
         }
         
-        public bool GiveAbility(GameplayAbility newAbility)
+        public TAbility GiveAbilityAndActivateOnce<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
         {
-            if (newAbility == null || abilities.Contains(newAbility)) return false;
-            
-            foreach (var ability in abilities)
+            var ability = GiveAbility<TAbility>(trigger);
+
+            if (ability != null)
             {
-                if (ability.GetType() == newAbility.GetType()) return false;
+                ability.Commit();
+            }
+            
+            return ability;
+        }
+        
+        public GameplayAbility GiveAbility(AbilityTrigger trigger, GameplayAbility newAbility)
+        {
+            if (newAbility == null) return null;
+            
+            foreach (var info in abilities)
+            {
+                if (info.ability == newAbility) return null;
+                if (info.ability.GetType() == newAbility.GetType()) return null;
             }
 
-            newAbility.abilitySystem = this;
-            CreateTaskDomain(newAbility);
-            abilities.Add(newAbility);
-            return true;
+            var abilityInfo = new AbilityInfo(trigger, newAbility);
+            abilities.Add(abilityInfo);
+            HandleGaveAbility(abilityInfo);
+            return abilityInfo.ability;
         }
 
         public void CancelAbility<TAbility>() where TAbility : GameplayAbility
         {
-            foreach (var ability in abilities)
-            {
-                if (ability.GetType() == typeof(TAbility)) continue;
-                
-                ability.Cancel();
-                return;
-            }
+            _typeToAbilityInfo[typeof(TAbility)].ability.Cancel();
         }
         
         public bool RemoveAbility<TAbility>() where TAbility : GameplayAbility
         {
-            var ability = abilities.FirstOrDefault(ability => ability is TAbility);
-            return ability != null && abilities.Remove(ability);
-        }
-
-        internal void ExecuteAbility<TAbility>() where TAbility : GameplayAbility
-        {
-            foreach (var ability in abilities)
+            if (!_typeToAbilityInfo.TryGetValue(typeof(TAbility), out var abilityInfo))
             {
-                if (ability.GetType() == typeof(TAbility)) continue;
-                
-                ExecuteAbility(ability);
-                return;
+                return false;
             }
-        }
 
-        internal void ExecuteAbility(GameplayAbility ability)
-        {
-            ability.Execute();
-            ability.OnPreExecute();
+            return abilities.RemoveAll(info =>
+            {
+                if (info.ability == abilityInfo.ability) return false;
+                
+                HandleRemovedAbility(abilityInfo);
+                
+                return true;
+            }) != 0;
         }
-
+        
         #endregion
-
+        
         #region Effects API
 
         public void AddEffect(IGameplayEffect effect)
@@ -133,18 +141,10 @@ namespace Zero53.Gas
 
         private void Awake()
         {
-            foreach (var attributeSet in attributeSetArray)
-            {
-                attributeSet.abilitySystem = this;
-            }
-
-            foreach (var ability in abilities)
-            {
-                ability.abilitySystem = this;
-                CreateTaskDomain(ability);
-            }
+            Setup();
         }
-        private readonly List<GameplayAbility> _abilitiesBuffer  = new();
+        
+        private readonly List<AbilityInfo> _abilitiesBuffer  = new();
         private readonly List<AttributeSet> _attributeSetsBuffer = new();
         private readonly List<IGameplayEffect> _effectsBuffer = new();
 
@@ -152,10 +152,13 @@ namespace Zero53.Gas
         {
             _abilitiesBuffer.Clear();
             _abilitiesBuffer.AddRange(abilities);
+            
             _attributeSetsBuffer.Clear();
             _attributeSetsBuffer.AddRange(attributeSetArray);
+            
             _effectsBuffer.Clear();
             _effectsBuffer.AddRange(effects);
+            
             AbilitiesUpdate();
             AttributeSetsUpdate();
             EffectsUpdate();
@@ -165,15 +168,27 @@ namespace Zero53.Gas
 
         #region 私有方法
 
+        private void Setup()
+        {
+            foreach (var info in abilities)
+            {
+                HandleGaveAbility(info);
+            }
+            
+            foreach (var attributeSet in attributeSetArray)
+            {
+                attributeSet.abilitySystem = this;
+            }
+        }
+
         private void AbilitiesUpdate()
         {
-            foreach (var ability in _abilitiesBuffer)
+            // 尝试使用触发器激活技能
+            foreach (var info in _abilitiesBuffer)
             {
-                ability.domain.OnUpdate(Time.deltaTime);
-                if (ability.trigger?.Check(Time.deltaTime) ?? false)
-                {
-                    ability.Execute();
-                }
+                info.taskDomain.Update(Time.deltaTime);
+                info.trigger?.Update(Time.deltaTime);
+                info.ability.TryActivate();
             }
         }
 
@@ -189,16 +204,24 @@ namespace Zero53.Gas
         {
             foreach (var effect in _effectsBuffer)
             {
-                effect.Apply(this, Time.deltaTime);
+                effect?.Apply(this, Time.deltaTime);
             }
         }
-        
-        private static void CreateTaskDomain(GameplayAbility ability)
+
+        private void HandleGaveAbility(AbilityInfo abilityInfo)
         {
-            var taskDomain = new AbilityTaskDomain();
+            abilityInfo.Init();
+            abilityInfo.ability.abilitySystem = this;
+            abilityInfo.ability.OnGive();
+            _typeToAbilityInfo[abilityInfo.ability.GetType()] = abilityInfo;
+        }
+
+        private void HandleRemovedAbility(AbilityInfo abilityInfo)
+        {
+            if (abilityInfo.ability.isActivated) abilityInfo.ability.Cancel();
             
-            ability.domain = taskDomain;
-            taskDomain.ability = ability;
+            _typeToAbilityInfo.Remove(abilityInfo.ability.GetType());
+            abilityInfo.ability.OnRemove();
         }
         
         #endregion
@@ -216,26 +239,26 @@ namespace Zero53.Gas
                 case CollectionChangeType.RemoveKey
                     or CollectionChangeType.RemoveIndex
                     or CollectionChangeType.RemoveValue:
-                    abilities[info.Index].Cancel();
+                    abilities[info.Index].ability.Cancel();
                     break;
                 
                 case CollectionChangeType.Clear:
-                    abilities.ForEach(ability => ability.Cancel());
+                    abilities.ForEach(abilityInfo => abilityInfo.ability.Cancel());
                     break;
             }
         }
 
         private void AfterAbilitiesChange(CollectionChangeInfo info)
         {
-            if (!Application.isPlaying) return;
-
-            if (info.ChangeType is not (CollectionChangeType.Add
-                or CollectionChangeType.Insert
-                or CollectionChangeType.SetKey)) return;
+            switch (info.ChangeType)
+            {
+                case CollectionChangeType.RemoveKey
+                    or CollectionChangeType.RemoveIndex
+                    or CollectionChangeType.RemoveValue:
+                    
+                    break;
+            }
             
-            if (info.Value is not GameplayAbility ability) return;
-
-            ability.abilitySystem = this;
         }
         
 #endif

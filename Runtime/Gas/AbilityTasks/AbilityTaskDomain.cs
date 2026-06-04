@@ -12,16 +12,31 @@ namespace Zero53.Gas.AbilityTasks
         public GameplayAbility ability { get; internal set; }
         public AbilitySystem abilitySystem => ability.abilitySystem;
         
+        /// <summary>
+        /// 以树形结构存储任务 
+        /// </summary>
         [SerializeReference]
-        internal List<AbilityTask> tasks = new();
+        internal List<AbilityTask> rootTasks = new();
         
-        private List<AbilityTask> _tasksBuffer = new();
-        
-        internal void OnUpdate(float deltaTime)
+        private List<AbilityTask> _rootTasksBuffer = new();
+
+        internal void Init(GameplayAbility ability)
         {
-            _tasksBuffer.Clear();
-            _tasksBuffer.AddRange(tasks);
-            foreach (var task in _tasksBuffer)
+            this.ability = ability;
+            foreach (var task in rootTasks)
+            {
+                task.Start(null, this);
+            }
+        }
+        
+        internal void Update(float deltaTime)
+        {
+            rootTasks.RemoveAll(rootTask => !rootTask.isRunning);
+            
+            _rootTasksBuffer.Clear();
+            _rootTasksBuffer.AddRange(rootTasks);
+            
+            foreach (var task in _rootTasksBuffer)
             {
                 task.domain = this;
                 
@@ -29,29 +44,50 @@ namespace Zero53.Gas.AbilityTasks
             }
         }
         
-        public bool AddAbilityTask<T>(T task) where T : AbilityTask
+        internal bool AddAbilityTask<T>(T task) where T : AbilityTask
         {
             return AddAbilityTask((AbilityTask)task);
         }
 
-        public bool AddAbilityTask(AbilityTask task)
+        internal bool AddAbilityTask(AbilityTask task)
         {
-            task.domain = this;
-            
-            tasks.Add(task);
-            task.Init();
+            rootTasks.Add(task);
+            task.Start(null, this);
             return true;
         }
 
-        public bool CancelAbilityTask<T>(T task) where T : AbilityTask
+        internal bool CancelAbilityTask<T>(T task) where T : AbilityTask
         {
             if (task.isEnded) return false;
             if (task.isCanceled) return false;
-            if (!tasks.Contains(task)) return false;
+            if (!rootTasks.Contains(task)) return false;
             
             task.Cancel();
-            tasks.Remove(task);
+            rootTasks.Remove(task);
             return true;
+        }
+
+        internal void CancelAllAbilityTasks()
+        {
+            foreach (var task in rootTasks)
+            {
+                task.Cancel();
+            }
+            
+            rootTasks.Clear();
+        }
+
+        public bool anyAbilityTaskRunning
+        {
+            get
+            {
+                foreach (var task in rootTasks)
+                {
+                    if (task.isRunning) return true;
+                }
+                
+                return false;
+            }
         }
     }
     
@@ -69,7 +105,7 @@ namespace Zero53.Gas.AbilityTasks
             
             var typeName = ValueEntry.SmartValue.ability.GetType().FullName;
 
-            var tasksProperty = Property.Children["tasks"];
+            var tasksProperty = Property.Children["rootTasks"];
             tasksProperty.Label = new GUIContent($"Task domain of {typeName}");
             tasksProperty.Draw();
         }

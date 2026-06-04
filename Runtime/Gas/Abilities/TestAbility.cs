@@ -6,26 +6,16 @@ using Zero53.Gas.AbilityTriggers;
 
 namespace Zero53.Gas.Abilities
 {
-    [Serializable]
+    [CreateAssetMenu(menuName = "Zero53/Gas/Test Ability", fileName = "New Test Ability")]
     public class TestAbility : GameplayAbility
     {
         public float duration = 5f;
-
-        [Serializable]
-        public class TestTrigger : AbilityTrigger
+        
+        protected internal override AbilityTask Commit()
         {
-            public float interval = 5f;
-
-            private float _timer;
+            Debug.Log("TestAbility executed");
             
-            protected internal override bool Check(float deltaTime)
-            {
-                _timer += deltaTime;
-                
-                if (_timer < interval) return false;
-                _timer -= interval;
-                return true;
-            }
+            return new TestTask(duration);
         }
         
         [Serializable]
@@ -50,11 +40,24 @@ namespace Zero53.Gas.Abilities
             }
         }
         
-        protected internal override void Execute()
+        [Serializable]
+        public class TestTrigger : AbilityTriggerBase
         {
-            Debug.Log("TestAbility executed");
+            public float interval = 5f;
+
+            private float _timer;
             
-            domain.AddAbilityTask(new TestTask(duration));
+            protected internal override void OnUpdate(float deltaTime)
+            {
+                if (isActive)
+                {
+                    _timer = 0;
+                    isActive = false;
+                }
+                    
+                _timer += deltaTime;
+                isActive = _timer >= interval;
+            }
         }
     }
 }

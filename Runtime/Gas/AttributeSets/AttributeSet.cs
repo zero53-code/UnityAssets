@@ -11,12 +11,6 @@ namespace Zero53.Gas.AttributeSets
     [Serializable]
     public class AttributeSet
     {
-        // [ShowInInspector, TableList]
-        // private List<AttributeData> _attributeData => ReflectionUtils.GetSerializedFields(this)
-        //     .Where(info => info.FieldType == typeof(AttributeData))
-        //     .Select(info => (AttributeData)info.GetValue(this))
-        //     .ToList();
-        
         internal void Update()
         {
         }

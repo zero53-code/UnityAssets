@@ -1,15 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Zero53.Gas.Abilities;
 
 namespace Zero53.Gas.AbilityTriggers
 {
-    /// <summary>
-    /// 冷却时间技能触发器
-    /// </summary>
     [Serializable]
-    public class CooldownAbilityTrigger : IAbilityTrigger
+    [Description(description: "冷却时间结束时触发")]
+    public class CooldownAbilityTrigger : AbilityTriggerBase
     {
         /// <summary>
         /// 冷却持续时间
@@ -23,23 +21,17 @@ namespace Zero53.Gas.AbilityTriggers
         [Min(0f), HorizontalGroup, ProgressBar(min: 0f, maxGetter: "duration")] 
         public float timer;
         
-        private GameplayAbility _ability;
-
-        public void Init(GameplayAbility ability)
+        protected internal override void OnUpdate(float deltaTime)
         {
-            _ability = ability;
-        }
-        
-        public bool Check(float deltaTime)
-        {
-            if (_ability.isExecuting)
+            // 技能激活时不计算冷却时间
+            if (ability.isActivated)
             {
-                timer = 0f;
-                return false;
+                timer = 0;
+                return;
             }
             
-            timer += deltaTime;
-            return timer >= duration;
+            if (timer < duration) timer += deltaTime;
+            else ActivateAbility();
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.Gas.AbilityTasks;
 using Zero53.Gas.AbilityTriggers;
@@ -8,39 +6,51 @@ using Zero53.Gas.AbilityTriggers;
 namespace Zero53.Gas.Abilities
 {
     [Serializable]
-    public abstract class GameplayAbility
+    public abstract class GameplayAbility : ScriptableObject
     {
-        [field: OdinSerialize, SerializeReference, BoxGroup]
-        public AbilityTrigger trigger { get; set; }
+        public AbilityTriggerBase trigger { get; set; }
         
-        [field: SerializeField]
         public AbilityTaskDomain domain { get; internal set; }
         
         public AbilitySystem abilitySystem { get; internal set; }
         
-
         /// <summary>
         /// 技能是否正在执行
         /// </summary>
-        public bool isExecuting => throw new NotImplementedException();
+        public bool isActivated => domain.anyAbilityTaskRunning;
 
-        public bool isEnded => !isExecuting;
+        public bool isEnded => !isActivated;
 
         public void Cancel()
         {
-            throw new NotImplementedException();
+            domain.CancelAllAbilityTasks();
         }
 
-        /// <summary>
-        /// 执行技能
-        /// </summary>
-        protected internal abstract void Execute();
-
-        internal void OnGiveBefore()
+        internal void TryActivate()
         {
-            trigger.ability = this;
+            if (trigger is { isActive: false }) return;
+            
+            OnPreCommit();
+            
+            var primaryTask = Commit();
+            if (primaryTask != null)
+            {
+                domain.AddAbilityTask(primaryTask);
+            }
+            
+            OnPostCommit();
+            
+            if (primaryTask == null)
+            {
+                OnEnd(null);
+            }
         }
         
+        /// <summary>
+        /// 提交技能
+        /// </summary>
+        protected internal abstract AbilityTask Commit();
+
         /// <summary>
         /// 获取技能时调用
         /// </summary>
@@ -56,36 +66,28 @@ namespace Zero53.Gas.Abilities
         }
 
         /// <summary>
-        /// 执行技能前调用
+        /// 提交技能前调用
         /// </summary>
-        protected internal virtual void OnPreExecute()
+        protected internal virtual void OnPreCommit()
+        {
+        }
+        
+        protected internal virtual void OnPostCommit()
         {
         }
 
         /// <summary>
         /// 技能被取消执行时调用
         /// </summary>
-        protected internal virtual void OnCancel()
+        protected internal virtual void OnCancel(AbilityTask rootTask)
         {
         }
 
         /// <summary>
-        /// 技能结束、取消、打断时调用
+        /// 技能结束、取消时调用
         /// </summary>
-        protected internal virtual void OnEnd()
+        protected internal virtual void OnEnd(AbilityTask rootTask)
         {
         }
-
-#if UNITY_EDITOR
-
-        [Button]
-        private void ExecuteAbility()
-        {
-            if (!Application.isPlaying) return;
-
-            abilitySystem.ExecuteAbility(this);
-        }
-
-#endif
     }
 }
