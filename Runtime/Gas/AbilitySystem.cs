@@ -20,19 +20,19 @@ namespace Zero53.Gas
 
         [OdinSerialize, SerializeField]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
-        // [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
+        [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
         private List<AbilityInfo> abilities = new();
 
         [OdinSerialize, SerializeReference] 
-        // [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
+        [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
         private AttributeSet[] attributeSetArray;
 
         [field: SerializeField]
-        // [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
+        [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
         public TagContainer tags { get; private set; }
         
         [SerializeReference, PropertyOrder(order: 1)] 
-        // [field: LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
+        [field: LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
         private List<IGameplayEffect> effects = new();
         
         #endregion
@@ -40,6 +40,7 @@ namespace Zero53.Gas
         #region Runtime Fields
 
         private readonly Dictionary<Type, AbilityInfo> _typeToAbilityInfo = new();
+        private readonly Dictionary<Type, AttributeSet> _typeToAttributeSet = new();
 
         #endregion
 
@@ -47,13 +48,7 @@ namespace Zero53.Gas
 
         public TAttributeSet GetAttributeSet<TAttributeSet>() where TAttributeSet : AttributeSet
         {
-            foreach (var attributeSet in attributeSetArray)
-            {
-                if (attributeSet.GetType() == typeof(TAttributeSet)) 
-                    return (TAttributeSet) attributeSet;
-            }
-            
-            return null;
+            return (TAttributeSet)_typeToAttributeSet.GetValueOrDefault(typeof(TAttributeSet));
         }
 
         public TAbility GiveAbility<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
@@ -91,7 +86,8 @@ namespace Zero53.Gas
 
         public void CancelAbility<TAbility>() where TAbility : GameplayAbility
         {
-            _typeToAbilityInfo[typeof(TAbility)].ability.Cancel();
+            if (_typeToAbilityInfo.ContainsKey(typeof(TAbility))) 
+                _typeToAbilityInfo[typeof(TAbility)].ability.Cancel();
         }
         
         public bool RemoveAbility<TAbility>() where TAbility : GameplayAbility
@@ -177,7 +173,7 @@ namespace Zero53.Gas
             
             foreach (var attributeSet in attributeSetArray)
             {
-                attributeSet.abilitySystem = this;
+                HandleAddedAttributeSet(attributeSet);
             }
         }
 
@@ -220,8 +216,21 @@ namespace Zero53.Gas
         {
             if (abilityInfo.ability.isActivated) abilityInfo.ability.Cancel();
             
+            abilityInfo.ability.abilitySystem = null;
             _typeToAbilityInfo.Remove(abilityInfo.ability.GetType());
             abilityInfo.ability.OnRemove();
+        }
+
+        private void HandleAddedAttributeSet(AttributeSet attributeSet)
+        {
+            attributeSet.abilitySystem = this;
+            _typeToAttributeSet[attributeSet.GetType()] = attributeSet;
+        }
+
+        private void HandleRemovedAttributeSet(AttributeSet attributeSet)
+        {
+            attributeSet.abilitySystem = null;
+            _typeToAttributeSet.Remove(attributeSet.GetType());
         }
         
         #endregion
