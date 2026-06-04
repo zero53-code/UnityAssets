@@ -1,6 +1,6 @@
 {
     "name": "Zero53.GameplayTags",
-    "rootNamespace": "",
+    "rootNamespace": "Zero53",
     "references": [
         "Zero53",
         "Zero53.Singletons",

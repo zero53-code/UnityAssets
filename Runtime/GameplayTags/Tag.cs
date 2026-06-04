@@ -208,8 +208,7 @@ namespace Zero53.GameplayTags
         /// <summary>
         /// 全局标签容器缓存
         /// </summary>
-        private static TagContainer _tagLibrary;
-        private static bool _tagLibraryInitialized;
+        internal static TagContainer tagLibraryInstance;
         
         /// <summary>
         /// [Editor-Only] 全局标签库，自动从 TagLibrary 实例加载所有可用标签
@@ -218,9 +217,9 @@ namespace Zero53.GameplayTags
         {
             get
             {
-                if (_tagLibraryInitialized) return _tagLibrary;
+                if (tagLibraryInstance != null) return tagLibraryInstance;
                 
-                _tagLibrary = new TagContainer();
+                tagLibraryInstance = new TagContainer();
 
                 var tags = TagLibrary
                     .instance
@@ -228,10 +227,10 @@ namespace Zero53.GameplayTags
                     .Select(t => new Tag(t))
                     .Where(t => t.isValid);
                 
-                _tagLibrary.Append(tags);
-                _tagLibraryInitialized = true;
+                tagLibraryInstance.Clear();
+                tagLibraryInstance.Append(tags);
                 
-                return _tagLibrary;
+                return tagLibraryInstance;
             }
         }
         

@@ -66,6 +66,7 @@ namespace Zero53.GameplayTags
             
             RemoveDuplicates();
             Sort();
+            Tag.tagLibraryInstance = null;
         }
         
         /// <summary>
