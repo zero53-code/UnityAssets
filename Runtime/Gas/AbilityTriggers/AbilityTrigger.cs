@@ -1,4 +1,5 @@
 ﻿using System;
+using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
 namespace Zero53.Gas.AbilityTriggers
@@ -41,4 +42,16 @@ namespace Zero53.Gas.AbilityTriggers
             if (canActivate) ActivateAbility();
         }
     }
+    
+#if UNITY_EDITOR
+
+    internal class AbilityTriggerDrawer : OdinValueDrawer<AbilityTrigger>
+    {
+        protected override void DrawPropertyLayout(GUIContent label)
+        {
+            Property.Children["triggers"].Draw(label);
+        }
+    }
+
+#endif
 }
