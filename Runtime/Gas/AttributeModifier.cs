@@ -6,17 +6,18 @@ namespace Zero53.Gas
     public struct AttributeModifier
     {
         public AttributeModifierOp op;
-        public float value;
+        public Magnitude magnitude;
 
-        private AttributeModifier(AttributeModifierOp op, float value)
+        private AttributeModifier(AttributeModifierOp op, Magnitude magnitude)
         {
             this.op = op;
-            this.value = value;
+            this.magnitude = magnitude;
         }
         
-        public static AttributeModifier Add(float value) => new(AttributeModifierOp.Add, value);
-        public static AttributeModifier Multiple(float value) => new(AttributeModifierOp.Multiple, value);
-        public static AttributeModifier Divide(float value) => new(AttributeModifierOp.Divide, value);
-        public static AttributeModifier Override(float value) => new(AttributeModifierOp.Override, value);
+        public static AttributeModifier Add(Magnitude magnitude) => new(AttributeModifierOp.Add, magnitude);
+        public static AttributeModifier Multiply(Magnitude magnitude) => new(AttributeModifierOp.Multiply, magnitude);
+        public static AttributeModifier Divide(Magnitude magnitude) => new(AttributeModifierOp.Divide, magnitude);
+        public static AttributeModifier MultiplyCompound(Magnitude magnitude) => new(AttributeModifierOp.MultiplyCompound, magnitude);
+        public static AttributeModifier Override(Magnitude magnitude) => new(AttributeModifierOp.Override, magnitude);
     }
 }

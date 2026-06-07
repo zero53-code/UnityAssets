@@ -3,8 +3,10 @@
     public enum AttributeModifierOp
     {
         Add,
-        Multiple,
+        Multiply,
         Divide,
+        MultiplyCompound,
+        AddFinal,
         Override,
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Zero53.GameplayTags;
 
-namespace Zero53.Gas
+namespace Zero53.Gas.Effects
 {
     [Serializable]
     public class AddTagEffect : InstantEffect

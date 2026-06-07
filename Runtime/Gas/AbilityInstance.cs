@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.Gas.Abilities;
+using Zero53.Gas.Triggers;
 
 namespace Zero53.Gas
 {

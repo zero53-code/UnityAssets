@@ -12,6 +12,7 @@ using Zero53.Gas.Abilities;
 using Zero53.Gas;
 using Zero53.Gas;
 using Zero53.Gas;
+using Zero53.Gas.Triggers;
 using Zero53.Utils.Attributes;
 
 namespace Zero53.Gas

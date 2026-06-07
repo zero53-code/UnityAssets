@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Zero53.Gas
+namespace Zero53.Gas.Triggers
 {
     [Serializable]
     [Description(description: "一直激活")]

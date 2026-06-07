@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Zero53.Gas.Triggers;
 
 namespace Zero53.Gas.Abilities
 {
