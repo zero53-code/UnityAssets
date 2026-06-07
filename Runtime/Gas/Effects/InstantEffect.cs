@@ -8,9 +8,5 @@ namespace Zero53.Gas.Effects
     [Serializable]
     public abstract class InstantEffect : GameplayEffect
     {
-        protected internal override void Apply()
-        {
-            abilitySystem.RemoveEffect(this);
-        }
     }
 }

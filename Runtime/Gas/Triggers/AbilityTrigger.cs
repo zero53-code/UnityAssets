@@ -16,7 +16,7 @@ namespace Zero53.Gas.Triggers
 
             foreach (var trigger in triggers)
             {
-                trigger.InitInternal(ability);
+                trigger?.InitInternal(ability);
             }
         }
 

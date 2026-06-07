@@ -1,6 +1,6 @@
 ﻿namespace Zero53.Gas
 {
-    public enum AttributeModifierOp
+    public enum ModifierOp
     {
         Add,
         Multiply,

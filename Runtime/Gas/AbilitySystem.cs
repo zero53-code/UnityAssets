@@ -9,9 +9,7 @@ using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
-using Zero53.Gas;
-using Zero53.Gas;
-using Zero53.Gas;
+using Zero53.Gas.Effects;
 using Zero53.Gas.Triggers;
 using Zero53.Utils.Attributes;
 
@@ -134,29 +132,42 @@ namespace Zero53.Gas
         
         #region Effects API
 
-        public void AddEffect(GameplayEffect effect)
+        public void ApplyEffect(GameplayEffect effect)
         {
-            effects.Add(effect);
             HandleAddedEffect(effect);
+
+            if (effect is InstantEffect)
+            {
+                HandleRemovedEffect(effect);
+            }
+            else
+            {
+                effects.Add(effect);
+            }
         }
 
-        public void AddEffects(IEnumerable<GameplayEffect> effects)
+        public void ApplyEffects(IEnumerable<GameplayEffect> effects)
         {
-            var gameplayEffects = effects as GameplayEffect[] ?? effects.ToArray();
-            this.effects.AddRange(gameplayEffects);
-            foreach (var effect in gameplayEffects)
+            foreach (var effect in effects)
             {
-                HandleAddedEffect(effect);
+                ApplyEffect(effect);
             }
         }
 
         public bool RemoveEffect(GameplayEffect effect)
         {
-            return effects.Remove(effect);
+            if (!effects.Remove(effect)) return false;
+            
+            HandleRemovedEffect(effect);
+            return true;
         }
 
         public void ClearEffects()
         {
+            foreach (var effect in effects)
+            {
+                HandleRemovedEffect(effect);
+            }
             effects.Clear();
         }
 
@@ -171,7 +182,8 @@ namespace Zero53.Gas
         
         private readonly List<AbilityInstance> _abilitiesBuffer  = new();
         private readonly List<AttributeSet> _attributeSetsBuffer = new();
-        private readonly List<GameplayEffect> _effectsBuffer = new();
+        private readonly List<PeriodEffect> _periodEffects = new();
+        private readonly List<PeriodEffect> _periodEffectsBuffer = new();
 
         private void Update()
         {
@@ -181,8 +193,8 @@ namespace Zero53.Gas
             _attributeSetsBuffer.Clear();
             _attributeSetsBuffer.AddRange(attributeSets);
             
-            _effectsBuffer.Clear();
-            _effectsBuffer.AddRange(effects);
+            _periodEffects.Clear();
+            _periodEffects.AddRange(_periodEffectsBuffer);
             
             AttributeSetsUpdate();
             EffectsUpdate();
@@ -309,14 +321,9 @@ namespace Zero53.Gas
 
         private void EffectsUpdate()
         {
-            foreach (var effect in _effectsBuffer)
+            foreach (var effect in _periodEffectsBuffer)
             {
                 effect.Update(Time.deltaTime);
-            }
-
-            foreach (var effect in _effectsBuffer)
-            {
-                effect.Apply();
             }
         }
 
@@ -347,7 +354,25 @@ namespace Zero53.Gas
 
         private void HandleAddedEffect(GameplayEffect effect)
         {
-            effect.InitInternal(this);
+            effect.abilitySystem = this;
+
+            if (effect is PeriodEffect periodEffect)
+            {
+                _periodEffects.Add(periodEffect);
+            }
+            else
+            {
+                effect.Apply();
+            }
+        }
+        
+        private void HandleRemovedEffect(GameplayEffect effect)
+        {
+            effect.Remove();
+            if (effect is PeriodEffect periodEffect)
+            {
+                _periodEffects.Remove(periodEffect);
+            }
         }
         
         #endregion

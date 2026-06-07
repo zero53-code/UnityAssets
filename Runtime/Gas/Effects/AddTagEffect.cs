@@ -13,7 +13,7 @@ namespace Zero53.Gas.Effects
             this.addTag = addTag;
         }
 
-        protected internal override void Update(float deltaTime)
+        protected internal override void Apply()
         {
             tags.Add(addTag);
         }

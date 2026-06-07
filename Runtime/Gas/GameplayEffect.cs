@@ -1,6 +1,5 @@
 ﻿using System;
 using Zero53.GameplayTags;
-using Zero53.Gas;
 
 namespace Zero53.Gas
 {
@@ -15,19 +14,11 @@ namespace Zero53.Gas
         {
             return abilitySystem.GetAttributeSet<TAttributeSet>();
         }
-        
-        internal void InitInternal(AbilitySystem abilitySystem)
-        {
-            this.abilitySystem = abilitySystem;
-            Init();
-        }
 
-        protected virtual void Init()
-        {
-        }
-
-        protected internal abstract void Update(float deltaTime);
-        
         protected internal abstract void Apply();
+
+        protected internal virtual void Remove()
+        {
+        }
     }
 }

@@ -13,35 +13,6 @@ namespace Zero53.Gas
     public class AttributeSet
     {
         public AbilitySystem abilitySystem { get; private set; }
-
-        [SerializeReference]
-        private List<GameplayEffect> effects;
-
-        public void AddEffect(GameplayEffect effect)
-        {
-            effects.Add(effect);
-            effect.InitInternal(abilitySystem);
-        }
-        
-        public void AddEffects(IEnumerable<GameplayEffect> effects)
-        {
-            var gameplayEffects = effects as GameplayEffect[] ?? effects.ToArray();
-            this.effects.AddRange(gameplayEffects);
-            foreach (var effect in gameplayEffects)
-            {
-                effect.InitInternal(abilitySystem);
-            }
-        }
-
-        public bool RemoveEffect(GameplayEffect effect)
-        {
-            return effects.Remove(effect);
-        }
-
-        public void ClearEffects()
-        {
-            effects.Clear();
-        }
         
         internal void Init(AbilitySystem abilitySystem)
         {
@@ -83,21 +54,6 @@ namespace Zero53.Gas
         private readonly List<GameplayEffect> _effectsBuffer = new();
         internal void UpdateInternal(float deltaTime)
         {
-            _effectsBuffer.Clear();
-            _effectsBuffer.AddRange(effects);
-            
-            foreach (var effect in _effectsBuffer)
-            {
-                effect.Update(deltaTime);
-            }
-
-            foreach (var effect in _effectsBuffer)
-            {
-                PreGameplayEffectApply(effect);
-                effect.Apply();
-                PostGameplayEffectApply(effect);
-            }
-            
             Update(deltaTime);
         }
         

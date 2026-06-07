@@ -41,8 +41,8 @@ namespace Zero53.Gas.Effects
         /// 是否处于暂停状态
         /// </summary>
         public bool isPaused;
-        
-        protected internal override void Update(float deltaTime)
+
+        internal void Update(float deltaTime)
         {
             if (immediatelyOnce && durationTimer <= Mathf.Epsilon)
             {
@@ -57,8 +57,8 @@ namespace Zero53.Gas.Effects
             
             if (isPaused) return;
             
-            durationTimer += Time.deltaTime;
-            periodTimer += Time.deltaTime;
+            durationTimer += deltaTime;
+            periodTimer += deltaTime;
 
             if (periodTimer < period) return;
                 

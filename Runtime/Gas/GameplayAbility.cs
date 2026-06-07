@@ -49,7 +49,6 @@ namespace Zero53.Gas.Abilities
 
         internal void InitInternal(AbilitySystem abilitySystem, AbilityTrigger trigger, AbilityTaskDomain domain)
         {
-            Debug.Log(GetType().Name + " Init");
             this.abilitySystem = abilitySystem;
             this.trigger = trigger;
             this.domain = domain;
