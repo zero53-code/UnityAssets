@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Zero53.Gas.Abilities;
 
-namespace Zero53.Gas.AbilityTriggers
+namespace Zero53.Gas
 {
     [Serializable]
     public abstract class AbilityTriggerBase

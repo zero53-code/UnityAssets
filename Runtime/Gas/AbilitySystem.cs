@@ -9,9 +9,9 @@ using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
-using Zero53.Gas.AbilityTriggers;
-using Zero53.Gas.AttributeSets;
-using Zero53.Gas.Effects;
+using Zero53.Gas;
+using Zero53.Gas;
+using Zero53.Gas;
 using Zero53.Utils.Attributes;
 
 namespace Zero53.Gas

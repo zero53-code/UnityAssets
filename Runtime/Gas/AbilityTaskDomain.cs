@@ -5,7 +5,7 @@ using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.Gas.Abilities;
 
-namespace Zero53.Gas.AbilityTasks
+namespace Zero53.Gas
 {
     [Serializable]
     public sealed class AbilityTaskDomain

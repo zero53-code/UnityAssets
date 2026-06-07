@@ -1,8 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Zero53.Gas.AbilityTasks;
-using Zero53.Gas.AbilityTriggers;
 
 namespace Zero53.Gas.Abilities
 {

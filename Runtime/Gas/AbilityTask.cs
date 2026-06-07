@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zero53.Gas.Abilities;
 
-namespace Zero53.Gas.AbilityTasks
+namespace Zero53.Gas
 {
     /// <summary>
     /// 任务基类

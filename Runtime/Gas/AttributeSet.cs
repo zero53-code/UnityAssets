@@ -6,9 +6,8 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
-using Zero53.Gas.Effects;
 
-namespace Zero53.Gas.AttributeSets
+namespace Zero53.Gas
 {
     [Serializable]
     public class AttributeSet

@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Zero53.Gas.AttributeSets
+namespace Zero53.Gas
 {
     /// <summary>
     /// 属性

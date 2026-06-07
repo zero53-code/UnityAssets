@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas
 {
     /// <summary>
     /// 组合效果

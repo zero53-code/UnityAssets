@@ -1,8 +1,8 @@
 ﻿using System;
 using Zero53.GameplayTags;
-using Zero53.Gas.AttributeSets;
+using Zero53.Gas;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas
 {
     [Serializable]
     public abstract class GameplayEffect

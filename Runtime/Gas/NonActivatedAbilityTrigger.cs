@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Zero53.Gas.AbilityTriggers
+namespace Zero53.Gas
 {
     [Serializable]
     [Description(description: "技能未激活时触发")]

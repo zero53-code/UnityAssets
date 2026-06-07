@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas
 {
     /// <summary>
     /// 即时效果

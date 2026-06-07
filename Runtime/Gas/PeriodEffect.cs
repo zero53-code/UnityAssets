@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas
 {
     /// <summary>
     /// 周期效果

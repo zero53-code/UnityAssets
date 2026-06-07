@@ -1,7 +1,7 @@
 ﻿using System;
 using Zero53.GameplayTags;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas
 {
     [Serializable]
     public class RemoveTagEffect : InstantEffect
