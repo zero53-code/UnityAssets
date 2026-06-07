@@ -8,19 +8,25 @@ namespace Zero53.Gas.Abilities
     [Serializable]
     public abstract class GameplayAbility : ScriptableObject
     {
-        public AbilityTriggerBase trigger { get; set; }
+        public AbilitySystem abilitySystem { get; private set; }
         
-        public AbilityTaskDomain domain { get; internal set; }
+        public AbilityTrigger trigger { get; private set; }
         
-        public AbilitySystem abilitySystem { get; internal set; }
+        public AbilityTaskDomain domain { get; private set; }
         
         /// <summary>
-        /// 技能是否正在执行
+        /// 技能是否已激活
         /// </summary>
         public bool isActivated => domain.anyAbilityTaskRunning;
 
-        public bool isEnded => !isActivated;
+        /// <summary>
+        /// 已激活的技能任务实例数量
+        /// </summary>
+        public int activatedCount => domain.activatedAbilityTasks.Count;
 
+        /// <summary>
+        /// 取消所有已激活的技能任务
+        /// </summary>
         public void Cancel()
         {
             domain.CancelAllAbilityTasks();
@@ -30,20 +36,24 @@ namespace Zero53.Gas.Abilities
         {
             if (trigger is { isActive: false }) return;
             
-            OnPreCommit();
-            
             var primaryTask = Commit();
             if (primaryTask != null)
             {
                 domain.AddAbilityTask(primaryTask);
             }
             
-            OnPostCommit();
-            
             if (primaryTask == null)
             {
                 OnEnd(null);
             }
+        }
+
+        internal void InitInternal(AbilitySystem abilitySystem, AbilityTrigger trigger, AbilityTaskDomain domain)
+        {
+            Debug.Log(GetType().Name + " Init");
+            this.abilitySystem = abilitySystem;
+            this.trigger = trigger;
+            this.domain = domain;
         }
         
         /// <summary>
@@ -66,17 +76,6 @@ namespace Zero53.Gas.Abilities
         }
 
         /// <summary>
-        /// 提交技能前调用
-        /// </summary>
-        protected internal virtual void OnPreCommit()
-        {
-        }
-        
-        protected internal virtual void OnPostCommit()
-        {
-        }
-
-        /// <summary>
         /// 技能被取消执行时调用
         /// </summary>
         protected internal virtual void OnCancel(AbilityTask rootTask)
@@ -88,6 +87,11 @@ namespace Zero53.Gas.Abilities
         /// </summary>
         protected internal virtual void OnEnd(AbilityTask rootTask)
         {
+        }
+
+        public override string ToString()
+        {
+            return GetType().FullName;
         }
     }
 }

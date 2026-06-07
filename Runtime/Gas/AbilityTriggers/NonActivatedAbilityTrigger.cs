@@ -7,7 +7,7 @@ namespace Zero53.Gas.AbilityTriggers
     [Description(description: "技能未激活时触发")]
     public class NonActivatedAbilityTrigger : AbilityTriggerBase
     {
-        protected internal override void OnUpdate(float deltaTime)
+        protected internal override void Update(float deltaTime)
         {
             if (!ability.isActivated)
             {

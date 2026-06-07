@@ -10,25 +10,24 @@ namespace Zero53.Gas.AbilityTriggers
         [SerializeReference]
         private AbilityTriggerBase[] triggers;
 
-        protected internal override void OnInit()
+        protected internal override void Init()
         {
             triggers ??= Array.Empty<AbilityTriggerBase>();
 
             foreach (var trigger in triggers)
             {
-                trigger.ability = ability;
-                trigger.OnInit();
+                trigger.InitInternal(ability);
             }
         }
 
-        protected internal override void OnUpdate(float deltaTime)
+        protected internal override void Update(float deltaTime)
         {
             if (triggers == null || triggers.Length == 0) return;
             
             
             foreach (var trigger in triggers)
             {
-                trigger.Update(deltaTime);
+                trigger.UpdateInternal(deltaTime);
             }
 
             var canActivate = true;

@@ -9,40 +9,37 @@ using Zero53.Gas.AbilityTriggers;
 namespace Zero53.Gas
 {
     [Serializable]
-    internal struct AbilityInfo
+    internal class AbilityInstance
     {
         [OdinSerialize, SerializeField]
         [OnValueChanged("Init")]
+        [FoldoutGroup("$ability")]
         public AbilityTrigger trigger;
         
         [OdinSerialize, SerializeReference, InlineEditor]
         [OnValueChanged("Init")]
+        [FoldoutGroup("$ability")]
         public GameplayAbility ability;
 
         [OdinSerialize]
         [OnValueChanged("Init")]
+        [FoldoutGroup("$ability")]
         public AbilityTaskDomain taskDomain;
 
-        public AbilityInfo(AbilityTrigger trigger, GameplayAbility ability)
+        public AbilityInstance(AbilityTrigger trigger, GameplayAbility ability)
         {
             this.trigger = trigger;
             this.ability = ability;
             taskDomain = new AbilityTaskDomain();
-            Init();
         }
 
-        public void Init()
+        public void Init(AbilitySystem abilitySystem)
         {
             taskDomain ??= new AbilityTaskDomain();
-            ability.domain = taskDomain;
-            taskDomain.ability = ability;
             
-            if (trigger == null) return;
-            
-            trigger.ability = ability;
-            ability.trigger = trigger;
-            
-            trigger.OnInit();
+            ability.InitInternal(abilitySystem, trigger, taskDomain);
+            taskDomain.Init(ability);
+            trigger?.InitInternal(ability);
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Zero53.Gas.AbilityTriggers
     [Description(description: "基于 tag 触发或禁用技能")]
     public class TagAbilityTrigger : AbilityTriggerBase
     {
+        public bool defaultActivate;
+        
         /// <summary>
         /// 激活技能的标签
         /// </summary>
@@ -18,15 +20,20 @@ namespace Zero53.Gas.AbilityTriggers
         /// </summary>
         public Tag[] deactivateAbilityTags;
         
-        protected internal override void OnUpdate(float deltaTime)
+        protected internal override void Update(float deltaTime)
         {
-            if (activateAbilityTags == null || activateAbilityTags.Length == 0) return;
-
-            if (deactivateAbilityTags != null && 
-                deactivateAbilityTags.Length != 0 && 
-                abilitySystem.tags.HasAny(deactivateAbilityTags))
+            if (abilitySystem.tags.HasAny(deactivateAbilityTags))
             {
                 return;
+            }
+
+            if (defaultActivate)
+            {
+                if (activateAbilityTags == null || activateAbilityTags.Length == 0)
+                {
+                    ActivateAbility();
+                    return;
+                }
             }
 
             if (abilitySystem.tags.HasAny(activateAbilityTags))

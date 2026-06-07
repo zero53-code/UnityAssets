@@ -21,7 +21,7 @@ namespace Zero53.Gas.AbilityTriggers
         [Min(0f), HorizontalGroup, ProgressBar(min: 0f, maxGetter: "duration")] 
         public float timer;
         
-        protected internal override void OnUpdate(float deltaTime)
+        protected internal override void Update(float deltaTime)
         {
             // 技能激活时不计算冷却时间
             if (ability.isActivated)

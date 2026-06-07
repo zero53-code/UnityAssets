@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.Gas.Abilities;
@@ -9,38 +10,38 @@ namespace Zero53.Gas.AbilityTasks
     [Serializable]
     public sealed class AbilityTaskDomain
     {
-        public GameplayAbility ability { get; internal set; }
+        public GameplayAbility ability { get; private set; }
         public AbilitySystem abilitySystem => ability.abilitySystem;
         
         /// <summary>
         /// 以树形结构存储任务 
         /// </summary>
         [SerializeReference]
-        internal List<AbilityTask> rootTasks = new();
+        internal List<AbilityTask> activatedAbilityTasks = new();
         
-        private List<AbilityTask> _rootTasksBuffer = new();
+        private readonly List<AbilityTask> _activatedAbilityTasksBuffer = new();
 
         internal void Init(GameplayAbility ability)
         {
             this.ability = ability;
-            foreach (var task in rootTasks)
+            foreach (var task in activatedAbilityTasks)
             {
-                task.Start(null, this);
+                task.StartInternal(null, this);
             }
         }
         
         internal void Update(float deltaTime)
         {
-            rootTasks.RemoveAll(rootTask => !rootTask.isRunning);
+            activatedAbilityTasks.RemoveAll(rootTask => !rootTask.isRunning);
             
-            _rootTasksBuffer.Clear();
-            _rootTasksBuffer.AddRange(rootTasks);
+            _activatedAbilityTasksBuffer.Clear();
+            _activatedAbilityTasksBuffer.AddRange(activatedAbilityTasks);
             
-            foreach (var task in _rootTasksBuffer)
+            foreach (var task in _activatedAbilityTasksBuffer)
             {
                 task.domain = this;
                 
-                task.Update(deltaTime);
+                task.UpdateInternal(deltaTime);
             }
         }
         
@@ -51,8 +52,8 @@ namespace Zero53.Gas.AbilityTasks
 
         internal bool AddAbilityTask(AbilityTask task)
         {
-            rootTasks.Add(task);
-            task.Start(null, this);
+            activatedAbilityTasks.Add(task);
+            task.StartInternal(null, this);
             return true;
         }
 
@@ -60,33 +61,61 @@ namespace Zero53.Gas.AbilityTasks
         {
             if (task.isEnded) return false;
             if (task.isCanceled) return false;
-            if (!rootTasks.Contains(task)) return false;
+            if (!activatedAbilityTasks.Contains(task)) return false;
             
             task.Cancel();
-            rootTasks.Remove(task);
+            activatedAbilityTasks.Remove(task);
             return true;
         }
 
         internal void CancelAllAbilityTasks()
         {
-            foreach (var task in rootTasks)
+            foreach (var task in activatedAbilityTasks)
             {
                 task.Cancel();
             }
             
-            rootTasks.Clear();
+            activatedAbilityTasks.Clear();
         }
 
         public bool anyAbilityTaskRunning
         {
             get
             {
-                foreach (var task in rootTasks)
+                foreach (var task in activatedAbilityTasks)
                 {
                     if (task.isRunning) return true;
                 }
                 
                 return false;
+            }
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        private void OnDrawGizmos()
+        {
+            var stack = new List<AbilityTask>();
+            stack.AddRange(activatedAbilityTasks);
+            while (stack.Count > 0)
+            {
+                var task = stack[^1];
+                stack.RemoveAt(stack.Count - 1);
+                AbilitySystem.GetOnDrawGizmosMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
+                stack.AddRange(task.subTasks);
+            }
+        }
+        
+        [Conditional("UNITY_EDITOR")]
+        private void OnDrawGizmosSelected()
+        {
+            var stack = new List<AbilityTask>();
+            stack.AddRange(activatedAbilityTasks);
+            while (stack.Count > 0)
+            {
+                var task = stack[^1];
+                stack.RemoveAt(stack.Count - 1);
+                AbilitySystem.GetOnDrawGizmosSelectedMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
+                stack.AddRange(task.subTasks);
             }
         }
     }
@@ -105,7 +134,7 @@ namespace Zero53.Gas.AbilityTasks
             
             var typeName = ValueEntry.SmartValue.ability.GetType().FullName;
 
-            var tasksProperty = Property.Children["rootTasks"];
+            var tasksProperty = Property.Children["activatedAbilityTasks"];
             tasksProperty.Label = new GUIContent($"Task domain of {typeName}");
             tasksProperty.Draw();
         }

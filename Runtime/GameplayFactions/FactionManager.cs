@@ -5,7 +5,6 @@ using Zero53.GameplayTags;
 namespace Zero53.GameplayFactions
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Tags))]
     public class FactionManager : MonoBehaviour
     {
         private Dictionary<Tag, Dictionary<Tag, bool>> _hostileMatrix;

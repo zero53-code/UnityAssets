@@ -21,7 +21,7 @@ namespace Zero53.Gas.AbilityTasks
         /// <summary>
         /// 子任务
         /// </summary>
-        [SerializeReference] private List<AbilityTask> subTasks = new();
+        [SerializeReference] internal List<AbilityTask> subTasks = new();
 
         /// <summary>
         /// 任务是否结束
@@ -35,29 +35,35 @@ namespace Zero53.Gas.AbilityTasks
         [field: SerializeField]
         public bool isEnded { get; private set; }
         
+        /// <summary>
+        /// 任务是否正在运行
+        /// </summary>
         public bool isRunning => !isCanceled && !isEnded;
 
         /// <summary>
         /// 当任务开始时调用
         /// </summary>
-        internal void Start([CanBeNull] AbilityTask parentTask, AbilityTaskDomain domain)
+        internal void StartInternal([CanBeNull] AbilityTask parentTask, AbilityTaskDomain domain)
         {
             this.parentTask = parentTask;
             this.domain = domain;
-            OnStart();
+            Start();
             
             foreach (var subTask in subTasks)
             {
-                subTask.Start(this, domain);
+                subTask.StartInternal(this, domain);
             }
         }
-
-        protected internal virtual void OnStart()
+        
+        /// <summary>
+        /// 当任务开始时调用
+        /// </summary>
+        protected virtual void Start()
         {
         }
 
         private List<AbilityTask> _subTasksBuffer = new();
-        internal void Update(float deltaTime)
+        internal void UpdateInternal(float deltaTime)
         {
             subTasks.RemoveAll(subTask => !subTask.isRunning);
             
@@ -66,17 +72,17 @@ namespace Zero53.Gas.AbilityTasks
             
             foreach (var task in _subTasksBuffer)
             {
-                task.Update(deltaTime);
+                task.UpdateInternal(deltaTime);
             }
             
-            OnUpdate(deltaTime);
+            Update(deltaTime);
         }
 
         /// <summary>
         /// 当任务被添加到 AbilitySystem 中后每帧调用
         /// </summary>
         /// <param name="deltaTime">Time.deltaTime</param>
-        protected internal abstract void OnUpdate(float deltaTime);
+        protected internal abstract void Update(float deltaTime);
 
         /// <summary>
         /// 任务被取消后调用, 随后立刻调用 OnEnd
@@ -157,7 +163,7 @@ namespace Zero53.Gas.AbilityTasks
         protected void AddSubTask(AbilityTask task)
         {
             subTasks.Add(task);
-            task.Start(this, domain);
+            task.StartInternal(this, domain);
         }
 
         private void SetChildTask(AbilityTask task)

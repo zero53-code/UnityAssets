@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
@@ -21,11 +24,11 @@ namespace Zero53.Gas
         [OdinSerialize, SerializeField]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
         [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
-        private List<AbilityInfo> abilities = new();
+        private List<AbilityInstance> abilities = new();
 
         [OdinSerialize, SerializeReference] 
         [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
-        private AttributeSet[] attributeSetArray;
+        private AttributeSet[] attributeSets;
 
         [field: SerializeField]
         [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
@@ -33,27 +36,31 @@ namespace Zero53.Gas
         
         [SerializeReference, PropertyOrder(order: 1)] 
         [field: LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
-        private List<IGameplayEffect> effects = new();
+        private List<GameplayEffect> effects = new();
         
-        #endregion
-
-        #region Runtime Fields
-
-        private readonly Dictionary<Type, AbilityInfo> _typeToAbilityInfo = new();
-        private readonly Dictionary<Type, AttributeSet> _typeToAttributeSet = new();
-
         #endregion
 
         #region API
 
         public TAttributeSet GetAttributeSet<TAttributeSet>() where TAttributeSet : AttributeSet
         {
-            return (TAttributeSet)_typeToAttributeSet.GetValueOrDefault(typeof(TAttributeSet));
+            foreach (var attributeSet in attributeSets)
+            {
+                if (attributeSet is TAttributeSet set) return set;
+            }
+            return null;
+        }
+
+        public TAttributeSet[] GetAttributeSets<TAttributeSet>() where TAttributeSet : AttributeSet
+        {
+            return attributeSets
+                .OfType<TAttributeSet>()
+                .ToArray();
         }
 
         public TAbility GiveAbility<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
         {
-            return (TAbility)GiveAbility(trigger, ScriptableObject.CreateInstance<TAbility>());
+            return GiveAbility(trigger, ScriptableObject.CreateInstance<TAbility>());
         }
         
         public TAbility GiveAbilityAndActivateOnce<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
@@ -68,60 +75,81 @@ namespace Zero53.Gas
             return ability;
         }
         
-        public GameplayAbility GiveAbility(AbilityTrigger trigger, GameplayAbility newAbility)
+        public TAbility GiveAbility<TAbility>(AbilityTrigger trigger, TAbility newAbility) where TAbility : GameplayAbility
         {
             if (newAbility == null) return null;
             
-            foreach (var info in abilities)
+            foreach (var instance in abilities)
             {
-                if (info.ability == newAbility) return null;
-                if (info.ability.GetType() == newAbility.GetType()) return null;
+                if (instance.ability == newAbility) return null;
             }
 
-            var abilityInfo = new AbilityInfo(trigger, newAbility);
-            abilities.Add(abilityInfo);
-            HandleGaveAbility(abilityInfo);
-            return abilityInfo.ability;
+            var abilityInstance = new AbilityInstance(trigger, newAbility);
+            abilities.Add(abilityInstance);
+            
+            HandleGaveAbility(abilityInstance);
+            
+            return newAbility;
         }
 
         public void CancelAbility<TAbility>() where TAbility : GameplayAbility
         {
-            if (_typeToAbilityInfo.ContainsKey(typeof(TAbility))) 
-                _typeToAbilityInfo[typeof(TAbility)].ability.Cancel();
+            foreach (var abilityInstance in abilities)
+            {
+                if (abilityInstance.ability is TAbility ability)
+                {
+                    ability.Cancel();
+                }
+            }
         }
         
-        public bool RemoveAbility<TAbility>() where TAbility : GameplayAbility
+        public int RemoveAbility<TAbility>() where TAbility : GameplayAbility
         {
-            if (!_typeToAbilityInfo.TryGetValue(typeof(TAbility), out var abilityInfo))
+            return abilities.RemoveAll(abilityInstance =>
             {
-                return false;
-            }
-
-            return abilities.RemoveAll(info =>
-            {
-                if (info.ability == abilityInfo.ability) return false;
+                if (abilityInstance.ability is not TAbility) return false;
                 
-                HandleRemovedAbility(abilityInfo);
+                HandleRemovedAbility(abilityInstance);
                 
                 return true;
-            }) != 0;
+            });
+        }
+
+        public bool RemoveAbility<TAbility>(TAbility ability) where TAbility : GameplayAbility
+        {
+            var count = abilities.RemoveAll(abilityInstance =>
+            {
+                if (abilityInstance.ability != ability) return false;
+                
+                HandleRemovedAbility(abilityInstance);
+                return true;
+
+            });
+            
+            return count > 0;
         }
         
         #endregion
         
         #region Effects API
 
-        public void AddEffect(IGameplayEffect effect)
+        public void AddEffect(GameplayEffect effect)
         {
             effects.Add(effect);
+            HandleAddedEffect(effect);
         }
 
-        public void AddEffects(IEnumerable<IGameplayEffect> effects)
+        public void AddEffects(IEnumerable<GameplayEffect> effects)
         {
-            this.effects.AddRange(effects);
+            var gameplayEffects = effects as GameplayEffect[] ?? effects.ToArray();
+            this.effects.AddRange(gameplayEffects);
+            foreach (var effect in gameplayEffects)
+            {
+                HandleAddedEffect(effect);
+            }
         }
 
-        public bool RemoveEffect(IGameplayEffect effect)
+        public bool RemoveEffect(GameplayEffect effect)
         {
             return effects.Remove(effect);
         }
@@ -140,9 +168,9 @@ namespace Zero53.Gas
             Setup();
         }
         
-        private readonly List<AbilityInfo> _abilitiesBuffer  = new();
+        private readonly List<AbilityInstance> _abilitiesBuffer  = new();
         private readonly List<AttributeSet> _attributeSetsBuffer = new();
-        private readonly List<IGameplayEffect> _effectsBuffer = new();
+        private readonly List<GameplayEffect> _effectsBuffer = new();
 
         private void Update()
         {
@@ -150,41 +178,123 @@ namespace Zero53.Gas
             _abilitiesBuffer.AddRange(abilities);
             
             _attributeSetsBuffer.Clear();
-            _attributeSetsBuffer.AddRange(attributeSetArray);
+            _attributeSetsBuffer.AddRange(attributeSets);
             
             _effectsBuffer.Clear();
             _effectsBuffer.AddRange(effects);
             
-            AbilitiesUpdate();
             AttributeSetsUpdate();
             EffectsUpdate();
+            AbilitiesUpdate();
         }
 
+        private void OnDestroy()
+        {
+            foreach (var abilityInstance in abilities)
+            {
+                HandleRemovedAbility(abilityInstance);
+                Destroy(abilityInstance.ability);
+            }
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            Setup();
+        }
+
+        private static readonly Dictionary<Type, MethodInfo> _typeToOnDrawGizmosMethod = new();
+        private static readonly Dictionary<Type, MethodInfo> _typeToOnDrawGizmosSelectedMethod = new();
+        
+        private void OnDrawGizmos()
+        {
+            foreach (var info in abilities)
+            {
+                GetOnDrawGizmosMethodInfo(info.ability.GetType())?.Invoke(info.ability, Array.Empty<object>());
+                GetOnDrawGizmosMethodInfo(info.taskDomain.GetType())?.Invoke(info.taskDomain, Array.Empty<object>());
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            foreach (var info in abilities)
+            {
+                GetOnDrawGizmosSelectedMethodInfo(info.ability.GetType())?.Invoke(info.ability, Array.Empty<object>());
+                GetOnDrawGizmosSelectedMethodInfo(info.taskDomain.GetType())?.Invoke(info.taskDomain, Array.Empty<object>());
+            }
+        }
+
+        internal static MethodInfo GetOnDrawGizmosMethodInfo(Type type)
+        {
+            if (_typeToOnDrawGizmosMethod.TryGetValue(type, out var method))
+            {
+                return method;
+            }
+                
+            _typeToOnDrawGizmosMethod[type] = type
+                .GetMethod(
+                    "OnDrawGizmos", 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+            return _typeToOnDrawGizmosMethod[type];
+        }
+        
+        internal static MethodInfo GetOnDrawGizmosSelectedMethodInfo(Type type)
+        {
+            if (_typeToOnDrawGizmosSelectedMethod.TryGetValue(type, out var method))
+            {
+                return method;
+            }
+                
+            _typeToOnDrawGizmosSelectedMethod[type] = type
+                .GetMethod(
+                    "OnDrawGizmosSelected", 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+            return _typeToOnDrawGizmosSelectedMethod[type];
+        }
+        
+#endif
         #endregion
 
         #region 私有方法
 
         private void Setup()
         {
-            foreach (var info in abilities)
+            foreach (var abilityInstance in abilities)
             {
-                HandleGaveAbility(info);
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    HandleGaveAbility(abilityInstance);
+                    continue;
+                }
+#endif
+                
+                abilityInstance.ability = Instantiate(abilityInstance.ability);
+
+                HandleGaveAbility(abilityInstance);
             }
             
-            foreach (var attributeSet in attributeSetArray)
+            foreach (var attributeSet in attributeSets)
             {
                 HandleAddedAttributeSet(attributeSet);
+            }
+
+            foreach (var effect in effects)
+            {
+                HandleAddedEffect(effect);
             }
         }
 
         private void AbilitiesUpdate()
         {
             // 尝试使用触发器激活技能
-            foreach (var info in _abilitiesBuffer)
+            foreach (var abilityInstance in _abilitiesBuffer)
             {
-                info.taskDomain.Update(Time.deltaTime);
-                info.trigger?.Update(Time.deltaTime);
-                info.ability.TryActivate();
+                abilityInstance.taskDomain.Update(Time.deltaTime);
+                abilityInstance.trigger?.UpdateInternal(Time.deltaTime);
+                abilityInstance.ability.TryActivate();
             }
         }
 
@@ -192,7 +302,7 @@ namespace Zero53.Gas
         {
             foreach (var attributeSet in _attributeSetsBuffer)
             {
-                attributeSet.Update();
+                attributeSet.UpdateInternal(Time.deltaTime);
             }
         }
 
@@ -200,45 +310,50 @@ namespace Zero53.Gas
         {
             foreach (var effect in _effectsBuffer)
             {
-                effect?.Apply(this, Time.deltaTime);
+                effect.Update(Time.deltaTime);
+            }
+
+            foreach (var effect in _effectsBuffer)
+            {
+                effect.Apply();
             }
         }
 
-        private void HandleGaveAbility(AbilityInfo abilityInfo)
+        private void HandleGaveAbility(AbilityInstance abilityInstance)
         {
-            abilityInfo.Init();
-            abilityInfo.ability.abilitySystem = this;
-            abilityInfo.ability.OnGive();
-            _typeToAbilityInfo[abilityInfo.ability.GetType()] = abilityInfo;
+            if (abilityInstance == null) return;
+            if (abilityInstance.ability == null) return;
+            
+            abilityInstance.Init(this);
+            abilityInstance.ability.OnGive();
         }
 
-        private void HandleRemovedAbility(AbilityInfo abilityInfo)
+        private void HandleRemovedAbility(AbilityInstance abilityInstance)
         {
-            if (abilityInfo.ability.isActivated) abilityInfo.ability.Cancel();
+            if (abilityInstance.ability.isActivated) abilityInstance.ability.Cancel();
             
-            abilityInfo.ability.abilitySystem = null;
-            _typeToAbilityInfo.Remove(abilityInfo.ability.GetType());
-            abilityInfo.ability.OnRemove();
+            abilityInstance.ability.OnRemove();
         }
 
         private void HandleAddedAttributeSet(AttributeSet attributeSet)
         {
-            attributeSet.abilitySystem = this;
-            _typeToAttributeSet[attributeSet.GetType()] = attributeSet;
+            attributeSet.Init(this);
         }
 
         private void HandleRemovedAttributeSet(AttributeSet attributeSet)
         {
-            attributeSet.abilitySystem = null;
-            _typeToAttributeSet.Remove(attributeSet.GetType());
+        }
+
+        private void HandleAddedEffect(GameplayEffect effect)
+        {
+            effect.InitInternal(this);
         }
         
         #endregion
 
         #region Editor
 
-#if UNITY_EDITOR
-
+        [Conditional("UNITY_EDITOR")]
         private void BeforeAbilitiesChange(CollectionChangeInfo info)
         {
             if (!Application.isPlaying) return;
@@ -257,6 +372,7 @@ namespace Zero53.Gas
             }
         }
 
+        [Conditional("UNITY_EDITOR")]
         private void AfterAbilitiesChange(CollectionChangeInfo info)
         {
             switch (info.ChangeType)
@@ -270,8 +386,6 @@ namespace Zero53.Gas
             
         }
         
-#endif
-
         #endregion
     }
 }

@@ -30,7 +30,7 @@ namespace Zero53.Gas.Abilities
                 this.duration = duration;
             }
             
-            protected internal override void OnUpdate(float deltaTime)
+            protected internal override void Update(float deltaTime)
             {
                 timer += deltaTime;
                 if (timer < duration) return;
@@ -47,7 +47,7 @@ namespace Zero53.Gas.Abilities
 
             private float _timer;
             
-            protected internal override void OnUpdate(float deltaTime)
+            protected internal override void Update(float deltaTime)
             {
                 if (isActive)
                 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using Zero53.Gas.AttributeSets;
 
 namespace Zero53.Gas.Effects
 {
@@ -8,17 +7,27 @@ namespace Zero53.Gas.Effects
     /// 组合效果
     /// </summary>
     [Serializable]
-    public class CombinationEffect : IGameplayEffect
+    public class CombinationEffect : GameplayEffect
     {
-        [SerializeReference] public IGameplayEffect[] effects;
+        [SerializeReference] public GameplayEffect[] effects;
 
-        public void Apply(AbilitySystem target, float deltaTime)
+        protected internal override void Update(float deltaTime)
         {
             if (effects == null) return;
             
             foreach (var effect in effects)
             {
-                effect.Apply(target, deltaTime);
+                effect.Update(deltaTime);
+            }
+        }
+
+        protected internal override void Apply()
+        {
+            if (effects == null) return;
+            
+            foreach (var effect in effects)
+            {
+                effect.Apply();
             }
         }
     }

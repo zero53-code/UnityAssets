@@ -1,7 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Zero53.Gas.AttributeSets;
 
 namespace Zero53.Gas.Effects
 {
@@ -9,7 +8,7 @@ namespace Zero53.Gas.Effects
     /// 周期效果
     /// </summary>
     [Serializable]
-    public abstract class PeriodEffect : IGameplayEffect
+    public abstract class PeriodEffect : GameplayEffect
     {
         /// <summary>
         /// 持续时间
@@ -29,13 +28,13 @@ namespace Zero53.Gas.Effects
         /// <summary>
         /// 持续时间计时器
         /// </summary>
-        [ProgressBar(min: 0, maxGetter: "duration")]
+        [ProgressBar(min: 0, maxGetter: nameof(duration))]
         public float durationTimer;
 
         /// <summary>
         /// 周期时间计时器
         /// </summary>
-        [ProgressBar(min: 0, maxGetter: "period")]
+        [ProgressBar(min: 0, maxGetter: nameof(period))]
         public float periodTimer;
         
         /// <summary>
@@ -43,16 +42,16 @@ namespace Zero53.Gas.Effects
         /// </summary>
         public bool isPaused;
         
-        public void Apply(AbilitySystem target, float deltaTime)
+        protected internal override void Update(float deltaTime)
         {
             if (immediatelyOnce && durationTimer <= Mathf.Epsilon)
             {
-                OnApply(target);
+                Apply();
             }
             
             if (durationTimer >= duration)
             {
-                target.RemoveEffect(this);
+                abilitySystem.RemoveEffect(this);
                 return;
             }
             
@@ -63,10 +62,8 @@ namespace Zero53.Gas.Effects
 
             if (periodTimer < period) return;
                 
-            OnApply(target);
+            Apply();
             periodTimer -= period;
         }
-        
-        protected abstract void OnApply(AbilitySystem target);
     }
 }

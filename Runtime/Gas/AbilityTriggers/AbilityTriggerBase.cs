@@ -10,7 +10,7 @@ namespace Zero53.Gas.AbilityTriggers
     [Serializable]
     public abstract class AbilityTriggerBase
     {
-        public GameplayAbility ability { get; internal set; }
+        public GameplayAbility ability { get; private set; }
         public AbilitySystem abilitySystem => ability.abilitySystem;
 
         internal bool isActive { get; set; }
@@ -20,14 +20,20 @@ namespace Zero53.Gas.AbilityTriggers
             isActive = true;
         }
         
-        internal void Update(float deltaTime)
+        internal void UpdateInternal(float deltaTime)
         {
             isActive = false;
-            OnUpdate(deltaTime);
+            Update(deltaTime);
+        }
+
+        internal void InitInternal(GameplayAbility ability)
+        {
+            this.ability = ability;
+            Init();
         }
         
-        protected internal virtual void OnInit() {}
-        protected internal abstract void OnUpdate(float deltaTime);
+        protected internal virtual void Init() {}
+        protected internal abstract void Update(float deltaTime);
     }
 
 #if UNITY_EDITOR
