@@ -1,5 +1,5 @@
 ﻿{
   "name": "Zero53.Gas",
-  "rootNamespace": "Zero53.Gas",
+  "rootNamespace": "Zero53",
   "references": ["Zero53.Utils","Zero53.GameplayTags"]
 }

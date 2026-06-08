@@ -1,5 +1,5 @@
 ﻿{
   "name": "Zero53.BehaviorTree",
   "rootNamespace": "Zero53",
-  "references": ["Zero53", "Zero53.Utils"]
+  "references": ["Zero53.Utils"]
 }

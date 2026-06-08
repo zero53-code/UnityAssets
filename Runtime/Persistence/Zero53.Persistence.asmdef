@@ -1,5 +1,5 @@
 ﻿{
   "name": "Zero53.Persistence",
-  "rootNamespace": "Zero53.Persistence",
-  "references": ["Zero53", "Zero53.Utils","Zero53.Singletons"]
+  "rootNamespace": "Zero53",
+  "references": ["Zero53.Utils","Zero53.Singletons"]
 }

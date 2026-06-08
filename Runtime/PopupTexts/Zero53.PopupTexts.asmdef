@@ -1,5 +1,5 @@
 ﻿{
   "name": "Zero53.PopupTexts",
-  "rootNamespace": "Zero53.PopupTexts",
+  "rootNamespace": "Zero53",
   "references": ["Unity.TextMeshPro"]
 }

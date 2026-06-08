@@ -1,5 +1,5 @@
 ﻿{
   "name": "Zero53.Singletons",
-  "rootNamespace": "Zero53.Singletons",
-  "references": ["Zero53", "Zero53.Utils", "Unity.Addressables", "Unity.ResourceManager"]
+  "rootNamespace": "Zero53",
+  "references": ["Zero53.Utils", "Unity.Addressables", "Unity.ResourceManager"]
 }
