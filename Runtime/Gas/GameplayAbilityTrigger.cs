@@ -3,7 +3,6 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
-using Zero53.Gas.Abilities;
 
 namespace Zero53.Gas
 {

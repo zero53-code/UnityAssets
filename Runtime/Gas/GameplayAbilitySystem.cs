@@ -8,7 +8,6 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
-using Zero53.Gas.Abilities;
 using Zero53.Gas.GameplayEffects;
 using Zero53.Gas.GameplayTriggers;
 using Zero53.Utils.Attributes;

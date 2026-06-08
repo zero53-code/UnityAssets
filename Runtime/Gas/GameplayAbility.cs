@@ -2,7 +2,7 @@
 using UnityEngine;
 using Zero53.Gas.GameplayTriggers;
 
-namespace Zero53.Gas.Abilities
+namespace Zero53.Gas
 {
     [Serializable]
     public abstract class GameplayAbility : ScriptableObject

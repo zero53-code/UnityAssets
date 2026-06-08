@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
-using Zero53.Gas.Abilities;
 
 namespace Zero53.Gas
 {
