@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Zero53.Gas.Aggregators
 {
+    /// <summary>
+    /// 默认聚合器 
+    /// </summary>
     public class DefaultAggregator : IAggregator
     {
         public float Aggregate(float baseValue, IList<Modifier> modifiers)

@@ -33,12 +33,20 @@ namespace Zero53.Gas
             this.attributeSet = attributeSet;
         }
 
+        #region API
+
+        public GameplayAttributeSet attributeSet { get; private set; }
+
         public float baseValue
         {
             get => _baseValue;
             set
             {
+#if UNITY_EDITOR
                 attributeSet?.PreAttributeBaseChange(this, ref value);
+#else
+                attributeSet.PreAttributeBaseChange(this, ref value);
+#endif
                 _baseValue = value;
                 RecalculateCurrentValue();
             }
@@ -49,18 +57,18 @@ namespace Zero53.Gas
             get => _currentValue;
             set
             {
+#if UNITY_EDITOR
                 attributeSet?.PreAttributeChange(this, ref value);
+#else
+                attributeSet.PreAttributeChange(this, ref value);
+#endif
                 _currentValue = value;
             }
         }
 
-        public GameplayAttributeSet attributeSet { get; private set; }
+        public float value => currentValue;
 
-        public float value
-        {
-            get => currentValue;
-            set => currentValue = value;
-        }
+        #endregion
 
         #region Modifier API
 

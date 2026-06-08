@@ -8,6 +8,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
+using Zero53.Gas.GameplayAbilityTriggers;
 using Zero53.Gas.GameplayEffects;
 using Zero53.Gas.GameplayTriggers;
 using Zero53.Utils.Attributes;
@@ -337,6 +338,8 @@ namespace Zero53.Gas
 
         private void HandleRemovedAbility(GameplayAbilityInstance abilityInstance)
         {
+            if (abilityInstance == null) return;
+            
             if (abilityInstance.ability.isActivated) abilityInstance.ability.Cancel();
             
             abilityInstance.ability.OnRemove();
@@ -344,15 +347,20 @@ namespace Zero53.Gas
 
         private void HandleAddedAttributeSet(GameplayAttributeSet attributeSet)
         {
+            if (attributeSet == null) return;
+            
             attributeSet.Init(this);
         }
 
         private void HandleRemovedAttributeSet(GameplayAttributeSet attributeSet)
         {
+            if (attributeSet == null) return;
         }
 
         private void HandleAddedEffect(GameplayEffect effect)
         {
+            if (effect == null) return;
+            
             effect.abilitySystem = this;
 
             if (effect is GameplayPeriodEffect periodEffect)
@@ -367,6 +375,8 @@ namespace Zero53.Gas
         
         private void HandleRemovedEffect(GameplayEffect effect)
         {
+            if (effect == null) return;
+            
             effect.Remove();
             if (effect is GameplayPeriodEffect periodEffect)
             {

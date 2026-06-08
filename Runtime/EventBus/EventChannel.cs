@@ -3,7 +3,7 @@ using Zero53.EventBus;
 using Zero53.Singletons;
 using Object = UnityEngine.Object;
 
-namespace Endfield.EventSystem
+namespace Arpg.EventSystem
 {
     [CreateAssetMenu(menuName = "Zero53/EventChannel", fileName = "New EventChannel")]
     public sealed class EventChannel : ScriptableObject

@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Object = UnityEngine.Object;
 
-namespace Endfield.EventSystem
+namespace Arpg.EventSystem
 {
     public class EventChannelPublisher : IEquatable<EventChannelPublisher>
     {

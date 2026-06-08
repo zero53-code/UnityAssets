@@ -2,7 +2,7 @@
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
-namespace Zero53.Gas.GameplayTriggers
+namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
     public sealed class AbilityTrigger : GameplayAbilityTrigger
