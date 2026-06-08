@@ -19,6 +19,7 @@ namespace Zero53.Gas
         public static Modifier Multiply(Magnitude magnitude) => new(ModifierOp.Multiply, magnitude);
         public static Modifier Divide(Magnitude magnitude) => new(ModifierOp.Divide, magnitude);
         public static Modifier MultiplyCompound(Magnitude magnitude) => new(ModifierOp.MultiplyCompound, magnitude);
+        public static Modifier AddFinal(Magnitude magnitude) => new(ModifierOp.AddFinal, magnitude);
         public static Modifier Override(Magnitude magnitude) => new(ModifierOp.Override, magnitude);
     }
 }

@@ -62,6 +62,8 @@ namespace Zero53.Gas
             set => currentValue = value;
         }
 
+        #region Modifier API
+
         public void AddModifier(Modifier modifier)
         {
             _modifiers.Add(modifier);
@@ -76,10 +78,53 @@ namespace Zero53.Gas
             return true;
         }
 
+        public Modifier Add(Magnitude magnitude)
+        {
+            var modifier = Modifier.Add(magnitude);
+            AddModifier(modifier);
+            return modifier;
+        }
+
+        public Modifier Multiply(Magnitude magnitude)
+        {
+            var modifier = Modifier.Multiply(magnitude);
+            AddModifier(modifier);
+            return modifier;
+        }
+
+        public Modifier Divide(Magnitude magnitude)
+        {
+            var modifier = Modifier.Divide(magnitude);
+            AddModifier(modifier);
+            return modifier;
+        }
+
+        public Modifier MultiplyCompound(Magnitude magnitude)
+        {
+            var modifier = Modifier.MultiplyCompound(magnitude);
+            AddModifier(modifier);
+            return modifier;
+        }
+
+        public Modifier AddFinal(Magnitude magnitude)
+        {
+            var modifier = Modifier.AddFinal(magnitude);
+            AddModifier(modifier);
+            return modifier;
+        }
+
+        public Modifier Override(Magnitude magnitude)
+        {
+            var modifier = Modifier.Override(magnitude);
+            AddModifier(modifier);
+            return modifier;
+        }
+
+        #endregion
+        
         private void RecalculateCurrentValue()
         {
             currentValue = aggregator.Aggregate(_baseValue, _modifiers);
         }
     }
 }
-

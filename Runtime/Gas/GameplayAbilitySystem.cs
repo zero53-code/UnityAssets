@@ -192,8 +192,8 @@ namespace Zero53.Gas
             _attributeSetsBuffer.Clear();
             _attributeSetsBuffer.AddRange(attributeSets);
             
-            _periodEffects.Clear();
-            _periodEffects.AddRange(_periodEffectsBuffer);
+            _periodEffectsBuffer.Clear();
+            _periodEffectsBuffer.AddRange(_periodEffects);
             
             AttributeSetsUpdate();
             EffectsUpdate();
