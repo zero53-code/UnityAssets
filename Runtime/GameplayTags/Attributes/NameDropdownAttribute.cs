@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
+using Zero53.GameplayTags;
 
 namespace Zero53.Gas.Attributes
 {

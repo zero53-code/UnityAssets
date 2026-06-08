@@ -4,7 +4,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
-namespace Zero53
+namespace Zero53.GameplayTags
 {
     [Serializable]
     public struct Name : IEquatable<Name>, IComparable<Name>
