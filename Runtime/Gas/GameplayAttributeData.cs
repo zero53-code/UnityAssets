@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Zero53.Gas.Aggregators;
 using Zero53.Gas.Magnitudes;
 
 namespace Zero53.Gas
@@ -21,7 +22,7 @@ namespace Zero53.Gas
         [SerializeReference, HideInInspector] 
         public IAggregator aggregator = new DefaultAggregator();
         
-        internal List<Modifier> modifiers = new();
+        private List<Modifier> _modifiers = new();
 
         internal GameplayAttributeData()
         {
@@ -37,9 +38,9 @@ namespace Zero53.Gas
             get => _baseValue;
             set
             {
-                attributeSet.PreAttributeBaseChange(this, ref value);
+                attributeSet?.PreAttributeBaseChange(this, ref value);
                 _baseValue = value;
-                currentValue = aggregator.Aggregate(_baseValue, modifiers);
+                RecalculateCurrentValue();
             }
         }
 
@@ -48,7 +49,7 @@ namespace Zero53.Gas
             get => _currentValue;
             set
             {
-                attributeSet.PreAttributeChange(this, ref value);
+                attributeSet?.PreAttributeChange(this, ref value);
                 _currentValue = value;
             }
         }
@@ -59,6 +60,25 @@ namespace Zero53.Gas
         {
             get => currentValue;
             set => currentValue = value;
+        }
+
+        public void AddModifier(Modifier modifier)
+        {
+            _modifiers.Add(modifier);
+            RecalculateCurrentValue();
+        }
+
+        public bool RemoveModifier(Modifier modifier)
+        {
+            if (!_modifiers.Remove(modifier)) return false;
+            
+            RecalculateCurrentValue();
+            return true;
+        }
+
+        private void RecalculateCurrentValue()
+        {
+            currentValue = aggregator.Aggregate(_baseValue, _modifiers);
         }
     }
 }

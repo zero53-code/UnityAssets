@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Zero53.Gas
 {
     [Serializable]
-    public struct Modifier
+    public class Modifier
     {
         public ModifierOp op;
         [SerializeReference] public Magnitude magnitude;

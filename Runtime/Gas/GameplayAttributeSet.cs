@@ -117,12 +117,12 @@ namespace Zero53.Gas
                 new GUITableColumn
                 {
                     ColumnTitle = "Base Value",
-                    OnGUI = (rect, i) => { _list[i]._baseValue = EditorGUI.FloatField(rect, _list[i]._baseValue); }
+                    OnGUI = (rect, i) => { _list[i].baseValue = EditorGUI.FloatField(rect, _list[i].baseValue); }
                 },
                 new GUITableColumn
                 {
                     ColumnTitle = "Current Value",
-                    OnGUI = (rect, i) => { _list[i]._currentValue = EditorGUI.FloatField(rect, _list[i]._currentValue); }
+                    OnGUI = (rect, i) => { _list[i].currentValue = EditorGUI.FloatField(rect, _list[i].currentValue); }
                 });
 
             _table.DrawTable();
