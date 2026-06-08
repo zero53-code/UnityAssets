@@ -2,7 +2,6 @@
     "name": "Zero53.GameplayTags",
     "rootNamespace": "Zero53",
     "references": [
-        "Zero53",
         "Zero53.Singletons",
         "Sirenix.OdinInspector.CompatibilityLayer",
         "Zero53.Utils"

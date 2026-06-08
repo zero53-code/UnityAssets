@@ -1,17 +1,17 @@
 ﻿using System;
 using UnityEngine;
-using Zero53.Gas.Triggers;
+using Zero53.Gas.GameplayTriggers;
 
 namespace Zero53.Gas.Abilities
 {
     [Serializable]
     public abstract class GameplayAbility : ScriptableObject
     {
-        public AbilitySystem abilitySystem { get; private set; }
+        public GameplayAbilitySystem abilitySystem { get; private set; }
         
         public AbilityTrigger trigger { get; private set; }
         
-        public AbilityTaskDomain domain { get; private set; }
+        public GameplayAbilityTaskDomain domain { get; private set; }
         
         /// <summary>
         /// 技能是否已激活
@@ -47,7 +47,7 @@ namespace Zero53.Gas.Abilities
             }
         }
 
-        internal void InitInternal(AbilitySystem abilitySystem, AbilityTrigger trigger, AbilityTaskDomain domain)
+        internal void InitInternal(GameplayAbilitySystem abilitySystem, AbilityTrigger trigger, GameplayAbilityTaskDomain domain)
         {
             this.abilitySystem = abilitySystem;
             this.trigger = trigger;
@@ -57,7 +57,7 @@ namespace Zero53.Gas.Abilities
         /// <summary>
         /// 提交技能
         /// </summary>
-        protected internal abstract AbilityTask Commit();
+        protected internal abstract GameplayAbilityTask Commit();
 
         /// <summary>
         /// 获取技能时调用
@@ -76,14 +76,14 @@ namespace Zero53.Gas.Abilities
         /// <summary>
         /// 技能被取消执行时调用
         /// </summary>
-        protected internal virtual void OnCancel(AbilityTask rootTask)
+        protected internal virtual void OnCancel(GameplayAbilityTask rootTask)
         {
         }
 
         /// <summary>
         /// 技能结束、取消时调用
         /// </summary>
-        protected internal virtual void OnEnd(AbilityTask rootTask)
+        protected internal virtual void OnEnd(GameplayAbilityTask rootTask)
         {
         }
 

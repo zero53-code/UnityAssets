@@ -10,25 +10,25 @@ using UnityEngine;
 namespace Zero53.Gas
 {
     [Serializable]
-    public class AttributeSet
+    public class GameplayAttributeSet
     {
-        public AbilitySystem abilitySystem { get; private set; }
+        public GameplayAbilitySystem abilitySystem { get; private set; }
         
-        internal void Init(AbilitySystem abilitySystem)
+        internal void Init(GameplayAbilitySystem abilitySystem)
         {
             this.abilitySystem = abilitySystem;
             
             foreach (var attributeData in GetType()
                          .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                         .Where(f => f.FieldType == typeof(AttributeData))
+                         .Where(f => f.FieldType == typeof(GameplayAttributeData))
                          .Select(f =>
                          {
                              var data = f.GetValue(this);
-                             if (f.GetValue(this) is not null) return (AttributeData)data;
+                             if (f.GetValue(this) is not null) return (GameplayAttributeData)data;
                              
-                             data = new AttributeData();
+                             data = new GameplayAttributeData();
                              f.SetValue(this, data);
-                             return (AttributeData)data;
+                             return (GameplayAttributeData)data;
                          }))
             {
                 attributeData.Init(this);
@@ -36,15 +36,15 @@ namespace Zero53.Gas
             
             foreach (var attributeData in GetType()
                          .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                         .Where(f => f.PropertyType == typeof(AttributeData))
+                         .Where(f => f.PropertyType == typeof(GameplayAttributeData))
                          .Select(f =>
                          {
                              var data = f.GetValue(this);
-                             if (f.GetValue(this) is not null) return (AttributeData)data;
+                             if (f.GetValue(this) is not null) return (GameplayAttributeData)data;
                              
-                             data = new AttributeData();
+                             data = new GameplayAttributeData();
                              f.SetValue(this, data);
-                             return (AttributeData)data;
+                             return (GameplayAttributeData)data;
                          }))
             {
                 attributeData.Init(this);
@@ -59,11 +59,11 @@ namespace Zero53.Gas
         
         protected virtual void Update(float deltaTime) {}
 
-        protected internal virtual void PreAttributeChange(AttributeData data, ref float newValue)
+        protected internal virtual void PreAttributeChange(GameplayAttributeData data, ref float newValue)
         {
         }
         
-        protected internal virtual void PreAttributeBaseChange(AttributeData data, ref float newValue)
+        protected internal virtual void PreAttributeBaseChange(GameplayAttributeData data, ref float newValue)
         {
         }
 
@@ -78,10 +78,10 @@ namespace Zero53.Gas
 
 #if UNITY_EDITOR
 
-    public class AttributeSetDrawer : OdinValueDrawer<AttributeSet>
+    public class AttributeSetDrawer : OdinValueDrawer<GameplayAttributeSet>
     {
         private readonly List<InspectorProperty> _attributeDataProperty = new();
-        private readonly List<AttributeData> _list = new();
+        private readonly List<GameplayAttributeData> _list = new();
         private GUITable _table;
         
         protected override void DrawPropertyLayout(GUIContent label)
@@ -90,7 +90,7 @@ namespace Zero53.Gas
             
             foreach (var property in Property.Children)
             {
-                if (property.ValueEntry.TypeOfValue != typeof(AttributeData))
+                if (property.ValueEntry.TypeOfValue != typeof(GameplayAttributeData))
                 {
                     property.Draw();
                 }
@@ -104,7 +104,7 @@ namespace Zero53.Gas
 
             _list.Clear();
             _list.AddRange(_attributeDataProperty
-                .Select(p => p.ValueEntry.WeakSmartValue as AttributeData));
+                .Select(p => p.ValueEntry.WeakSmartValue as GameplayAttributeData));
 
             _table ??= GUITable.Create(
                 _list,

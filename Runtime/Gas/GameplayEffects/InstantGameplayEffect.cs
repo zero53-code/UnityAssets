@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas.GameplayEffects
 {
     /// <summary>
     /// 即时效果
     /// </summary>
     [Serializable]
-    public abstract class InstantEffect : GameplayEffect
+    public abstract class InstantGameplayEffect : GameplayEffect
     {
     }
 }

@@ -10,7 +10,7 @@ namespace Zero53.Gas
     /// 属性
     /// </summary>
     [Serializable]
-    public sealed class AttributeData
+    public sealed class GameplayAttributeData
     {
         [SerializeField, TableColumnWidth(width: 100)]
         internal float _baseValue;
@@ -23,11 +23,11 @@ namespace Zero53.Gas
         
         internal List<Modifier> modifiers = new();
 
-        internal AttributeData()
+        internal GameplayAttributeData()
         {
         }
 
-        internal void Init(AttributeSet attributeSet)
+        internal void Init(GameplayAttributeSet attributeSet)
         {
             this.attributeSet = attributeSet;
         }
@@ -53,7 +53,7 @@ namespace Zero53.Gas
             }
         }
 
-        public AttributeSet attributeSet { get; private set; }
+        public GameplayAttributeSet attributeSet { get; private set; }
 
         public float value
         {

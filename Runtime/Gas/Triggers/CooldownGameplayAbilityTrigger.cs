@@ -3,11 +3,11 @@ using System.ComponentModel;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Zero53.Gas.Triggers
+namespace Zero53.Gas.GameplayTriggers
 {
     [Serializable]
     [Description(description: "冷却时间结束时触发")]
-    public class CooldownAbilityTrigger : AbilityTriggerBase
+    public class CooldownGameplayAbilityTrigger : GameplayAbilityTrigger
     {
         /// <summary>
         /// 冷却持续时间

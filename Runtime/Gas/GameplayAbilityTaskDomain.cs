@@ -8,18 +8,18 @@ using Zero53.Gas.Abilities;
 namespace Zero53.Gas
 {
     [Serializable]
-    public sealed class AbilityTaskDomain
+    public sealed class GameplayAbilityTaskDomain
     {
         public GameplayAbility ability { get; private set; }
-        public AbilitySystem abilitySystem => ability.abilitySystem;
+        public GameplayAbilitySystem abilitySystem => ability.abilitySystem;
         
         /// <summary>
         /// 以树形结构存储任务 
         /// </summary>
         [SerializeReference]
-        internal List<AbilityTask> activatedAbilityTasks = new();
+        internal List<GameplayAbilityTask> activatedAbilityTasks = new();
         
-        private readonly List<AbilityTask> _activatedAbilityTasksBuffer = new();
+        private readonly List<GameplayAbilityTask> _activatedAbilityTasksBuffer = new();
 
         internal void Init(GameplayAbility ability)
         {
@@ -45,19 +45,19 @@ namespace Zero53.Gas
             }
         }
         
-        internal bool AddAbilityTask<T>(T task) where T : AbilityTask
+        internal bool AddAbilityTask<T>(T task) where T : GameplayAbilityTask
         {
-            return AddAbilityTask((AbilityTask)task);
+            return AddAbilityTask((GameplayAbilityTask)task);
         }
 
-        internal bool AddAbilityTask(AbilityTask task)
+        internal bool AddAbilityTask(GameplayAbilityTask task)
         {
             activatedAbilityTasks.Add(task);
             task.StartInternal(null, this);
             return true;
         }
 
-        internal bool CancelAbilityTask<T>(T task) where T : AbilityTask
+        internal bool CancelAbilityTask<T>(T task) where T : GameplayAbilityTask
         {
             if (task.isEnded) return false;
             if (task.isCanceled) return false;
@@ -94,13 +94,13 @@ namespace Zero53.Gas
         [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
-            var stack = new List<AbilityTask>();
+            var stack = new List<GameplayAbilityTask>();
             stack.AddRange(activatedAbilityTasks);
             while (stack.Count > 0)
             {
                 var task = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
-                AbilitySystem.GetOnDrawGizmosMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
+                GameplayAbilitySystem.GetOnDrawGizmosMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
                 stack.AddRange(task.subTasks);
             }
         }
@@ -108,13 +108,13 @@ namespace Zero53.Gas
         [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmosSelected()
         {
-            var stack = new List<AbilityTask>();
+            var stack = new List<GameplayAbilityTask>();
             stack.AddRange(activatedAbilityTasks);
             while (stack.Count > 0)
             {
                 var task = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
-                AbilitySystem.GetOnDrawGizmosSelectedMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
+                GameplayAbilitySystem.GetOnDrawGizmosSelectedMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
                 stack.AddRange(task.subTasks);
             }
         }
@@ -122,7 +122,7 @@ namespace Zero53.Gas
     
 #if UNITY_EDITOR
     
-    public class AbilityTaskDomainDrawer : OdinValueDrawer<AbilityTaskDomain>
+    public class AbilityTaskDomainDrawer : OdinValueDrawer<GameplayAbilityTaskDomain>
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {

@@ -8,10 +8,10 @@ using Zero53.Gas.Abilities;
 namespace Zero53.Gas
 {
     [Serializable]
-    public abstract class AbilityTriggerBase
+    public abstract class GameplayAbilityTrigger
     {
         public GameplayAbility ability { get; private set; }
-        public AbilitySystem abilitySystem => ability.abilitySystem;
+        public GameplayAbilitySystem abilitySystem => ability.abilitySystem;
 
         internal bool isActive { get; set; }
 
@@ -38,7 +38,7 @@ namespace Zero53.Gas
 
 #if UNITY_EDITOR
 
-    internal class AbilityTriggerBaseDrawer : OdinValueDrawer<AbilityTriggerBase>
+    internal class AbilityTriggerBaseDrawer : OdinValueDrawer<GameplayAbilityTrigger>
     {
         protected override void DrawPropertyLayout(GUIContent label)
         {

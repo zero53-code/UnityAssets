@@ -9,25 +9,25 @@ using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.Abilities;
-using Zero53.Gas.Effects;
-using Zero53.Gas.Triggers;
+using Zero53.Gas.GameplayEffects;
+using Zero53.Gas.GameplayTriggers;
 using Zero53.Utils.Attributes;
 
 namespace Zero53.Gas
 {
     [DisallowMultipleComponent]
-    public class AbilitySystem : MonoBehaviour
+    public sealed class GameplayAbilitySystem : MonoBehaviour
     {
         #region 序列化
 
         [OdinSerialize, SerializeField]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
         [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
-        private List<AbilityInstance> abilities = new();
+        private List<GameplayAbilityInstance> abilities = new();
 
         [OdinSerialize, SerializeReference] 
         [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
-        private AttributeSet[] attributeSets;
+        private GameplayAttributeSet[] attributeSets;
 
         [field: SerializeField]
         [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
@@ -41,7 +41,7 @@ namespace Zero53.Gas
 
         #region API
 
-        public TAttributeSet GetAttributeSet<TAttributeSet>() where TAttributeSet : AttributeSet
+        public TAttributeSet GetAttributeSet<TAttributeSet>() where TAttributeSet : GameplayAttributeSet
         {
             foreach (var attributeSet in attributeSets)
             {
@@ -50,7 +50,7 @@ namespace Zero53.Gas
             return null;
         }
 
-        public TAttributeSet[] GetAttributeSets<TAttributeSet>() where TAttributeSet : AttributeSet
+        public TAttributeSet[] GetAttributeSets<TAttributeSet>() where TAttributeSet : GameplayAttributeSet
         {
             return attributeSets
                 .OfType<TAttributeSet>()
@@ -83,7 +83,7 @@ namespace Zero53.Gas
                 if (instance.ability == newAbility) return null;
             }
 
-            var abilityInstance = new AbilityInstance(trigger, newAbility);
+            var abilityInstance = new GameplayAbilityInstance(trigger, newAbility);
             abilities.Add(abilityInstance);
             
             HandleGaveAbility(abilityInstance);
@@ -136,7 +136,7 @@ namespace Zero53.Gas
         {
             HandleAddedEffect(effect);
 
-            if (effect is InstantEffect)
+            if (effect is InstantGameplayEffect)
             {
                 HandleRemovedEffect(effect);
             }
@@ -180,10 +180,10 @@ namespace Zero53.Gas
             Setup();
         }
         
-        private readonly List<AbilityInstance> _abilitiesBuffer  = new();
-        private readonly List<AttributeSet> _attributeSetsBuffer = new();
-        private readonly List<PeriodEffect> _periodEffects = new();
-        private readonly List<PeriodEffect> _periodEffectsBuffer = new();
+        private readonly List<GameplayAbilityInstance> _abilitiesBuffer  = new();
+        private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
+        private readonly List<GameplayPeriodEffect> _periodEffects = new();
+        private readonly List<GameplayPeriodEffect> _periodEffectsBuffer = new();
 
         private void Update()
         {
@@ -327,7 +327,7 @@ namespace Zero53.Gas
             }
         }
 
-        private void HandleGaveAbility(AbilityInstance abilityInstance)
+        private void HandleGaveAbility(GameplayAbilityInstance abilityInstance)
         {
             if (abilityInstance == null) return;
             if (abilityInstance.ability == null) return;
@@ -336,19 +336,19 @@ namespace Zero53.Gas
             abilityInstance.ability.OnGive();
         }
 
-        private void HandleRemovedAbility(AbilityInstance abilityInstance)
+        private void HandleRemovedAbility(GameplayAbilityInstance abilityInstance)
         {
             if (abilityInstance.ability.isActivated) abilityInstance.ability.Cancel();
             
             abilityInstance.ability.OnRemove();
         }
 
-        private void HandleAddedAttributeSet(AttributeSet attributeSet)
+        private void HandleAddedAttributeSet(GameplayAttributeSet attributeSet)
         {
             attributeSet.Init(this);
         }
 
-        private void HandleRemovedAttributeSet(AttributeSet attributeSet)
+        private void HandleRemovedAttributeSet(GameplayAttributeSet attributeSet)
         {
         }
 
@@ -356,7 +356,7 @@ namespace Zero53.Gas
         {
             effect.abilitySystem = this;
 
-            if (effect is PeriodEffect periodEffect)
+            if (effect is GameplayPeriodEffect periodEffect)
             {
                 _periodEffects.Add(periodEffect);
             }
@@ -369,7 +369,7 @@ namespace Zero53.Gas
         private void HandleRemovedEffect(GameplayEffect effect)
         {
             effect.Remove();
-            if (effect is PeriodEffect periodEffect)
+            if (effect is GameplayPeriodEffect periodEffect)
             {
                 _periodEffects.Remove(periodEffect);
             }

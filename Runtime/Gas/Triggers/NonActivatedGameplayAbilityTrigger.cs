@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Zero53.Gas.Triggers
+namespace Zero53.Gas.GameplayTriggers
 {
     [Serializable]
     [Description(description: "技能未激活时触发")]
-    public class NonActivatedAbilityTrigger : AbilityTriggerBase
+    public class NonActivatedGameplayAbilityTrigger : GameplayAbilityTrigger
     {
         protected internal override void Update(float deltaTime)
         {

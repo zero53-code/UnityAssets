@@ -2,17 +2,17 @@
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
-namespace Zero53.Gas.Triggers
+namespace Zero53.Gas.GameplayTriggers
 {
     [Serializable]
-    public sealed class AbilityTrigger : AbilityTriggerBase
+    public sealed class AbilityTrigger : GameplayAbilityTrigger
     {
         [SerializeReference]
-        private AbilityTriggerBase[] triggers;
+        private GameplayAbilityTrigger[] triggers;
 
         protected internal override void Init()
         {
-            triggers ??= Array.Empty<AbilityTriggerBase>();
+            triggers ??= Array.Empty<GameplayAbilityTrigger>();
 
             foreach (var trigger in triggers)
             {

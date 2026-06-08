@@ -3,12 +3,12 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.Gas.Abilities;
-using Zero53.Gas.Triggers;
+using Zero53.Gas.GameplayTriggers;
 
 namespace Zero53.Gas
 {
     [Serializable]
-    internal class AbilityInstance
+    internal class GameplayAbilityInstance
     {
         [OdinSerialize, SerializeField]
         [OnValueChanged("Init")]
@@ -23,18 +23,18 @@ namespace Zero53.Gas
         [OdinSerialize]
         [OnValueChanged("Init")]
         [FoldoutGroup("$ability")]
-        public AbilityTaskDomain taskDomain;
+        public GameplayAbilityTaskDomain taskDomain;
 
-        public AbilityInstance(AbilityTrigger trigger, GameplayAbility ability)
+        public GameplayAbilityInstance(AbilityTrigger trigger, GameplayAbility ability)
         {
             this.trigger = trigger;
             this.ability = ability;
-            taskDomain = new AbilityTaskDomain();
+            taskDomain = new GameplayAbilityTaskDomain();
         }
 
-        public void Init(AbilitySystem abilitySystem)
+        public void Init(GameplayAbilitySystem abilitySystem)
         {
-            taskDomain ??= new AbilityTaskDomain();
+            taskDomain ??= new GameplayAbilityTaskDomain();
             
             ability.InitInternal(abilitySystem, trigger, taskDomain);
             taskDomain.Init(ability);

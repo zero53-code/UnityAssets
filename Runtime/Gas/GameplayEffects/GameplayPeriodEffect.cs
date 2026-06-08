@@ -2,13 +2,13 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas.GameplayEffects
 {
     /// <summary>
     /// 周期效果
     /// </summary>
     [Serializable]
-    public abstract class PeriodEffect : GameplayEffect
+    public abstract class GameplayPeriodEffect : GameplayEffect
     {
         /// <summary>
         /// 持续时间

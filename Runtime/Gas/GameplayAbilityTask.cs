@@ -10,18 +10,18 @@ namespace Zero53.Gas
     /// 任务基类
     /// </summary>
     [Serializable]
-    public abstract class AbilityTask
+    public abstract class GameplayAbilityTask
     {
-        public AbilityTaskDomain domain { get; internal set; }
+        public GameplayAbilityTaskDomain domain { get; internal set; }
         public GameplayAbility ability => domain.ability;
-        public AbilitySystem abilitySystem => domain.abilitySystem;
+        public GameplayAbilitySystem abilitySystem => domain.abilitySystem;
         
-        [CanBeNull] public AbilityTask parentTask { get; internal set; }
+        [CanBeNull] public GameplayAbilityTask parentTask { get; internal set; }
 
         /// <summary>
         /// 子任务
         /// </summary>
-        [SerializeReference] internal List<AbilityTask> subTasks = new();
+        [SerializeReference] internal List<GameplayAbilityTask> subTasks = new();
 
         /// <summary>
         /// 任务是否结束
@@ -43,7 +43,7 @@ namespace Zero53.Gas
         /// <summary>
         /// 当任务开始时调用
         /// </summary>
-        internal void StartInternal([CanBeNull] AbilityTask parentTask, AbilityTaskDomain domain)
+        internal void StartInternal([CanBeNull] GameplayAbilityTask parentTask, GameplayAbilityTaskDomain domain)
         {
             this.parentTask = parentTask;
             this.domain = domain;
@@ -62,7 +62,7 @@ namespace Zero53.Gas
         {
         }
 
-        private List<AbilityTask> _subTasksBuffer = new();
+        private List<GameplayAbilityTask> _subTasksBuffer = new();
         internal void UpdateInternal(float deltaTime)
         {
             subTasks.RemoveAll(subTask => !subTask.isRunning);
@@ -141,7 +141,7 @@ namespace Zero53.Gas
         /// 添加子任务
         /// </summary>
         /// <typeparam name="TTask">任务类型</typeparam>
-        protected void AddSubTask<TTask>() where TTask : AbilityTask, new()
+        protected void AddSubTask<TTask>() where TTask : GameplayAbilityTask, new()
         {
             AddSubTask(new TTask());
         }
@@ -151,22 +151,22 @@ namespace Zero53.Gas
         /// </summary>
         /// <param name="task">任务对象</param>
         /// <typeparam name="TTask">任务类型</typeparam>
-        protected void AddSubTask<TTask>(TTask task) where TTask : AbilityTask
+        protected void AddSubTask<TTask>(TTask task) where TTask : GameplayAbilityTask
         {
-            AddSubTask((AbilityTask)task);
+            AddSubTask((GameplayAbilityTask)task);
         }
 
         /// <summary>
         /// 添加子任务
         /// </summary>
         /// <param name="task">任务对象</param>
-        protected void AddSubTask(AbilityTask task)
+        protected void AddSubTask(GameplayAbilityTask task)
         {
             subTasks.Add(task);
             task.StartInternal(this, domain);
         }
 
-        private void SetChildTask(AbilityTask task)
+        private void SetChildTask(GameplayAbilityTask task)
         {
             task.parentTask = this;
             foreach (var subTask in task.subTasks)

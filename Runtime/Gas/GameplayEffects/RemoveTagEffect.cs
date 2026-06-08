@@ -1,10 +1,10 @@
 ﻿using System;
 using Zero53.GameplayTags;
 
-namespace Zero53.Gas.Effects
+namespace Zero53.Gas.GameplayEffects
 {
     [Serializable]
-    public class RemoveTagEffect : InstantEffect
+    public class RemoveTagEffect : InstantGameplayEffect
     {
         public Tag removeTag;
 

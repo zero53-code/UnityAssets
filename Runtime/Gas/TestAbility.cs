@@ -9,7 +9,7 @@ namespace Zero53.Gas.Abilities
     {
         public float duration = 5f;
         
-        protected internal override AbilityTask Commit()
+        protected internal override GameplayAbilityTask Commit()
         {
             Debug.Log("TestAbility executed");
             
@@ -17,7 +17,7 @@ namespace Zero53.Gas.Abilities
         }
         
         [Serializable]
-        public class TestTask : AbilityTask
+        public class TestTask : GameplayAbilityTask
         {
             public float duration;
             [ProgressBar(min: 0, maxGetter: "duration")]
@@ -39,7 +39,7 @@ namespace Zero53.Gas.Abilities
         }
         
         [Serializable]
-        public class TestTrigger : AbilityTriggerBase
+        public class TestTrigger : GameplayAbilityTrigger
         {
             public float interval = 5f;
 
