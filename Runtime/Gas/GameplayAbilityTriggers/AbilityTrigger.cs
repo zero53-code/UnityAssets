@@ -24,7 +24,6 @@ namespace Zero53.Gas.GameplayAbilityTriggers
         {
             if (triggers == null || triggers.Length == 0) return;
             
-            
             foreach (var trigger in triggers)
             {
                 trigger.UpdateInternal(deltaTime);

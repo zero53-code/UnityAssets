@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zero53.Gas.Aggregators;
-using Zero53.Gas.Magnitudes;
 
 namespace Zero53.Gas
 {
@@ -13,13 +13,13 @@ namespace Zero53.Gas
     [Serializable]
     public sealed class GameplayAttributeData
     {
-        [SerializeField, TableColumnWidth(width: 100)]
+        [SerializeField, TableColumnWidth(width: 100), OnValueChanged("OnBaseValueChanged")]
         internal float _baseValue;
 
-        [SerializeField, TableColumnWidth(width: 100)]
+        [SerializeField, TableColumnWidth(width: 100), OnValueChanged("OnCurrentValueChanged")]
         internal float _currentValue;
 
-        [SerializeReference, HideInInspector] 
+        [SerializeReference] 
         public IAggregator aggregator = new DefaultAggregator();
         
         private List<Modifier> _modifiers = new();
@@ -133,6 +133,20 @@ namespace Zero53.Gas
         private void RecalculateCurrentValue()
         {
             currentValue = aggregator.Aggregate(_baseValue, _modifiers);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        private void OnBaseValueChanged()
+        {
+            attributeSet?.PreAttributeBaseChange(this, ref _baseValue);
+            RecalculateCurrentValue();
+        }
+        
+        [Conditional("UNITY_EDITOR")]
+        private void OnCurrentValueChanged()
+        {
+            attributeSet?.PreAttributeChange(this, ref _currentValue);
+            RecalculateCurrentValue();
         }
     }
 }
