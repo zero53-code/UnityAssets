@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Zero53.GameplayTags
 {
     [Serializable]
-    public class TagContainer : IEnumerable<Tag>
+    public sealed class TagContainer : IEnumerable<Tag>
     {
         public event Action<Tag> OnTagAdded;
         public event Action<Tag> OnTagRemoved;
@@ -76,6 +76,8 @@ namespace Zero53.GameplayTags
 
         public int Append(IEnumerable<Tag> other)
         {
+            if (other == null) return 0;
+            
             var result = 0;
             foreach (var t in other)
             {
