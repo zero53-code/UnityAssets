@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Zero53.Gas
 {
-    // [InlineEditor]
     public class GameplayAttributeSet : ScriptableObject
     {
         public GameplayAbilitySystem abilitySystem { get; private set; }
@@ -51,7 +50,7 @@ namespace Zero53.Gas
         private static readonly Dictionary<Type, FieldInfo[]> _attributeDataFields = new();
         private static readonly Dictionary<Type, PropertyInfo[]> _attributeSetsProperties = new();
 
-        private FieldInfo[] GetAttributeDataFields()
+        internal FieldInfo[] GetAttributeDataFields()
         {
             var type = GetType();
             if (_attributeDataFields.TryGetValue(type, out var result))
@@ -69,7 +68,7 @@ namespace Zero53.Gas
             return result;
         }
         
-        private PropertyInfo[] GetAttributeDataProperties()
+        internal PropertyInfo[] GetAttributeDataProperties()
         {
             var type = GetType();
             if (_attributeSetsProperties.TryGetValue(type, out var result))
@@ -108,22 +107,6 @@ namespace Zero53.Gas
         protected internal virtual void PostGameplayEffectApply(GameplayEffect effect)
         {
         }
-        
-        internal IEnumerable<(string, GameplayAttributeData)> GetAttributeData()
-        {
-            foreach (var attributeData in GetAttributeDataFields()
-                         .Select(f => (f.Name, (GameplayAttributeData)f.GetValue(this))))
-            {
-                yield return attributeData;
-            }
-            
-            foreach (var attributeData in GetAttributeDataProperties()
-                         .Select(f => (f.Name, (GameplayAttributeData)f.GetValue(this))))
-            {
-                yield return attributeData;
-            }
-        }
-
     }
 
 #if UNITY_EDITOR
@@ -140,9 +123,7 @@ namespace Zero53.Gas
             SirenixEditorGUI.BeginBox();
             
             _list.Clear();
-            _list.AddRange((Property.ValueEntry.WeakSmartValue as GameplayAttributeSet)
-                           ?.GetAttributeData()
-                           ?? Array.Empty< (string, GameplayAttributeData)>());
+            _list.AddRange(GetAttributeData());
             
             _table ??= GUITable.Create(
                 _list,
@@ -172,6 +153,23 @@ namespace Zero53.Gas
             _table.DrawTable();
         
             SirenixEditorGUI.EndBox();
+        }
+
+        private IEnumerable<(string, GameplayAttributeData)> GetAttributeData()
+        {
+            if (Property.ValueEntry.WeakSmartValue is not GameplayAttributeSet attributeSet) yield break;
+            
+            foreach (var attributeData in attributeSet.GetAttributeDataFields()
+                         .Select(f => (f.Name, (GameplayAttributeData)f.GetValue(attributeSet))))
+            {
+                yield return attributeData;
+            }
+            
+            foreach (var attributeData in attributeSet.GetAttributeDataProperties()
+                         .Select(f => (f.Name, (GameplayAttributeData)f.GetValue(attributeSet))))
+            {
+                yield return attributeData;
+            }
         }
     }
     

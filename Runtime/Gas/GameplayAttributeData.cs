@@ -13,10 +13,10 @@ namespace Zero53.Gas
     [Serializable]
     public sealed class GameplayAttributeData
     {
-        [SerializeField, TableColumnWidth(width: 100), OnValueChanged("OnBaseValueChanged")]
+        [SerializeField, HorizontalGroup, OnValueChanged("OnBaseValueChanged")]
         internal float _baseValue;
 
-        [SerializeField, TableColumnWidth(width: 100), OnValueChanged("OnCurrentValueChanged")]
+        [SerializeField, HorizontalGroup, OnValueChanged("OnCurrentValueChanged")]
         internal float _currentValue;
 
         [SerializeReference] 

@@ -10,14 +10,40 @@ using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.GameplayAbilityTriggers;
 using Zero53.Gas.GameplayEffects;
-using Zero53.Gas.GameplayTriggers;
 using Zero53.Utils.Attributes;
 
 namespace Zero53.Gas
 {
+    /// <summary>
+    /// 游戏技能系统的核心组件
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class GameplayAbilitySystem : MonoBehaviour
     {
+        #region Events
+
+        /// <summary>
+        /// 获得技能后调用
+        /// </summary>
+        public event Action<GameplayAbility> PostAbilityGave;
+        
+        /// <summary>
+        /// 移除技能前调用
+        /// </summary>
+        public event Action<GameplayAbility> PreAbilityRemoved;
+        
+        /// <summary>
+        /// 添加效果后调用
+        /// </summary>
+        public event Action<GameplayEffect> PostEffectAdded;
+        
+        /// <summary>
+        /// 移除效果前调用
+        /// </summary>
+        public event Action<GameplayEffect> PreEffectRemoved;
+
+        #endregion
+        
         #region 序列化
 
         [OdinSerialize, SerializeField]
@@ -34,7 +60,7 @@ namespace Zero53.Gas
         public TagContainer tags { get; private set; }
         
         [SerializeReference, PropertyOrder(order: 1)] 
-        [field: LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
+        [LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
         private List<GameplayEffect> effects = new();
         
         #endregion
@@ -334,6 +360,9 @@ namespace Zero53.Gas
             }
         }
 
+        /// <summary>
+        /// 处理已获取的技能
+        /// </summary>
         private void HandleGaveAbility(GameplayAbilityInstance abilityInstance)
         {
             if (abilityInstance == null) return;
@@ -341,17 +370,25 @@ namespace Zero53.Gas
             
             abilityInstance.Init(this);
             abilityInstance.ability.OnGive();
+            PostAbilityGave?.Invoke(abilityInstance.ability);
         }
 
+        /// <summary>
+        /// 处理已移除的技能
+        /// </summary>
         private void HandleRemovedAbility(GameplayAbilityInstance abilityInstance)
         {
             if (abilityInstance == null) return;
             
             if (abilityInstance.ability.isActivated) abilityInstance.ability.Cancel();
             
+            PreAbilityRemoved?.Invoke(abilityInstance.ability);
             abilityInstance.ability.OnRemove();
         }
 
+        /// <summary>
+        /// 处理已添加的属性集
+        /// </summary>
         private void HandleAddedAttributeSet(GameplayAttributeSet attributeSet)
         {
             if (attributeSet == null) return;
@@ -359,11 +396,17 @@ namespace Zero53.Gas
             attributeSet.Init(this);
         }
 
+        /// <summary>
+        /// 处理已移除的属性集
+        /// </summary>
         private void HandleRemovedAttributeSet(GameplayAttributeSet attributeSet)
         {
             if (attributeSet == null) return;
         }
 
+        /// <summary>
+        /// 处理已添加的效果
+        /// </summary>
         private void HandleAddedEffect(GameplayEffect effect)
         {
             if (effect == null) return;
@@ -377,13 +420,18 @@ namespace Zero53.Gas
             else
             {
                 effect.Apply();
+                PostEffectAdded?.Invoke(effect);
             }
         }
         
+        /// <summary>
+        /// 处理已移除的效果
+        /// </summary>
         private void HandleRemovedEffect(GameplayEffect effect)
         {
             if (effect == null) return;
             
+            PreEffectRemoved?.Invoke(effect);
             effect.Remove();
             if (effect is GameplayPeriodEffect periodEffect)
             {
