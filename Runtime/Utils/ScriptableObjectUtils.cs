@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Zero53.Utils
@@ -6,22 +9,20 @@ namespace Zero53.Utils
     public static class ScriptableObjectUtils
     {
         /// <summary>
-        /// 运行时加载所有指定类型SO（必须在Resources下）
+        /// (Editor-Only) 编辑器下查找一个 SO（任意路径）
         /// </summary>
-        public static List<T> LoadAll<T>(string path = "") where T : ScriptableObject
+        public static T FindOnEditor<T>() where T : ScriptableObject
         {
-            var result = new List<T>();
-            var assets = Resources.LoadAll<T>(path);
+            var guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(T).Name}");
 
-            if (assets != null)
-                result.AddRange(assets);
-        
-            return result;
+            return guids
+                .Select(UnityEditor.AssetDatabase.GUIDToAssetPath)
+                .Select(UnityEditor.AssetDatabase.LoadAssetAtPath<T>)
+                .FirstOrDefault(so => so != null);
         }
-
-#if UNITY_EDITOR
+        
         /// <summary>
-        /// 编辑器下查找所有SO（任意路径）
+        /// (Editor-Only) 编辑器下查找所有SO（任意路径）
         /// </summary>
         public static List<T> FindAllOnEditor<T>() where T : ScriptableObject
         {
@@ -37,6 +38,7 @@ namespace Zero53.Utils
         
             return result;
         }
-#endif
     }
 }
+
+#endif

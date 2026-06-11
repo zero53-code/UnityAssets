@@ -37,8 +37,8 @@ namespace Zero53.Singletons
                 }
 
                 _instance = assets[0];
-                return _instance;
 
+                return _instance;
             }
         }
       

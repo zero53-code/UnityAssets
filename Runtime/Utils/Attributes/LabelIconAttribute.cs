@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Zero53.Utils.Attributes
 {
