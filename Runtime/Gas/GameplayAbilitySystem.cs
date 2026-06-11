@@ -209,8 +209,8 @@ namespace Zero53.Gas
         
         private readonly List<GameplayAbilityInstance> _abilitiesBuffer  = new();
         private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
-        private readonly List<GameplayPeriodEffect> _periodEffects = new();
-        private readonly List<GameplayPeriodEffect> _periodEffectsBuffer = new();
+        private readonly List<GameplayPeriodicEffect> _periodEffects = new();
+        private readonly List<GameplayPeriodicEffect> _periodEffectsBuffer = new();
 
         private void Update()
         {
@@ -390,7 +390,7 @@ namespace Zero53.Gas
             
             effect.abilitySystem = this;
 
-            if (effect is GameplayPeriodEffect periodEffect)
+            if (effect is GameplayPeriodicEffect periodEffect)
             {
                 _periodEffects.Add(periodEffect);
             }
@@ -410,7 +410,7 @@ namespace Zero53.Gas
             
             PreEffectRemoved?.Invoke(effect);
             effect.Remove();
-            if (effect is GameplayPeriodEffect periodEffect)
+            if (effect is GameplayPeriodicEffect periodEffect)
             {
                 _periodEffects.Remove(periodEffect);
             }

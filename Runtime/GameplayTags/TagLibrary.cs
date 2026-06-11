@@ -114,7 +114,7 @@ namespace Zero53.GameplayTags
         [SettingsProvider]
         public static SettingsProvider CreateMyPluginSettingsProvider()
         {
-            var provider = new SettingsProvider("Project/Tag Library", SettingsScope.Project)
+            var provider = new SettingsProvider("Project/Gameplay Tag Library", SettingsScope.Project)
             {
                 label = "Tag Library",
                 guiHandler = _ =>

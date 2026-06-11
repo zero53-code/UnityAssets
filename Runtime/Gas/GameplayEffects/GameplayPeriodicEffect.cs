@@ -8,7 +8,7 @@ namespace Zero53.Gas.GameplayEffects
     /// 周期效果
     /// </summary>
     [Serializable]
-    public abstract class GameplayPeriodEffect : GameplayEffect
+    public abstract class GameplayPeriodicEffect : GameplayEffect
     {
         /// <summary>
         /// 持续时间
@@ -18,7 +18,7 @@ namespace Zero53.Gas.GameplayEffects
         /// <summary>
         /// 周期时间
         /// </summary>
-        [Min(0.0001f)] public float period = 1f;
+        [Min(0.0001f)] public float periodTime = 1f;
         
         /// <summary>
         /// 是否立刻执行一次
@@ -34,7 +34,7 @@ namespace Zero53.Gas.GameplayEffects
         /// <summary>
         /// 周期时间计时器
         /// </summary>
-        [ProgressBar(min: 0, maxGetter: nameof(period))]
+        [ProgressBar(min: 0, maxGetter: nameof(periodTime))]
         public float periodTimer;
         
         /// <summary>
@@ -60,10 +60,10 @@ namespace Zero53.Gas.GameplayEffects
             durationTimer += deltaTime;
             periodTimer += deltaTime;
 
-            if (periodTimer < period) return;
+            if (periodTimer < periodTime) return;
                 
             Apply();
-            periodTimer -= period;
+            periodTimer -= periodTime;
         }
     }
 }
