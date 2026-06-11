@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.Pool;
 
 namespace Zero53.PopupTexts
@@ -11,7 +12,6 @@ namespace Zero53.PopupTexts
         /// <summary>
         /// 跳字的游戏对象的预设体
         /// </summary>
-        public GameObject popupTextPrefab;
         public Canvas popupTextCanvas;
     
         /// <summary>
@@ -19,12 +19,22 @@ namespace Zero53.PopupTexts
         /// </summary>
         [SerializeField] [Min(1)] private int poolInitSize = 5;
 
+        /// <summary>
+        /// 跳字对象池的最大数量
+        /// </summary>
         [SerializeField] [Min(1)] private int poolMaxSize = 20;
-
+        
+        private GameObject _popupTextPrefab;
         private ObjectPool<PopupText> _pool;
 
-        protected virtual void Start()
+        protected virtual void Awake()
         {
+            _popupTextPrefab = new GameObject("PopupText");
+            _popupTextPrefab.SetActive(false);
+            _popupTextPrefab.transform.SetParent(popupTextCanvas.transform);
+            _popupTextPrefab.AddComponent<TextMeshProUGUI>();
+            _popupTextPrefab.AddComponent<PopupText>();
+            
             _pool = new ObjectPool<PopupText>(
                 Create,
                 OnGet,
@@ -70,9 +80,12 @@ namespace Zero53.PopupTexts
         /// <returns></returns>
         private PopupText Create()
         {
-            var ptGo = Instantiate(popupTextPrefab, popupTextCanvas.transform);
-            ptGo.name = popupTextPrefab.name;
-            var pt = ptGo.GetComponent<PopupText>();
+            var ptGo = new GameObject("PopupText");
+            ptGo.SetActive(false);
+            ptGo.transform.SetParent(popupTextCanvas.transform);
+            ptGo.AddComponent<TextMeshProUGUI>();
+           
+            var pt = ptGo.AddComponent<PopupText>();
             pt.popupTextManager = this;
             pt.popupTextCanvas = popupTextCanvas;
 

@@ -58,40 +58,7 @@ namespace Zero53.PopupTexts
         {
             Setup();
         }
-
-        /// <summary>
-        /// 初始化跳字
-        /// </summary>
-        private void Setup()
-        {
-            if (data == null)
-            {
-                gameObject.SetActive(false);
-                return;
-            }
-
-            if (_text == null) _text = GetComponent<TextMeshProUGUI>();
-            if (_text == null) _text = gameObject.AddComponent<TextMeshProUGUI>();
-            _rect = GetComponent<RectTransform>();
-            
-            _text.color = Color.clear;
-            _text.fontSize = 0;
-
-            // 随机位置
-            var pos = transform.position;
-            pos.x += Random.Range(-data.posRange.x, data.posRange.x);
-            pos.y += Random.Range(-data.posRange.y, data.posRange.y);
-            pos.z += Random.Range(-data.posRange.z, data.posRange.z);
-
-            // 随机方向
-            _popupDir = data.dir + new Vector3(
-                Random.Range(-data.dirRange.x, data.dirRange.x),
-                Random.Range(-data.dirRange.y, data.dirRange.y),
-                Random.Range(-data.dirRange.z, data.dirRange.z));
-
-            _timer = 0;
-        }
-
+        
         private const int LODFrame = 10;
         
         private void Update()
@@ -139,6 +106,39 @@ namespace Zero53.PopupTexts
             _text.fontSize = data.fontSize * data.scaleCurve.Evaluate(normalizedTime) * uiScale;
         }
 
+        /// <summary>
+        /// 初始化跳字
+        /// </summary>
+        private void Setup()
+        {
+            if (data == null)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            if (_text == null) _text = GetComponent<TextMeshProUGUI>();
+            if (_text == null) _text = gameObject.AddComponent<TextMeshProUGUI>();
+            _rect = GetComponent<RectTransform>();
+            
+            _text.color = Color.clear;
+            _text.fontSize = 0;
+
+            // 随机位置
+            var pos = transform.position;
+            pos.x += Random.Range(-data.posRange.x, data.posRange.x);
+            pos.y += Random.Range(-data.posRange.y, data.posRange.y);
+            pos.z += Random.Range(-data.posRange.z, data.posRange.z);
+
+            // 随机方向
+            _popupDir = data.dir + new Vector3(
+                Random.Range(-data.dirRange.x, data.dirRange.x),
+                Random.Range(-data.dirRange.y, data.dirRange.y),
+                Random.Range(-data.dirRange.z, data.dirRange.z));
+
+            _timer = 0;
+        }
+        
         private static bool WorldToCanvasPosition(Camera camera, Canvas canvas, Vector3 worldPos, out Vector2 uiPos)
         {
             // 世界坐标转屏幕坐标
