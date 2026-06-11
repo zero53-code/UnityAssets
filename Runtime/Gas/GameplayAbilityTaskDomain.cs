@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
+using Zero53.Utils;
 
 namespace Zero53.Gas
 {
@@ -99,7 +100,7 @@ namespace Zero53.Gas
             {
                 var task = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
-                GameplayAbilitySystem.GetOnDrawGizmosMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
+                task.InvokeOnDrawGizmos();
                 stack.AddRange(task.subTasks);
             }
         }
@@ -113,7 +114,7 @@ namespace Zero53.Gas
             {
                 var task = stack[^1];
                 stack.RemoveAt(stack.Count - 1);
-                GameplayAbilitySystem.GetOnDrawGizmosSelectedMethodInfo(task.GetType())?.Invoke(task, Array.Empty<object>());
+                task.InvokeOnDrawGizmos();
                 stack.AddRange(task.subTasks);
             }
         }

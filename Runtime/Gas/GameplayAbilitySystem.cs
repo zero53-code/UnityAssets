@@ -10,6 +10,7 @@ using UnityEngine;
 using Zero53.GameplayTags;
 using Zero53.Gas.GameplayAbilityTriggers;
 using Zero53.Gas.GameplayEffects;
+using Zero53.Utils;
 using Zero53.Utils.Attributes;
 
 namespace Zero53.Gas
@@ -239,18 +240,23 @@ namespace Zero53.Gas
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            foreach (var info in abilities)
+            {
+                info.ability.InvokeReset();
+                info.taskDomain.InvokeReset();
+                info.trigger.InvokeReset();
+            }
+            
             Setup();
         }
 
-        private static readonly Dictionary<Type, MethodInfo> _typeToOnDrawGizmosMethod = new();
-        private static readonly Dictionary<Type, MethodInfo> _typeToOnDrawGizmosSelectedMethod = new();
-        
         private void OnDrawGizmos()
         {
             foreach (var info in abilities)
             {
-                GetOnDrawGizmosMethodInfo(info.ability.GetType())?.Invoke(info.ability, Array.Empty<object>());
-                GetOnDrawGizmosMethodInfo(info.taskDomain.GetType())?.Invoke(info.taskDomain, Array.Empty<object>());
+                info.ability.InvokeOnDrawGizmos();
+                info.taskDomain.InvokeOnDrawGizmos();
+                info.trigger.InvokeOnDrawGizmos();
             }
         }
 
@@ -258,39 +264,10 @@ namespace Zero53.Gas
         {
             foreach (var info in abilities)
             {
-                GetOnDrawGizmosSelectedMethodInfo(info.ability.GetType())?.Invoke(info.ability, Array.Empty<object>());
-                GetOnDrawGizmosSelectedMethodInfo(info.taskDomain.GetType())?.Invoke(info.taskDomain, Array.Empty<object>());
+                info.ability.InvokeOnDrawGizmosSelected();
+                info.taskDomain.InvokeOnDrawGizmosSelected();
+                info.trigger.InvokeOnDrawGizmosSelected();
             }
-        }
-
-        internal static MethodInfo GetOnDrawGizmosMethodInfo(Type type)
-        {
-            if (_typeToOnDrawGizmosMethod.TryGetValue(type, out var method))
-            {
-                return method;
-            }
-                
-            _typeToOnDrawGizmosMethod[type] = type
-                .GetMethod(
-                    "OnDrawGizmos", 
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                
-            return _typeToOnDrawGizmosMethod[type];
-        }
-        
-        internal static MethodInfo GetOnDrawGizmosSelectedMethodInfo(Type type)
-        {
-            if (_typeToOnDrawGizmosSelectedMethod.TryGetValue(type, out var method))
-            {
-                return method;
-            }
-                
-            _typeToOnDrawGizmosSelectedMethod[type] = type
-                .GetMethod(
-                    "OnDrawGizmosSelected", 
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                
-            return _typeToOnDrawGizmosSelectedMethod[type];
         }
         
 #endif
