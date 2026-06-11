@@ -46,24 +46,31 @@ namespace Zero53.Gas
         
         #region 序列化
 
-        [OdinSerialize, SerializeField]
+        [OdinSerialize, SerializeField, PropertyOrder(order: 0)]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
         [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
         private List<GameplayAbilityInstance> abilities = new();
 
-        [OdinSerialize, SerializeReference] 
+#if UNITY_EDITOR
+        [ShowInInspector, PropertyOrder(order: 0.5f)]
+        private List<GameplayAbilityTaskDomain> _taskDomains => abilities
+            .Select(ability => ability.taskDomain)
+            .ToList();
+#endif
+
+        [OdinSerialize, SerializeReference, PropertyOrder(order: 1)] 
         [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
         private GameplayAttributeSet[] attributeSets;
 
-        [field: SerializeField]
+        [field: SerializeField, PropertyOrder(order: 2)]
         [field: LabelIcon(guid: "d64403f63082071429603d00539686a7")]
         public TagContainer tags { get; private set; }
         
-        [SerializeReference, PropertyOrder(order: 1)] 
+        [SerializeReference, PropertyOrder(order: 3)] 
         [LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
         private List<GameplayEffect> effects = new();
         
-        [SerializeReference, PropertyOrder(order: 2)]
+        [SerializeReference, PropertyOrder(order: 4)]
         private List<GameplayCue> cues = new();
         
         #endregion

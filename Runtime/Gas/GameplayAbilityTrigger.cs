@@ -1,6 +1,5 @@
 ﻿using System;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -39,20 +38,54 @@ namespace Zero53.Gas
 
     internal class AbilityTriggerBaseDrawer : OdinValueDrawer<GameplayAbilityTrigger>
     {
+        private const string ActivatingIconGuid = "4650f35f8a2329341b730712e2c273a2";
+        private const string NonActivatingIconGuid = "06af4300f90db43478c98ffcd0282b39";
+        
+        private static Texture _activatingIcon;
+        private static Texture _nonActivatingIcon;
+        
+        protected override void Initialize()
+        {
+            LoadActivatingIconGuid();
+            LoadNonActivatingIconGuid();
+        }
+
+        private static void LoadActivatingIconGuid()
+        {
+            if (_activatingIcon != null) return;
+
+            var path = AssetDatabase.GUIDToAssetPath(ActivatingIconGuid);
+
+            if (!string.IsNullOrEmpty(path))
+            {
+                _activatingIcon = AssetDatabase.LoadAssetAtPath<Texture>(path);
+            }
+        }
+        
+        private static void LoadNonActivatingIconGuid()
+        {
+            if (_nonActivatingIcon != null) return;
+
+            var path = AssetDatabase.GUIDToAssetPath(NonActivatingIconGuid);
+
+            if (!string.IsNullOrEmpty(path))
+            {
+                _nonActivatingIcon = AssetDatabase.LoadAssetAtPath<Texture>(path);
+            }
+        }
+        
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            var style = GUIStyle.none;
-            if (ValueEntry.SmartValue.isActive)
+            if (label == null)
             {
-                style.normal.textColor = Color.green;
-                SirenixEditorGUI.MessageBox("Activating", MessageType.None, style, true);
-            }
-            else
-            {
-                style.normal.textColor = Color.red;
-                SirenixEditorGUI.MessageBox("Non Activated", MessageType.None, style, true);
+                CallNextDrawer(null);
+                return;
             }
             
+            label.image = ValueEntry.SmartValue.isActive 
+                ? _activatingIcon 
+                : _nonActivatingIcon;
+
             CallNextDrawer(label);
         }
     }

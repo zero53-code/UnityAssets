@@ -22,6 +22,7 @@ namespace Zero53.Gas
         [OdinSerialize]
         [OnValueChanged("Init")]
         [FoldoutGroup("$ability")]
+        [HideInInspector]
         public GameplayAbilityTaskDomain taskDomain;
 
         public GameplayAbilityInstance(AbilityTrigger trigger, GameplayAbility ability)

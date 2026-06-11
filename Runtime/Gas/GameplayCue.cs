@@ -15,7 +15,8 @@ namespace Zero53.Gas
         protected internal virtual void OnStart() 
         {}
         
-        protected internal abstract void OnUpdate(float deltaTime);
+        protected internal virtual void OnUpdate(float deltaTime)
+        {}
         
         protected internal virtual void OnRemove()
         {}
