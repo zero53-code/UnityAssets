@@ -12,7 +12,7 @@ namespace Zero53.Gas
     {
         public GameplayAbilitySystem abilitySystem { get; private set; }
         
-        internal void Init(GameplayAbilitySystem abilitySystem)
+        internal void InitInternal(GameplayAbilitySystem abilitySystem)
         {
             this.abilitySystem = abilitySystem;
 
@@ -21,14 +21,14 @@ namespace Zero53.Gas
                 var data = (GameplayAttributeData)info.GetValue(this);
                 if (info.GetValue(this) is not null)
                 {
-                    data.Init(this);
+                    data.InitInternal(this);
                     continue;
                 }
 
                 data = new GameplayAttributeData();
                 info.SetValue(this, data);
 
-                data.Init(this);
+                data.InitInternal(this);
             }
            
             foreach (var info in GetAttributeDataProperties())
@@ -36,14 +36,14 @@ namespace Zero53.Gas
                 var data = (GameplayAttributeData)info.GetValue(this);
                 if (info.GetValue(this) is not null)
                 {
-                    data.Init(this);
+                    data.InitInternal(this);
                     continue;
                 }
 
                 data = new GameplayAttributeData();
                 info.SetValue(this, data);
 
-                data.Init(this);
+                data.InitInternal(this);
             }
         }
 

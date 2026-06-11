@@ -228,8 +228,8 @@ namespace Zero53.Gas
             if (!cues.Remove(cue)) return false;
             
             HandleRemovedCue(cue);
-            return true;
 
+            return true;
         }
 
         #endregion
@@ -275,9 +275,9 @@ namespace Zero53.Gas
         {
             foreach (var info in abilities)
             {
-                info.ability.InvokeReset();
-                info.taskDomain.InvokeReset();
-                info.trigger.InvokeReset();
+                info.ability.InvokeOnValidate();
+                info.taskDomain.InvokeOnValidate();
+                info.trigger.InvokeOnValidate();
             }
             
             Setup();
@@ -344,7 +344,7 @@ namespace Zero53.Gas
                     attributeSets[i] = Instantiate(attributeSet);
 #endif
                 
-                HandleAddedAttributeSet(attributeSet);
+                HandleAddedAttributeSet(attributeSets[i]);
             }
 
             foreach (var effect in effects)
@@ -421,7 +421,7 @@ namespace Zero53.Gas
         {
             if (attributeSet == null) return;
             
-            attributeSet.Init(this);
+            attributeSet.InitInternal(this);
         }
 
         /// <summary>
@@ -469,12 +469,17 @@ namespace Zero53.Gas
 
         private void HandleAddedCue(GameplayCue cue)
         {
+            if (cue == null) return;
             
+            cue.InitInternal(this);
+            cue.OnStart();
         }
 
         private void HandleRemovedCue(GameplayCue cue)
         {
+            if (cue == null) return;
             
+            cue.OnRemove();
         }
         
         #endregion

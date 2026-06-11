@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zero53.Gas.Aggregators;
+using Debug = UnityEngine.Debug;
 
 namespace Zero53.Gas
 {
@@ -28,7 +29,7 @@ namespace Zero53.Gas
         {
         }
 
-        internal void Init(GameplayAttributeSet attributeSet)
+        internal void InitInternal(GameplayAttributeSet attributeSet)
         {
             this.attributeSet = attributeSet;
         }
@@ -42,11 +43,7 @@ namespace Zero53.Gas
             get => _baseValue;
             set
             {
-#if UNITY_EDITOR
-                attributeSet?.PreAttributeBaseChange(this, ref value);
-#else
                 attributeSet.PreAttributeBaseChange(this, ref value);
-#endif
                 _baseValue = value;
                 RecalculateCurrentValue();
             }
@@ -55,13 +52,9 @@ namespace Zero53.Gas
         public float currentValue
         {
             get => _currentValue;
-            set
+            internal set
             {
-#if UNITY_EDITOR
-                attributeSet?.PreAttributeChange(this, ref value);
-#else
                 attributeSet.PreAttributeChange(this, ref value);
-#endif
                 _currentValue = value;
             }
         }
@@ -145,7 +138,6 @@ namespace Zero53.Gas
         [Conditional("UNITY_EDITOR")]
         private void OnCurrentValueChanged()
         {
-            attributeSet?.PreAttributeChange(this, ref _currentValue);
             RecalculateCurrentValue();
         }
     }
