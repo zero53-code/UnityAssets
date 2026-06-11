@@ -227,8 +227,8 @@ namespace Zero53.GameplayTags
                     .Select(t => new Tag(t))
                     .Where(t => t.isValid);
                 
-                tagLibraryInstance.Clear();
-                tagLibraryInstance.Append(tags);
+                tagLibraryInstance?.Clear();
+                tagLibraryInstance?.Append(tags);
                 
                 return tagLibraryInstance;
             }

@@ -128,15 +128,11 @@ namespace Zero53.GameplayTags
                         _propertyTree = PropertyTree.Create(_tagLibrary);
                     }
 
-                    _propertyTree.UpdateTree();
                     _propertyTree.Draw();
-
-                    if (GUI.changed)
-                    {
-                        EditorUtility.SetDirty(_tagLibrary);
-                        AssetDatabase.SaveAssets();
-                        AssetDatabase.Refresh();
-                    }
+                },
+                deactivateHandler = () =>
+                {
+                    _propertyTree?.Dispose();
                 }
             };
             return provider;
