@@ -3,7 +3,6 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 using Zero53.Gas.GameplayAbilityTriggers;
-using Zero53.Gas.GameplayTriggers;
 
 namespace Zero53.Gas
 {
@@ -37,7 +36,7 @@ namespace Zero53.Gas
             taskDomain ??= new GameplayAbilityTaskDomain();
             
             ability.InitInternal(abilitySystem, trigger, taskDomain);
-            taskDomain.Init(ability);
+            taskDomain.InitInternal(ability);
             trigger?.InitInternal(ability);
         }
     }

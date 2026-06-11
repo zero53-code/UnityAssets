@@ -97,7 +97,7 @@ namespace Zero53.Gas
 
             if (ability != null)
             {
-                ability.Commit();
+                ability.OnCommit();
             }
             
             return ability;
@@ -358,7 +358,7 @@ namespace Zero53.Gas
             // 尝试使用触发器激活技能
             foreach (var abilityInstance in _abilitiesBuffer)
             {
-                abilityInstance.taskDomain.Update(Time.deltaTime);
+                abilityInstance.taskDomain.UpdateInternal(Time.deltaTime);
                 abilityInstance.trigger?.UpdateInternal(Time.deltaTime);
                 abilityInstance.ability.TryActivate();
             }
@@ -447,7 +447,7 @@ namespace Zero53.Gas
             }
             else
             {
-                effect.Apply();
+                effect.OnApply();
                 PostEffectAdded?.Invoke(effect);
             }
         }
@@ -460,7 +460,7 @@ namespace Zero53.Gas
             if (effect == null) return;
             
             PreEffectRemoved?.Invoke(effect);
-            effect.Remove();
+            effect.OnRemove();
             if (effect is GameplayPeriodicEffect periodEffect)
             {
                 _periodicEffects.Remove(periodEffect);

@@ -35,7 +35,7 @@ namespace Zero53.Gas
         {
             if (trigger is { isActive: false }) return;
             
-            var primaryTask = Commit();
+            var primaryTask = OnCommit();
             if (primaryTask != null)
             {
                 domain.AddAbilityTask(primaryTask);
@@ -57,7 +57,7 @@ namespace Zero53.Gas
         /// <summary>
         /// 提交技能
         /// </summary>
-        protected internal abstract GameplayAbilityTask Commit();
+        protected internal abstract GameplayAbilityTask OnCommit();
 
         /// <summary>
         /// 获取技能时调用

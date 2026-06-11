@@ -13,7 +13,7 @@ namespace Zero53.Gas.GameplayEffects
             this.removeTag = removeTag;
         }
 
-        protected internal override void Apply()
+        protected internal override void OnApply()
         {
             tags.Remove(removeTag);
         }

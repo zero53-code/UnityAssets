@@ -46,7 +46,7 @@ namespace Zero53.Gas
         {
             this.parentTask = parentTask;
             this.domain = domain;
-            Start();
+            OnStart();
             
             foreach (var subTask in subTasks)
             {
@@ -57,7 +57,7 @@ namespace Zero53.Gas
         /// <summary>
         /// 当任务开始时调用
         /// </summary>
-        protected virtual void Start()
+        protected virtual void OnStart()
         {
         }
 
@@ -74,14 +74,14 @@ namespace Zero53.Gas
                 task.UpdateInternal(deltaTime);
             }
             
-            Update(deltaTime);
+            OnUpdate(deltaTime);
         }
 
         /// <summary>
         /// 当任务被添加到 AbilitySystem 中后每帧调用
         /// </summary>
         /// <param name="deltaTime">Time.deltaTime</param>
-        protected internal abstract void Update(float deltaTime);
+        protected internal abstract void OnUpdate(float deltaTime);
 
         /// <summary>
         /// 任务被取消后调用, 随后立刻调用 OnEnd

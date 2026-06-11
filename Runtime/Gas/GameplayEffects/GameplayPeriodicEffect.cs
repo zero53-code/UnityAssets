@@ -46,7 +46,7 @@ namespace Zero53.Gas.GameplayEffects
         {
             if (immediatelyOnce && durationTimer <= Mathf.Epsilon)
             {
-                Apply();
+                OnApply();
             }
             
             if (durationTimer >= duration)
@@ -62,7 +62,7 @@ namespace Zero53.Gas.GameplayEffects
 
             if (periodTimer < periodTime) return;
                 
-            Apply();
+            OnApply();
             periodTimer -= periodTime;
         }
     }

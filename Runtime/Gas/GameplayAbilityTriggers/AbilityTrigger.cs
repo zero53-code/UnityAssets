@@ -10,7 +10,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
         [SerializeReference]
         private GameplayAbilityTrigger[] triggers;
 
-        protected internal override void Init()
+        protected internal override void OnInit()
         {
             triggers ??= Array.Empty<GameplayAbilityTrigger>();
 
@@ -20,7 +20,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
             }
         }
 
-        protected internal override void Update(float deltaTime)
+        protected internal override void OnUpdate(float deltaTime)
         {
             if (triggers == null || triggers.Length == 0) return;
             

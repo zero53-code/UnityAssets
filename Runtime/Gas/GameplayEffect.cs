@@ -20,9 +20,9 @@ namespace Zero53.Gas
             this.abilitySystem = abilitySystem;
         }
 
-        protected internal abstract void Apply();
+        protected internal abstract void OnApply();
 
-        protected internal virtual void Remove()
+        protected internal virtual void OnRemove()
         {
         }
     }

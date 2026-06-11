@@ -7,7 +7,7 @@ namespace Zero53.Gas.GameplayTriggers
     [Description(description: "一直激活")]
     public class AlwaysActivateGameplayAbilityTrigger : GameplayAbilityTrigger
     {
-        protected internal override void Update(float deltaTime)
+        protected internal override void OnUpdate(float deltaTime)
         {
             ActivateAbility();
         }

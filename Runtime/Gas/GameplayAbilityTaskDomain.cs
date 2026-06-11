@@ -21,7 +21,7 @@ namespace Zero53.Gas
         
         private readonly List<GameplayAbilityTask> _activatedAbilityTasksBuffer = new();
 
-        internal void Init(GameplayAbility ability)
+        internal void InitInternal(GameplayAbility ability)
         {
             this.ability = ability;
             foreach (var task in activatedAbilityTasks)
@@ -30,7 +30,7 @@ namespace Zero53.Gas
             }
         }
         
-        internal void Update(float deltaTime)
+        internal void UpdateInternal(float deltaTime)
         {
             activatedAbilityTasks.RemoveAll(rootTask => !rootTask.isRunning);
             

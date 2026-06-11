@@ -20,7 +20,7 @@ namespace Zero53.Gas.GameplayTriggers
         /// </summary>
         public Tag[] deactivateAbilityTags;
         
-        protected internal override void Update(float deltaTime)
+        protected internal override void OnUpdate(float deltaTime)
         {
             if (abilitySystem.tags.HasAny(deactivateAbilityTags))
             {

@@ -22,17 +22,17 @@ namespace Zero53.Gas
         internal void UpdateInternal(float deltaTime)
         {
             isActive = false;
-            Update(deltaTime);
+            OnUpdate(deltaTime);
         }
 
         internal void InitInternal(GameplayAbility ability)
         {
             this.ability = ability;
-            Init();
+            OnInit();
         }
         
-        protected internal virtual void Init() {}
-        protected internal abstract void Update(float deltaTime);
+        protected internal virtual void OnInit() {}
+        protected internal abstract void OnUpdate(float deltaTime);
     }
 
 #if UNITY_EDITOR

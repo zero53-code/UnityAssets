@@ -7,7 +7,7 @@ namespace Zero53.Gas.GameplayTriggers
     [Description(description: "技能未激活时触发")]
     public class NonActivatedGameplayAbilityTrigger : GameplayAbilityTrigger
     {
-        protected internal override void Update(float deltaTime)
+        protected internal override void OnUpdate(float deltaTime)
         {
             if (!ability.isActivated)
             {
