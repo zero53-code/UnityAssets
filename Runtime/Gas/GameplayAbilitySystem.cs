@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Serialization;
@@ -64,9 +63,12 @@ namespace Zero53.Gas
         [LabelIcon(guid: "e3690992982611f48b01d88a57537d37")]
         private List<GameplayEffect> effects = new();
         
+        [SerializeReference, PropertyOrder(order: 2)]
+        private List<GameplayCue> cues = new();
+        
         #endregion
 
-        #region API
+        #region Abilities API
 
         public TAttributeSet GetAttributeSet<TAttributeSet>() where TAttributeSet : GameplayAttributeSet
         {
@@ -159,8 +161,10 @@ namespace Zero53.Gas
         
         #region Effects API
 
-        public void ApplyEffect(GameplayEffect effect)
+        public bool ApplyEffect(GameplayEffect effect)
         {
+            if (effects.Contains(effect)) return false;
+            
             HandleAddedEffect(effect);
 
             if (effect is InstantGameplayEffect)
@@ -171,14 +175,22 @@ namespace Zero53.Gas
             {
                 effects.Add(effect);
             }
+            
+            return true;
         }
 
-        public void ApplyEffects(IEnumerable<GameplayEffect> effects)
+        public int ApplyEffects(IEnumerable<GameplayEffect> effects)
         {
+            var count = 0;
             foreach (var effect in effects)
             {
-                ApplyEffect(effect);
+                if (ApplyEffect(effect))
+                {
+                    count++;
+                }
             }
+            
+            return count;
         }
 
         public bool RemoveEffect(GameplayEffect effect)
@@ -200,6 +212,28 @@ namespace Zero53.Gas
 
         #endregion
 
+        #region Cues API
+
+        public bool AddCue(GameplayCue cue)
+        {
+            if (cues.Contains(cue)) return false;
+            
+            cues.Add(cue);
+            HandleAddedCue(cue);
+            return true;
+        }
+
+        public bool RemoveCue(GameplayCue cue)
+        {
+            if (!cues.Remove(cue)) return false;
+            
+            HandleRemovedCue(cue);
+            return true;
+
+        }
+
+        #endregion
+
         #region Unity 生命周期
 
         private void Awake()
@@ -207,11 +241,6 @@ namespace Zero53.Gas
             Setup();
         }
         
-        private readonly List<GameplayAbilityInstance> _abilitiesBuffer  = new();
-        private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
-        private readonly List<GameplayPeriodicEffect> _periodEffects = new();
-        private readonly List<GameplayPeriodicEffect> _periodEffectsBuffer = new();
-
         private void Update()
         {
             _abilitiesBuffer.Clear();
@@ -220,12 +249,16 @@ namespace Zero53.Gas
             _attributeSetsBuffer.Clear();
             _attributeSetsBuffer.AddRange(attributeSets);
             
-            _periodEffectsBuffer.Clear();
-            _periodEffectsBuffer.AddRange(_periodEffects);
+            _periodicEffectsBuffer.Clear();
+            _periodicEffectsBuffer.AddRange(_periodicEffects);
+            
+            _cuesBuffer.Clear();
+            _cuesBuffer.AddRange(cues);
             
             AttributeSetsUpdate();
             EffectsUpdate();
             AbilitiesUpdate();
+            CuesUpdate();
         }
 
         private void OnDestroy()
@@ -271,6 +304,16 @@ namespace Zero53.Gas
         }
         
 #endif
+        #endregion
+
+        #region 私有字段
+        
+        private readonly List<GameplayAbilityInstance> _abilitiesBuffer  = new();
+        private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
+        private readonly List<GameplayPeriodicEffect> _periodicEffects = new();
+        private readonly List<GameplayPeriodicEffect> _periodicEffectsBuffer = new();
+        private readonly List<GameplayCue> _cuesBuffer = new();
+
         #endregion
 
         #region 私有方法
@@ -331,12 +374,20 @@ namespace Zero53.Gas
 
         private void EffectsUpdate()
         {
-            foreach (var effect in _periodEffectsBuffer)
+            foreach (var periodicEffect in _periodicEffectsBuffer)
             {
-                effect.Update(Time.deltaTime);
+                periodicEffect.Update(Time.deltaTime);
             }
         }
 
+        private void CuesUpdate()
+        {
+            foreach (var cue in _cuesBuffer)
+            {
+                cue.OnUpdate(Time.deltaTime);
+            }
+        }
+        
         /// <summary>
         /// 处理已获取的技能
         /// </summary>
@@ -388,11 +439,11 @@ namespace Zero53.Gas
         {
             if (effect == null) return;
             
-            effect.abilitySystem = this;
+            effect.InitInternal(this);
 
             if (effect is GameplayPeriodicEffect periodEffect)
             {
-                _periodEffects.Add(periodEffect);
+                _periodicEffects.Add(periodEffect);
             }
             else
             {
@@ -412,8 +463,18 @@ namespace Zero53.Gas
             effect.Remove();
             if (effect is GameplayPeriodicEffect periodEffect)
             {
-                _periodEffects.Remove(periodEffect);
+                _periodicEffects.Remove(periodEffect);
             }
+        }
+
+        private void HandleAddedCue(GameplayCue cue)
+        {
+            
+        }
+
+        private void HandleRemovedCue(GameplayCue cue)
+        {
+            
         }
         
         #endregion
