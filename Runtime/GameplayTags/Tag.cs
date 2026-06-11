@@ -209,6 +209,7 @@ namespace Zero53.GameplayTags
         /// 全局标签容器缓存
         /// </summary>
         internal static TagContainer tagLibraryInstance;
+        internal static bool isInstantiated;
         
         /// <summary>
         /// [Editor-Only] 全局标签库，自动从 TagLibrary 实例加载所有可用标签
@@ -217,7 +218,7 @@ namespace Zero53.GameplayTags
         {
             get
             {
-                if (tagLibraryInstance != null) return tagLibraryInstance;
+                if (isInstantiated) return tagLibraryInstance;
                 
                 tagLibraryInstance = new TagContainer();
 
@@ -227,8 +228,10 @@ namespace Zero53.GameplayTags
                     .Select(t => new Tag(t))
                     .Where(t => t.isValid);
                 
-                tagLibraryInstance?.Clear();
-                tagLibraryInstance?.Append(tags);
+                tagLibraryInstance.Clear();
+                tagLibraryInstance.Append(tags);
+                
+                isInstantiated = true;
                 
                 return tagLibraryInstance;
             }
@@ -243,6 +246,7 @@ namespace Zero53.GameplayTags
     {
         public class TagDrawer : OdinValueDrawer<Tag>
         {
+            private GenericSelector<Tag> _selector;
             protected override void DrawPropertyLayout(GUIContent label)
             {
                 var tagList = Tag.tagLibrary.GetParents();
@@ -272,41 +276,42 @@ namespace Zero53.GameplayTags
 
                 GUI.Label(rect, displayText, style);
 
-                if (Event.current.type != EventType.MouseDown || !rect.Contains(Event.current.mousePosition)) return;
-                
-                // ShowSelector(tagList);
-                
-                ShowTreeSelector(tagList);
+                if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                {
+                    ShowTreeSelector(tagList);
+                    // ShowSelector(tagList);
+                }
             }
             
             private void ShowTreeSelector(IEnumerable<Tag> list)
             {
                 // 创建选择器
-                var selector = new GenericSelector<Tag>(
+                _selector ??= new GenericSelector<Tag>(
                     "Select Tag", 
                     false, 
                     x => x.ToString().Replace('.', '/'),
                     list);
 
                 // 自动选中当前值
-                selector.SetSelection(ValueEntry.SmartValue);
+                _selector.SetSelection(ValueEntry.SmartValue);
 
                 // 选择确认
-                selector.SelectionConfirmed += sel =>
+                _selector.SelectionConfirmed += sel =>
                 {
                     ValueEntry.SmartValue = sel.FirstOrDefault();
                     ValueEntry.ApplyChanges();
                 };
 
                 // 显示弹窗
-                selector.ShowInPopup(360, 400);
+                _selector.ShowInPopup(360, 400);
+                Event.current.Use();
             }
 
             private void ShowSelector(IEnumerable<Tag> list)
             {
-                var selector = new GenericSelector<Tag>("Select Tag", list);
-                selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
-                selector.ShowInPopup();
+                _selector = new GenericSelector<Tag>("Select Tag", list);
+                _selector.SelectionConfirmed += selection => ValueEntry.SmartValue = selection.First();
+                _selector.ShowInPopup();
                 Event.current.Use();
             }
         }
