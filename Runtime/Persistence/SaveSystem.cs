@@ -131,7 +131,7 @@ namespace Zero53.Persistence
         
         private void RemoveNullBindings()
         {
-            _bindings.RemoveAll(b => b.binding.IsNull());
+            _bindings.RemoveAll(b => b.binding.IsNullOrDestroyed());
         }
     }
 }
