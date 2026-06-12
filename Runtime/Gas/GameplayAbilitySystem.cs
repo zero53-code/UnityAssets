@@ -329,28 +329,14 @@ namespace Zero53.Gas
         {
             foreach (var abilityInstance in abilities)
             {
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                {
-                    abilityInstance.ability = Instantiate(abilityInstance.ability);
-                }
-#else
+                abilityInstance.ability = abilityInstance.ability.InstantiatePlayModeOnly();
 
-                abilityInstance.ability = Instantiate(abilityInstance.ability);
-
-#endif
                 HandleGaveAbility(abilityInstance);
             }
 
             for (var i = 0; i < attributeSets.Length; i++)
             {
-                var attributeSet = attributeSets[i];
-
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                    attributeSets[i] = Instantiate(attributeSet);
-#endif
-                
+                attributeSets[i] = attributeSets[i].InstantiatePlayModeOnly();
                 HandleAddedAttributeSet(attributeSets[i]);
             }
 
