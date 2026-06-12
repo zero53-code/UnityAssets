@@ -23,7 +23,7 @@ namespace Zero53.GameplayTags
         public Tag(string tagFullName)
         {
             fullName = tagFullName ?? string.Empty;
-            string.Intern(fullName);
+            fullName = string.Intern(fullName);
         }
 
         /// <summary>
@@ -46,8 +46,17 @@ namespace Zero53.GameplayTags
                 if (string.IsNullOrEmpty(fullName)) return false;
                 if (fullName.StartsWith('.')) return false;
                 if (fullName.EndsWith('.')) return false;
-                if (fullName.Any(c => char.IsWhiteSpace(c) || (char.IsSymbol(c) && c != '.'))) 
-                    return false;
+
+                for (var i = 0; i < fullName.Length; i++)
+                {
+                    var c = fullName[i];
+                    if (char.IsWhiteSpace(c)) return false;
+                    if (char.IsSymbol(c)) return false;
+                    if (char.IsControl(c)) return false;
+                    if (char.IsSeparator(c)) return false;
+                    if (char.IsPunctuation(c) && c != '.') return false;
+                    if (i != fullName.Length - 1 && c == '.' && fullName[i + 1] == '.') return false;
+                }
             
                 return true;
             }
@@ -123,6 +132,9 @@ namespace Zero53.GameplayTags
         /// </summary>
         public override bool Equals(object obj)
         {
+            if (obj is string str) return str == fullName;
+            if (obj is Name name) return name == fullName;
+            
             return obj is Tag other && Equals(other);
         }
 
@@ -162,6 +174,26 @@ namespace Zero53.GameplayTags
             return !(left == right);
         }
 
+        public static bool operator ==(Tag left, string right)
+        {
+            return left.fullName == right;
+        }
+
+        public static bool operator !=(Tag left, string right)
+        {
+            return !(left == right);
+        }
+
+        public static bool operator ==(string left, Tag right)
+        {
+            return right == left;
+        }
+
+        public static bool operator !=(string left, Tag right)
+        {
+            return !(left == right);
+        }
+
         /// <summary>
         /// 字符串隐式转换为 Tag
         /// </summary>
@@ -178,13 +210,19 @@ namespace Zero53.GameplayTags
             return new Name(tag.fullName);
         }
         
+        public override string ToString()
+        {
+            return fullName;
+        }
+
         /// <summary>
         /// 返回标签的可读字符串
         /// </summary>
-        public override string ToString()
+        public string Display()
         {
+            if (isEmpty) return "(empty)";
             if (isValid) return fullName;
-            return "(empty)";
+            return "(invalid)";
         }
         
         /// <summary>
@@ -249,7 +287,7 @@ namespace Zero53.GameplayTags
             private GenericSelector<Tag> _selector;
             protected override void DrawPropertyLayout(GUIContent label)
             {
-                var tagList = Tag.tagLibrary.GetParents();
+                var tagList = Tag.tagLibrary.GetAllInheritedTags();
 
                 // 绘制一个可点击的框
                 var rect = EditorGUILayout.GetControlRect();
@@ -271,7 +309,7 @@ namespace Zero53.GameplayTags
                 }
                 else
                 {
-                    displayText = value.ToString();
+                    displayText = value.Display();
                 }
 
                 GUI.Label(rect, displayText, style);

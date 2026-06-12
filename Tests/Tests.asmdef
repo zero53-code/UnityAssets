@@ -1,11 +1,9 @@
 {
     "name": "Tests",
-    "rootNamespace": "",
+    "rootNamespace": "Zero53",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Zero53",
-        "GameplayTags",
         "Zero53.GameplayTags"
     ],
     "includePlatforms": [],

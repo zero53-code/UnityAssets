@@ -56,21 +56,17 @@ namespace Zero53.GameplayTags
             if (result == 0) return result;
             
             OnTagRemoved?.Invoke(tag);
-            FillParent();
+            RebuildParent();
 
             return result;
         }
         
         public bool RemoveExact(Tag tag)
         {
-            if (tags.RemoveAll(t =>
-                {
-                    var matches = t.Matches(tag);
-                    if (matches) OnTagRemoved?.Invoke(tag);
-                    return matches;
-                }) == 0) return false;
+            if (!tags.Remove(tag)) return false;
             
-            FillParent();
+            OnTagRemoved?.Invoke(tag);
+            RebuildParent();
             return true;
         }
 
@@ -99,7 +95,7 @@ namespace Zero53.GameplayTags
                 });
             }
             
-            FillParent();
+            RebuildParent();
             return result;
         }
         
@@ -115,7 +111,7 @@ namespace Zero53.GameplayTags
                 });
             }
             
-            FillParent();
+            RebuildParent();
             return result;
         }
 
@@ -130,7 +126,7 @@ namespace Zero53.GameplayTags
             _parentTags.Clear();
         }
 
-        private void FillParent()
+        private void RebuildParent()
         {
             _parentTags.Clear();
             foreach (var tag in tags)
@@ -225,7 +221,7 @@ namespace Zero53.GameplayTags
             return GetEnumerator();
         }
 
-        public IEnumerable<Tag> GetParents()
+        public IEnumerable<Tag> GetAllInheritedTags()
         {
             foreach (var parentTag in _parentTags)
             {
