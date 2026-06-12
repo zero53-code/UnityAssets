@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Zero53.Utils
 {
@@ -24,6 +25,45 @@ namespace Zero53.Utils
             if (obj is not UnityEngine.Object uobj) return obj;
             if (uobj == null) return null;
             return uobj as T;
+        }
+
+        /// <summary>
+        /// 只在 Editor Play Mode 下进行实例化对象
+        /// </summary>
+        /// <param name="obj">UnityEngine.Object 对象</param>
+        /// <typeparam name="T">UnityEngine.Object 派生类型</typeparam>
+        /// <returns>
+        /// Editor 下返回实例化的对象<para/>
+        /// Runtime 下直接返回参数对象
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T InstantiatePlayModeOnly<T>(this T obj)
+            where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return UnityEngine.Object.Instantiate(obj);
+#endif
+            return obj;
+        }
+
+        /// <summary>
+        /// 只在 Editor 下进行实例化对象
+        /// </summary>
+        /// <param name="obj">UnityEngine.Object 对象</param>
+        /// <typeparam name="T">UnityEngine.Object 派生类型</typeparam>
+        /// <returns>
+        /// Editor 下返回实例化的对象<para/>
+        /// Runtime 下直接返回参数对象
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T InstantiateEditorOnly<T>(this T obj)
+            where T : UnityEngine.Object
+        {
+#if UNITY_EDITOR
+            return UnityEngine.Object.Instantiate(obj);
+#endif
+            return obj;
         }
 
 #if UNITY_EDITOR
