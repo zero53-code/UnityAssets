@@ -13,7 +13,7 @@ namespace Zero53.Utils
         public static bool IsNullOrDestroyed<T>(this T obj)
             where T : class
         {
-            if (obj is not UnityEngine.Object uobj) return true;
+            if (obj is not UnityEngine.Object uobj) return obj is null;
             return uobj == null;
         }
 
@@ -107,25 +107,24 @@ namespace Zero53.Utils
         [Conditional("UNITY_EDITOR")]
         public static void InvokeMethod(Dictionary<Type, MethodInfo> typeToMethodInfo, string methodName, object obj)
         {
-            if (obj == null) return;
-            if (obj is UnityEngine.Object unityObject && unityObject == null) return;
+            if (obj.IsNullOrDestroyed()) return;
 
             var type = obj.GetType();
             if (typeToMethodInfo.TryGetValue(type, out var method))
             {
-                method.Invoke(obj, Array.Empty<object>());
+                method?.Invoke(obj, Array.Empty<object>());
+                return;
             }
 
-            method = type
-                .GetMethod(
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | 
+                                       BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+            method = type.GetMethod(
                     methodName,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (method == null) return;
+                    flags);
 
             typeToMethodInfo[type] = method;
 
-            method.Invoke(obj, Array.Empty<object>());
+            method?.Invoke(obj, Array.Empty<object>());
         }
     }
 }
