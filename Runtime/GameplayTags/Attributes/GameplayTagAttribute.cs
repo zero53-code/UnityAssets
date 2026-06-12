@@ -2,8 +2,8 @@
 
 namespace Zero53.GameplayTags.Attributes
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    public sealed class GameplayTagAttribute  : Attribute
+    [AttributeUsage(AttributeTargets.All, Inherited = false)]
+    public sealed class GameplayTagAttribute : Attribute
     {
         public string[] tags;
 
