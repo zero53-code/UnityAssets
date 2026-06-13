@@ -2,10 +2,11 @@
 
 namespace Zero53.GameplayTags.Attributes
 {
-    [AttributeUsage(AttributeTargets.All, Inherited = false)]
+    [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true)]
     public sealed class GameplayTagAttribute : Attribute
     {
         public string[] tags;
+        public bool isExact;
 
         public GameplayTagAttribute(params string[] tags)
         {

@@ -116,6 +116,14 @@ namespace Zero53.GameplayTags
         {
             return other.IsChildOf(this);
         }
+
+        public Tag Concat(Tag other)
+        {
+            if (isEmpty) return other;
+            if (other.isEmpty) return this;
+
+            return new Tag(fullName + '.' + other.fullName);
+        }
         
         /// <summary>
         /// 比较两个标签是否相等（基于 fullName）
