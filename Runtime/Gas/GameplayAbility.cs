@@ -1,4 +1,6 @@
 ﻿using System;
+using JetBrains.Annotations;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Zero53.Gas.GameplayAbilityTriggers;
 
@@ -7,11 +9,13 @@ namespace Zero53.Gas
     [Serializable]
     public abstract class GameplayAbility : ScriptableObject
     {
-        public GameplayAbilitySystem abilitySystem { get; private set; }
-        
+        [field: SerializeField]
         public AbilityTrigger trigger { get; private set; }
         
+        [field: SerializeField, ReadOnly]
         public GameplayAbilityTaskDomain domain { get; private set; }
+        
+        public GameplayAbilitySystem abilitySystem { get; private set; }
         
         /// <summary>
         /// 技能是否已激活
@@ -31,29 +35,6 @@ namespace Zero53.Gas
             domain.CancelAllAbilityTasks();
         }
 
-        internal void TryActivate()
-        {
-            if (trigger is { isActive: false }) return;
-            
-            var primaryTask = OnCommit();
-            if (primaryTask != null)
-            {
-                domain.AddAbilityTask(primaryTask);
-            }
-            
-            if (primaryTask == null)
-            {
-                OnEnd(null);
-            }
-        }
-
-        internal void InitInternal(GameplayAbilitySystem abilitySystem, AbilityTrigger trigger, GameplayAbilityTaskDomain domain)
-        {
-            this.abilitySystem = abilitySystem;
-            this.trigger = trigger;
-            this.domain = domain;
-        }
-        
         /// <summary>
         /// 提交技能
         /// </summary>
@@ -66,6 +47,11 @@ namespace Zero53.Gas
         {
         }
 
+        internal void RemoveInternal()
+        {
+            trigger.OnRemove();
+        }
+
         /// <summary>
         /// 移除技能时调用
         /// </summary>
@@ -76,20 +62,53 @@ namespace Zero53.Gas
         /// <summary>
         /// 技能被取消执行时调用
         /// </summary>
-        protected internal virtual void OnCancel(GameplayAbilityTask rootTask)
+        protected internal virtual void OnCancel([CanBeNull] GameplayAbilityTask rootTask)
         {
         }
 
         /// <summary>
         /// 技能结束、取消时调用
         /// </summary>
-        protected internal virtual void OnEnd(GameplayAbilityTask rootTask)
+        protected internal virtual void OnEnd([CanBeNull] GameplayAbilityTask rootTask)
         {
         }
 
         public override string ToString()
         {
             return GetType().FullName;
+        }
+
+        private void OnDestroy()
+        {
+            abilitySystem.RemoveAbility(this);
+        }
+        
+        internal void InitInternal(GameplayAbilitySystem abilitySystem)
+        {
+            domain ??= new GameplayAbilityTaskDomain();
+            trigger ??= new AbilityTrigger();
+            
+            this.abilitySystem = abilitySystem;
+            domain.InitInternal(this);
+            trigger.InitInternal(this);
+        }
+        
+        internal void UpdateInternal(float deltaTime)
+        {
+            domain.UpdateInternal(deltaTime);
+            trigger.UpdateInternal(deltaTime);
+            
+            if (!trigger.isActive) return;
+            
+            var rootTask = OnCommit();
+            if (rootTask != null)
+            {
+                domain.AddAbilityTask(rootTask);
+            }
+            else
+            {
+                OnEnd(null);
+            }
         }
     }
 }

@@ -1,21 +1,23 @@
 ﻿using System;
 using System.ComponentModel;
+using UnityEngine;
 using Zero53.GameplayTags;
 
-namespace Zero53.Gas.GameplayTriggers
+namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
-    [Description(description: "基于 tag 触发技能")]
-    public class TagActivateGameplayAbilityTrigger : GameplayAbilityTrigger
+    [Description("拥有该 Tag 期间持续触发")]
+    public class OwnerTagPresentTrigger : GameplayAbilityTrigger
     {
         /// <summary>
         /// 激活技能的标签
         /// </summary>
-        public Tag[] activateAbilityTags;
+        [SerializeField]
+        private Tag[] tags;
         
         protected internal override void OnUpdate(float deltaTime)
         {
-            if (abilitySystem.tags.HasAny(activateAbilityTags))
+            if (tags.Length == 0 || abilitySystem.tags.HasAny(tags))
             {
                 ActivateAbility();
             }

@@ -1,5 +1,7 @@
 ﻿using System;
+using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,11 +18,23 @@ namespace Zero53.Gas
         protected void ActivateAbility()
         {
             isActive = true;
+
+#if UNITY_EDITOR
+            GUIHelper.RequestRepaint();
+#endif
         }
         
         internal void UpdateInternal(float deltaTime)
         {
+#if UNITY_EDITOR
+            if (isActive)
+            {
+                isActive = false;
+                GUIHelper.RequestRepaint();
+            }
+#else
             isActive = false;
+#endif
             OnUpdate(deltaTime);
         }
 
@@ -30,8 +44,13 @@ namespace Zero53.Gas
             OnInit();
         }
         
-        protected internal virtual void OnInit() {}
+        protected internal virtual void OnInit() 
+        {}
+        
         protected internal abstract void OnUpdate(float deltaTime);
+        
+        protected internal virtual void OnRemove() 
+        {}
     }
 
 #if UNITY_EDITOR
@@ -43,6 +62,8 @@ namespace Zero53.Gas
         
         private static Texture _activatingIcon;
         private static Texture _nonActivatingIcon;
+        
+        private const float DelayTime = 0.8f;
         
         protected override void Initialize()
         {
@@ -73,18 +94,29 @@ namespace Zero53.Gas
                 _nonActivatingIcon = AssetDatabase.LoadAssetAtPath<Texture>(path);
             }
         }
+
+        private float _activatingLastTime;
         
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            if (label == null)
+            var isActive = ValueEntry.SmartValue.isActive;
+            if (isActive)
             {
-                CallNextDrawer(null);
-                return;
+                _activatingLastTime = Time.time;
             }
             
-            label.image = ValueEntry.SmartValue.isActive 
-                ? _activatingIcon 
-                : _nonActivatingIcon;
+            label ??= new GUIContent(Property.ValueEntry.TypeOfValue.Name);
+
+            switch (isActive)
+            {
+                case false when Application.isPlaying && Time.time - _activatingLastTime > DelayTime:
+                case false:
+                    label.image = _nonActivatingIcon;
+                    break;
+                default:
+                    label.image = _activatingIcon;
+                    break;
+            }
 
             CallNextDrawer(label);
         }

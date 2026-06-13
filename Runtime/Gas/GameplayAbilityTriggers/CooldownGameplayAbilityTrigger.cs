@@ -3,7 +3,7 @@ using System.ComponentModel;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Zero53.Gas.GameplayTriggers
+namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
     [Description(description: "冷却时间结束时触发")]

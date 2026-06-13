@@ -48,15 +48,9 @@ namespace Zero53.Gas
 
         [OdinSerialize, SerializeField, PropertyOrder(order: 0)]
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
+        [InlineEditor]
         [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
-        private List<GameplayAbilityInstance> abilities = new();
-
-#if UNITY_EDITOR
-        [ShowInInspector, PropertyOrder(order: 0.5f)]
-        private List<GameplayAbilityTaskDomain> _taskDomains => abilities
-            .Select(ability => ability.taskDomain)
-            .ToList();
-#endif
+        private List<GameplayAbility> abilities = new();
 
         [OdinSerialize, SerializeReference, PropertyOrder(order: 1)] 
         [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
@@ -114,12 +108,13 @@ namespace Zero53.Gas
         {
             if (newAbility == null) return null;
             
-            foreach (var instance in abilities)
+            foreach (var ability in abilities)
             {
-                if (instance.ability == newAbility) return null;
+                if (ability == newAbility) return null;
             }
 
-            var abilityInstance = new GameplayAbilityInstance(trigger, newAbility);
+            var abilityInstance = ScriptableObject.CreateInstance<TAbility>();
+            
             abilities.Add(abilityInstance);
             
             HandleGaveAbility(abilityInstance);
@@ -129,9 +124,9 @@ namespace Zero53.Gas
 
         public void CancelAbility<TAbility>() where TAbility : GameplayAbility
         {
-            foreach (var abilityInstance in abilities)
+            foreach (var ability in abilities)
             {
-                if (abilityInstance.ability is TAbility ability)
+                if (ability is TAbility)
                 {
                     ability.Cancel();
                 }
@@ -142,7 +137,7 @@ namespace Zero53.Gas
         {
             return abilities.RemoveAll(abilityInstance =>
             {
-                if (abilityInstance.ability is not TAbility) return false;
+                if (abilityInstance is not TAbility) return false;
                 
                 HandleRemovedAbility(abilityInstance);
                 
@@ -154,7 +149,7 @@ namespace Zero53.Gas
         {
             var count = abilities.RemoveAll(abilityInstance =>
             {
-                if (abilityInstance.ability != ability) return false;
+                if (abilityInstance != ability) return false;
                 
                 HandleRemovedAbility(abilityInstance);
                 return true;
@@ -270,21 +265,20 @@ namespace Zero53.Gas
 
         private void OnDestroy()
         {
-            foreach (var abilityInstance in abilities)
+            foreach (var ability in abilities)
             {
-                HandleRemovedAbility(abilityInstance);
-                Destroy(abilityInstance.ability);
+                HandleRemovedAbility(ability);
+                Destroy(ability);
             }
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            foreach (var info in abilities)
+            foreach (var ability in abilities)
             {
-                info.ability.InvokeOnValidate();
-                info.taskDomain.InvokeOnValidate();
-                info.trigger.InvokeOnValidate();
+                ability.InvokeOnValidate();
+                ability.trigger.InvokeOnValidate();
             }
             
             Setup();
@@ -292,21 +286,20 @@ namespace Zero53.Gas
 
         private void OnDrawGizmos()
         {
-            foreach (var info in abilities)
+            foreach (var ability in abilities)
             {
-                info.ability.InvokeOnDrawGizmos();
-                info.taskDomain.InvokeOnDrawGizmos();
-                info.trigger.InvokeOnDrawGizmos();
+                ability.InvokeOnDrawGizmos();
+                ability.trigger.InvokeOnDrawGizmos();
             }
         }
 
         private void OnDrawGizmosSelected()
         {
-            foreach (var info in abilities)
+            foreach (var ability in abilities)
             {
-                info.ability.InvokeOnDrawGizmosSelected();
-                info.taskDomain.InvokeOnDrawGizmosSelected();
-                info.trigger.InvokeOnDrawGizmosSelected();
+                ability.InvokeOnDrawGizmosSelected();
+                ability.InvokeOnDrawGizmosSelected();
+                ability.trigger.InvokeOnDrawGizmosSelected();
             }
         }
         
@@ -315,7 +308,7 @@ namespace Zero53.Gas
 
         #region 私有字段
         
-        private readonly List<GameplayAbilityInstance> _abilitiesBuffer  = new();
+        private readonly List<GameplayAbility> _abilitiesBuffer  = new();
         private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
         private readonly List<GameplayPeriodicEffect> _periodicEffects = new();
         private readonly List<GameplayPeriodicEffect> _periodicEffectsBuffer = new();
@@ -327,11 +320,12 @@ namespace Zero53.Gas
 
         private void Setup()
         {
-            foreach (var abilityInstance in abilities)
+            for (var i = 0; i < abilities.Count; i++)
             {
-                abilityInstance.ability = abilityInstance.ability.InstantiatePlayModeOnly();
+                var abilityInstance = abilities[i];
+                abilities[i] = abilityInstance.InstantiatePlayModeOnly();
 
-                HandleGaveAbility(abilityInstance);
+                HandleGaveAbility(abilities[i]);
             }
 
             for (var i = 0; i < attributeSets.Length; i++)
@@ -349,11 +343,9 @@ namespace Zero53.Gas
         private void AbilitiesUpdate()
         {
             // 尝试使用触发器激活技能
-            foreach (var abilityInstance in _abilitiesBuffer)
+            foreach (var ability in _abilitiesBuffer)
             {
-                abilityInstance.taskDomain.UpdateInternal(Time.deltaTime);
-                abilityInstance.trigger?.UpdateInternal(Time.deltaTime);
-                abilityInstance.ability.TryActivate();
+                ability.UpdateInternal(Time.deltaTime);
             }
         }
 
@@ -384,27 +376,26 @@ namespace Zero53.Gas
         /// <summary>
         /// 处理已获取的技能
         /// </summary>
-        private void HandleGaveAbility(GameplayAbilityInstance abilityInstance)
+        private void HandleGaveAbility(GameplayAbility ability)
         {
-            if (abilityInstance == null) return;
-            if (abilityInstance.ability == null) return;
+            if (ability == null) return;
             
-            abilityInstance.Init(this);
-            abilityInstance.ability.OnGive();
-            PostAbilityGave?.Invoke(abilityInstance.ability);
+            ability.InitInternal(this);
+            ability.OnGive();
+            PostAbilityGave?.Invoke(ability);
         }
 
         /// <summary>
         /// 处理已移除的技能
         /// </summary>
-        private void HandleRemovedAbility(GameplayAbilityInstance abilityInstance)
+        private void HandleRemovedAbility(GameplayAbility ability)
         {
-            if (abilityInstance == null) return;
+            if (ability == null) return;
             
-            if (abilityInstance.ability.isActivated) abilityInstance.ability.Cancel();
+            if (ability.isActivated) ability.Cancel();
             
-            PreAbilityRemoved?.Invoke(abilityInstance.ability);
-            abilityInstance.ability.OnRemove();
+            PreAbilityRemoved?.Invoke(ability);
+            ability.RemoveInternal();
         }
 
         /// <summary>
@@ -489,11 +480,11 @@ namespace Zero53.Gas
                 case CollectionChangeType.RemoveKey
                     or CollectionChangeType.RemoveIndex
                     or CollectionChangeType.RemoveValue:
-                    abilities[info.Index].ability.Cancel();
+                    abilities[info.Index].Cancel();
                     break;
                 
                 case CollectionChangeType.Clear:
-                    abilities.ForEach(abilityInfo => abilityInfo.ability.Cancel());
+                    abilities.ForEach(ability => ability.Cancel());
                     break;
             }
         }
@@ -509,7 +500,6 @@ namespace Zero53.Gas
                     
                     break;
             }
-            
         }
         
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
@@ -7,12 +8,23 @@ namespace Zero53.Gas.GameplayAbilityTriggers
     [Serializable]
     public sealed class AbilityTrigger : GameplayAbilityTrigger
     {
+        [SerializeField]
+        private OwnerTagPresentTrigger ownerTagPresent;
+        
+        [SerializeField]
+        private OwnerTagAddedTrigger ownerTagAdded;
+        
         [SerializeReference]
         private GameplayAbilityTrigger[] triggers;
 
         protected internal override void OnInit()
         {
             triggers ??= Array.Empty<GameplayAbilityTrigger>();
+            ownerTagPresent ??= new OwnerTagPresentTrigger();
+            ownerTagAdded ??= new OwnerTagAddedTrigger();
+            
+            ownerTagPresent.InitInternal(ability);
+            ownerTagAdded.InitInternal(ability);
 
             foreach (var trigger in triggers)
             {
@@ -22,34 +34,41 @@ namespace Zero53.Gas.GameplayAbilityTriggers
 
         protected internal override void OnUpdate(float deltaTime)
         {
-            if (triggers == null || triggers.Length == 0) return;
-            
+            ownerTagPresent.UpdateInternal(deltaTime);
+            ownerTagAdded.UpdateInternal(deltaTime);
+
             foreach (var trigger in triggers)
             {
                 trigger.UpdateInternal(deltaTime);
             }
 
-            var canActivate = true;
-            foreach (var trigger in triggers)
-            {
-                if (trigger.isActive) continue;
-                canActivate = false;
-                break;
-            }
-
+            var canActivate = ownerTagPresent.isActive;
+            canActivate &= ownerTagAdded.isActive;
+            canActivate &= triggers.Length == 0 || triggers.All(trigger => trigger.isActive);
+            
             if (canActivate) ActivateAbility();
         }
-    }
-    
-#if UNITY_EDITOR
 
-    internal class AbilityTriggerDrawer : OdinValueDrawer<AbilityTrigger>
-    {
-        protected override void DrawPropertyLayout(GUIContent label)
+        protected internal override void OnRemove()
         {
-            Property.Children["triggers"].Draw(label);
+            ownerTagPresent.OnRemove();
+            ownerTagAdded.OnRemove();
+            foreach (var trigger in triggers)
+            {
+                trigger?.OnRemove();
+            }
         }
     }
-
-#endif
+//     
+// #if UNITY_EDITOR
+//
+//     internal class AbilityTriggerDrawer : OdinValueDrawer<AbilityTrigger>
+//     {
+//         protected override void DrawPropertyLayout(GUIContent label)
+//         {
+//             Property.Children["triggers"].Draw(label);
+//         }
+//     }
+//
+// #endif
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using UnityEngine;
 using Zero53.GameplayTags;
 
-namespace Zero53.Gas.GameplayTriggers
+namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
-    [Description(description: "基于 tag 禁用技能")]
+    [Description("基于 tag 禁用技能")]
     public class TagDeactivateGameplayAbilityTrigger : GameplayAbilityTrigger
     {
         /// <summary>

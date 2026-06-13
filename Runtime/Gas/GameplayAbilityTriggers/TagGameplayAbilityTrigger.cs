@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using Zero53.GameplayTags;
 
-namespace Zero53.Gas.GameplayTriggers
+namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
     [Description(description: "基于 tag 触发或禁用技能")]

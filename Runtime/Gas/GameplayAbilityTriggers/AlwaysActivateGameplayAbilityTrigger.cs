@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Zero53.Gas.GameplayTriggers
+namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
     [Description(description: "一直激活")]
