@@ -1,12 +1,12 @@
-﻿using System;
+﻿using UnityEngine;
 using Zero53.GameplayTags;
 
 namespace Zero53.Gas
 {
-    [Serializable]
-    public abstract class GameplayEffect
+    public abstract class GameplayEffect : ScriptableObject
     {
         public GameplayAbilitySystem abilitySystem { get; private set; }
+        
         public TagContainer tags => abilitySystem.tags;
 
         public TAttributeSet GetAttributeSet<TAttributeSet>()

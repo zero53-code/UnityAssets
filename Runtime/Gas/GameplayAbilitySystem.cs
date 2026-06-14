@@ -314,8 +314,8 @@ namespace Zero53.Gas
         
         private readonly List<GameplayAbilityBase> _abilitiesBuffer  = new();
         private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
-        private readonly List<GameplayPeriodicEffect> _periodicEffects = new();
-        private readonly List<GameplayPeriodicEffect> _periodicEffectsBuffer = new();
+        private readonly List<PeriodicGameplayEffect> _periodicEffects = new();
+        private readonly List<PeriodicGameplayEffect> _periodicEffectsBuffer = new();
         private readonly List<GameplayCue> _cuesBuffer = new();
 
         #endregion
@@ -326,8 +326,7 @@ namespace Zero53.Gas
         {
             for (var i = 0; i < abilities.Count; i++)
             {
-                var abilityInstance = abilities[i];
-                abilities[i] = abilityInstance.InstantiatePlayModeOnly();
+                abilities[i] = abilities[i].InstantiatePlayModeOnly();
 
                 HandleGaveAbility(abilities[i]);
             }
@@ -335,12 +334,15 @@ namespace Zero53.Gas
             for (var i = 0; i < attributeSets.Length; i++)
             {
                 attributeSets[i] = attributeSets[i].InstantiatePlayModeOnly();
+                
                 HandleAddedAttributeSet(attributeSets[i]);
             }
 
-            foreach (var effect in effects)
+            for (var i = 0; i < effects.Count; i++)
             {
-                HandleAddedEffect(effect);
+                effects[i] = effects[i].InstantiatePlayModeOnly();
+                
+                HandleAddedEffect(effects[i]);
             }
         }
 
@@ -429,7 +431,7 @@ namespace Zero53.Gas
             
             effect.InitInternal(this);
 
-            if (effect is GameplayPeriodicEffect periodEffect)
+            if (effect is PeriodicGameplayEffect periodEffect)
             {
                 _periodicEffects.Add(periodEffect);
             }
@@ -449,7 +451,7 @@ namespace Zero53.Gas
             
             PreEffectRemoved?.Invoke(effect);
             effect.OnRemove();
-            if (effect is GameplayPeriodicEffect periodEffect)
+            if (effect is PeriodicGameplayEffect periodEffect)
             {
                 _periodicEffects.Remove(periodEffect);
             }

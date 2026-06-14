@@ -1,5 +1,4 @@
-﻿using System;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Zero53.Gas.GameplayEffects
@@ -7,8 +6,7 @@ namespace Zero53.Gas.GameplayEffects
     /// <summary>
     /// 周期效果
     /// </summary>
-    [Serializable]
-    public abstract class GameplayPeriodicEffect : GameplayEffect
+    public abstract class PeriodicGameplayEffect : GameplayEffect
     {
         /// <summary>
         /// 持续时间
