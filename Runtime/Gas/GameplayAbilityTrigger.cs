@@ -1,5 +1,4 @@
 ﻿using System;
-using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
@@ -11,7 +10,7 @@ namespace Zero53.Gas
     public abstract class GameplayAbilityTrigger
     {
         public GameplayAbilityBase ability { get; private set; }
-        public GameplayAbilitySystem abilitySystem => ability.abilitySystem;
+        public GameplayAbilitySystem owner => ability.owner;
 
         internal bool isActive { get; set; }
 

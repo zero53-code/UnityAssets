@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Sirenix.OdinInspector.Editor;
@@ -17,7 +16,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
         
         protected internal override void OnInit()
         {
-            abilitySystem.tags.OnTagAdded += OnTagAdded;
+            owner.tags.OnTagAdded += OnTagAdded;
         }
 
         protected internal override void OnUpdate(float deltaTime)
@@ -39,7 +38,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
 
         protected internal override void OnRemove()
         {
-            abilitySystem.tags.OnTagAdded -= OnTagAdded;
+            owner.tags.OnTagAdded -= OnTagAdded;
         }
     }
     

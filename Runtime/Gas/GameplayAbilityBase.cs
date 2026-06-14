@@ -13,7 +13,7 @@ namespace Zero53.Gas
         [field: SerializeField, HideInInspector, ReadOnly]
         public GameplayAbilityTaskDomain domain { get; private set; }
         
-        public GameplayAbilitySystem abilitySystem { get; private set; }
+        public GameplayAbilitySystem owner { get; private set; }
         
         /// <summary>
         /// 技能是否已激活
@@ -78,7 +78,7 @@ namespace Zero53.Gas
 
         private void OnDestroy()
         {
-            abilitySystem.RemoveAbility(this);
+            owner.RemoveAbility(this);
         }
         
         internal void InitInternal(GameplayAbilitySystem abilitySystem)
@@ -86,7 +86,7 @@ namespace Zero53.Gas
             domain ??= new GameplayAbilityTaskDomain();
             trigger ??= new AbilityTrigger();
             
-            this.abilitySystem = abilitySystem;
+            this.owner = abilitySystem;
             domain.InitInternal(this);
             trigger.InitInternal(this);
         }

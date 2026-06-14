@@ -22,7 +22,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
         
         protected internal override void OnUpdate(float deltaTime)
         {
-            if (abilitySystem.tags.HasAny(deactivateAbilityTags))
+            if (owner.tags.HasAny(deactivateAbilityTags))
             {
                 return;
             }
@@ -36,7 +36,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
                 }
             }
 
-            if (abilitySystem.tags.HasAny(activateAbilityTags))
+            if (owner.tags.HasAny(activateAbilityTags))
             {
                 ActivateAbility();
             }

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.GameplayTags;
-using Zero53.Gas.GameplayAbilityTriggers;
 
 namespace Zero53.Gas.GameplayAbilityTriggers
 {
@@ -18,7 +17,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
 
         protected internal override void OnUpdate(float deltaTime)
         {
-            if (tags.Length == 0 || abilitySystem.tags.HasAny(tags))
+            if (tags.Length == 0 || owner.tags.HasAny(tags))
             {
                 ActivateAbility();
             }

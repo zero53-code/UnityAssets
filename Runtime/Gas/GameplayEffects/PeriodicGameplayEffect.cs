@@ -49,7 +49,7 @@ namespace Zero53.Gas.GameplayEffects
             
             if (durationTimer >= duration)
             {
-                abilitySystem.RemoveEffect(this);
+                owner.RemoveEffect(this);
                 return;
             }
             

@@ -13,7 +13,7 @@ namespace Zero53.Gas
     {
         public GameplayAbilityTaskDomain domain { get; internal set; }
         public GameplayAbilityBase ability => domain.ability;
-        public GameplayAbilitySystem abilitySystem => domain.abilitySystem;
+        public GameplayAbilitySystem owner => domain.owner;
         
         [CanBeNull] public GameplayAbilityTask parentTask { get; internal set; }
 

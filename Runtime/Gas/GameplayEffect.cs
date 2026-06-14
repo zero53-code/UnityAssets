@@ -5,19 +5,19 @@ namespace Zero53.Gas
 {
     public abstract class GameplayEffect : ScriptableObject
     {
-        public GameplayAbilitySystem abilitySystem { get; private set; }
+        public GameplayAbilitySystem owner { get; private set; }
         
-        public TagContainer tags => abilitySystem.tags;
+        public TagContainer tags => owner.tags;
 
         public TAttributeSet GetAttributeSet<TAttributeSet>()
             where TAttributeSet : GameplayAttributeSet
         {
-            return abilitySystem.GetAttributeSet<TAttributeSet>();
+            return owner.GetAttributeSet<TAttributeSet>();
         }
 
         internal void InitInternal(GameplayAbilitySystem abilitySystem)
         {
-            this.abilitySystem = abilitySystem;
+            this.owner = abilitySystem;
         }
 
         protected internal abstract void OnApply();

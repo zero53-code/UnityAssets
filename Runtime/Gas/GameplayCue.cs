@@ -5,11 +5,11 @@ namespace Zero53.Gas
     [Serializable]
     public abstract class GameplayCue
     {
-        public GameplayAbilitySystem abilitySystem { get; private set; }
+        public GameplayAbilitySystem owner { get; private set; }
 
         internal void InitInternal(GameplayAbilitySystem abilitySystem)
         {
-            this.abilitySystem = abilitySystem;
+            owner = abilitySystem;
         }
         
         protected internal virtual void OnStart() 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
 namespace Zero53.Gas.GameplayAbilityTriggers

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using UnityEngine;
 using Zero53.GameplayTags;
 
 namespace Zero53.Gas.GameplayAbilityTriggers
@@ -16,7 +15,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
         
         protected internal override void OnUpdate(float deltaTime)
         {
-            if (!abilitySystem.tags.HasAny(deactivateAbilityTags))
+            if (!owner.tags.HasAny(deactivateAbilityTags))
             {
                 ActivateAbility();
             }

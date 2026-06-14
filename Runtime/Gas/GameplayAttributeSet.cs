@@ -10,11 +10,11 @@ namespace Zero53.Gas
 {
     public class GameplayAttributeSet : ScriptableObject
     {
-        public GameplayAbilitySystem abilitySystem { get; private set; }
+        public GameplayAbilitySystem owner { get; private set; }
         
         internal void InitInternal(GameplayAbilitySystem abilitySystem)
         {
-            this.abilitySystem = abilitySystem;
+            owner = abilitySystem;
 
             foreach (var info in GetAttributeDataFields())
             {

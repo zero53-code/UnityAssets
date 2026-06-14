@@ -21,7 +21,7 @@ namespace Zero53.Gas.GameplayAbilityTasks
                 return;
             }
 
-            _coroutine = abilitySystem.StartCoroutine(CoroutineWrapper());
+            _coroutine = owner.StartCoroutine(CoroutineWrapper());
 
             if (_coroutine == null) End();
         }
@@ -33,7 +33,7 @@ namespace Zero53.Gas.GameplayAbilityTasks
         protected override void OnEnd()
         {
             if (_coroutine != null)
-                abilitySystem.StopCoroutine(_coroutine);
+                owner.StopCoroutine(_coroutine);
 
             _coroutine = null;
         }

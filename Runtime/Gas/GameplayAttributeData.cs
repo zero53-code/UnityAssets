@@ -4,7 +4,6 @@ using System.Diagnostics;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Zero53.Gas.Aggregators;
-using Debug = UnityEngine.Debug;
 
 namespace Zero53.Gas
 {

@@ -11,7 +11,7 @@ namespace Zero53.Gas
     public sealed class GameplayAbilityTaskDomain
     {
         public GameplayAbilityBase ability { get; private set; }
-        public GameplayAbilitySystem abilitySystem => ability.abilitySystem;
+        public GameplayAbilitySystem owner => ability.owner;
         
         /// <summary>
         /// 以树形结构存储任务 
