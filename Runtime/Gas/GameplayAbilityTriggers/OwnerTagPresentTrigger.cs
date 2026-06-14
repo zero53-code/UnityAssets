@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.GameplayTags;
+using Zero53.Gas.GameplayAbilityTriggers;
 
 namespace Zero53.Gas.GameplayAbilityTriggers
 {
@@ -12,9 +14,8 @@ namespace Zero53.Gas.GameplayAbilityTriggers
         /// <summary>
         /// 激活技能的标签
         /// </summary>
-        [SerializeField]
-        private Tag[] tags;
-        
+        [SerializeField] private Tag[] tags;
+
         protected internal override void OnUpdate(float deltaTime)
         {
             if (tags.Length == 0 || abilitySystem.tags.HasAny(tags))
@@ -23,4 +24,17 @@ namespace Zero53.Gas.GameplayAbilityTriggers
             }
         }
     }
+
+#if UNITY_EDITOR
+
+    internal class OwnerTagPresentTriggerDrawer : OdinValueDrawer<OwnerTagPresentTrigger>
+    {
+        protected override void DrawPropertyLayout(GUIContent label)
+        {
+            Property.Children["tags"].Draw(label);
+        }
+    }
+
+#endif
+
 }

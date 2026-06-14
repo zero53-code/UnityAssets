@@ -10,7 +10,7 @@ namespace Zero53.Gas
     [Serializable]
     public abstract class GameplayAbilityTrigger
     {
-        public GameplayAbility ability { get; private set; }
+        public GameplayAbilityBase ability { get; private set; }
         public GameplayAbilitySystem abilitySystem => ability.abilitySystem;
 
         internal bool isActive { get; set; }
@@ -38,7 +38,7 @@ namespace Zero53.Gas
             OnUpdate(deltaTime);
         }
 
-        internal void InitInternal(GameplayAbility ability)
+        internal void InitInternal(GameplayAbilityBase ability)
         {
             this.ability = ability;
             OnInit();

@@ -10,7 +10,7 @@ namespace Zero53.Gas
     [Serializable]
     public sealed class GameplayAbilityTaskDomain
     {
-        public GameplayAbility ability { get; private set; }
+        public GameplayAbilityBase ability { get; private set; }
         public GameplayAbilitySystem abilitySystem => ability.abilitySystem;
         
         /// <summary>
@@ -21,7 +21,7 @@ namespace Zero53.Gas
         
         private readonly List<GameplayAbilityTask> _activatedAbilityTasksBuffer = new();
 
-        internal void InitInternal(GameplayAbility ability)
+        internal void InitInternal(GameplayAbilityBase ability)
         {
             this.ability = ability;
             foreach (var task in activatedAbilityTasks)

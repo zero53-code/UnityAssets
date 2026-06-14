@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 using Zero53.GameplayTags;
 
@@ -21,7 +22,7 @@ namespace Zero53.Gas.GameplayAbilityTriggers
 
         protected internal override void OnUpdate(float deltaTime)
         {
-            if (!_canActivate) return;
+            if (tags.Length != 0 && !_canActivate) return;
             
             _canActivate = false;
             ActivateAbility();
@@ -41,4 +42,16 @@ namespace Zero53.Gas.GameplayAbilityTriggers
             abilitySystem.tags.OnTagAdded -= OnTagAdded;
         }
     }
+    
+#if UNITY_EDITOR
+    
+    internal class OwnerTagAddedTriggerDrawer : OdinValueDrawer<OwnerTagAddedTrigger>
+    {
+        protected override void DrawPropertyLayout(GUIContent label)
+        {
+            Property.Children["tags"].Draw(label);
+        }
+    }
+    
+#endif
 }

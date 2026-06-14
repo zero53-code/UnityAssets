@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -25,12 +26,12 @@ namespace Zero53.Gas
         /// <summary>
         /// 获得技能后调用
         /// </summary>
-        public event Action<GameplayAbility> PostAbilityGave;
+        public event Action<GameplayAbilityBase> PostAbilityGave;
         
         /// <summary>
         /// 移除技能前调用
         /// </summary>
-        public event Action<GameplayAbility> PreAbilityRemoved;
+        public event Action<GameplayAbilityBase> PreAbilityRemoved;
         
         /// <summary>
         /// 添加效果后调用
@@ -50,7 +51,7 @@ namespace Zero53.Gas
         [OnCollectionChanged("BeforeAbilitiesChange", "AfterAbilitiesChange")]
         [InlineEditor]
         [LabelIcon(guid: "aac75bf07cb097640819d1d102c8d3b4")]
-        private List<GameplayAbility> abilities = new();
+        private List<GameplayAbilityBase> abilities = new();
 
         [OdinSerialize, SerializeReference, PropertyOrder(order: 1)] 
         [LabelIcon(guid: "6f14c79b09e2dba418ec247c90766138")]
@@ -87,12 +88,12 @@ namespace Zero53.Gas
                 .ToArray();
         }
 
-        public TAbility GiveAbility<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
+        public TAbility GiveAbility<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbilityBase, new()
         {
             return GiveAbility(trigger, ScriptableObject.CreateInstance<TAbility>());
         }
         
-        public TAbility GiveAbilityAndActivateOnce<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbility, new()
+        public TAbility GiveAbilityAndActivateOnce<TAbility>(AbilityTrigger trigger) where TAbility : GameplayAbilityBase, new()
         {
             var ability = GiveAbility<TAbility>(trigger);
 
@@ -104,7 +105,7 @@ namespace Zero53.Gas
             return ability;
         }
         
-        public TAbility GiveAbility<TAbility>(AbilityTrigger trigger, TAbility newAbility) where TAbility : GameplayAbility
+        public TAbility GiveAbility<TAbility>(AbilityTrigger trigger, TAbility newAbility) where TAbility : GameplayAbilityBase
         {
             if (newAbility == null) return null;
             
@@ -122,7 +123,7 @@ namespace Zero53.Gas
             return newAbility;
         }
 
-        public void CancelAbility<TAbility>() where TAbility : GameplayAbility
+        public void CancelAbility<TAbility>() where TAbility : GameplayAbilityBase
         {
             foreach (var ability in abilities)
             {
@@ -133,7 +134,7 @@ namespace Zero53.Gas
             }
         }
         
-        public int RemoveAbility<TAbility>() where TAbility : GameplayAbility
+        public int RemoveAbility<TAbility>() where TAbility : GameplayAbilityBase
         {
             return abilities.RemoveAll(abilityInstance =>
             {
@@ -145,7 +146,7 @@ namespace Zero53.Gas
             });
         }
 
-        public bool RemoveAbility<TAbility>(TAbility ability) where TAbility : GameplayAbility
+        public bool RemoveAbility<TAbility>(TAbility ability) where TAbility : GameplayAbilityBase
         {
             var count = abilities.RemoveAll(abilityInstance =>
             {
@@ -280,8 +281,11 @@ namespace Zero53.Gas
                 ability.InvokeOnValidate();
                 ability.trigger.InvokeOnValidate();
             }
-            
-            Setup();
+
+            if (!Application.isPlaying)
+            {
+                Setup();
+            }
         }
 
         private void OnDrawGizmos()
@@ -308,7 +312,7 @@ namespace Zero53.Gas
 
         #region 私有字段
         
-        private readonly List<GameplayAbility> _abilitiesBuffer  = new();
+        private readonly List<GameplayAbilityBase> _abilitiesBuffer  = new();
         private readonly List<GameplayAttributeSet> _attributeSetsBuffer = new();
         private readonly List<GameplayPeriodicEffect> _periodicEffects = new();
         private readonly List<GameplayPeriodicEffect> _periodicEffectsBuffer = new();
@@ -376,7 +380,7 @@ namespace Zero53.Gas
         /// <summary>
         /// 处理已获取的技能
         /// </summary>
-        private void HandleGaveAbility(GameplayAbility ability)
+        private void HandleGaveAbility(GameplayAbilityBase ability)
         {
             if (ability == null) return;
             
@@ -388,7 +392,7 @@ namespace Zero53.Gas
         /// <summary>
         /// 处理已移除的技能
         /// </summary>
-        private void HandleRemovedAbility(GameplayAbility ability)
+        private void HandleRemovedAbility(GameplayAbilityBase ability)
         {
             if (ability == null) return;
             

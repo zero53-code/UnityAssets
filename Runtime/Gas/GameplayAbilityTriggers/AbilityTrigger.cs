@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
 namespace Zero53.Gas.GameplayAbilityTriggers
 {
     [Serializable]
+    [BoxGroup]
     public sealed class AbilityTrigger : GameplayAbilityTrigger
     {
         [SerializeField]
@@ -43,6 +45,13 @@ namespace Zero53.Gas.GameplayAbilityTriggers
             }
 
             var canActivate = ownerTagPresent.isActive;
+
+            if (!canActivate && ability.isActivated)
+            {
+                ability.Cancel();
+                return;
+            }
+            
             canActivate &= ownerTagAdded.isActive;
             canActivate &= triggers.Length == 0 || triggers.All(trigger => trigger.isActive);
             
